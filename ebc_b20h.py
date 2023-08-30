@@ -3,6 +3,8 @@
 
 import time
 import threading
+from typing import Tuple
+
 import usb.core
 import usb.util
 
@@ -63,6 +65,8 @@ def connect(dev):
     # ZKTECH EBC-B20H handshake between official software and device,
     # as seen with a USB Analyzer
     
+    # Control Transfer args :
+    # Request type, Request, Value, Index, Data or Size
     dev.ctrl_transfer(0x40, 0xa1, 0xc39c, 0xd98a, None)
     ret = dev.ctrl_transfer(0xc0, 0x95, 0x2c2c, 0x0, 0x2)
     #print(ret)
@@ -92,7 +96,7 @@ def disconnect(dev):
 
 
 def discharge(dev, current=1.0, vcutoff=2.0):
-    # Conversion formulas from https://github.com/JOGAsoft/EBC-controller/blob/main/main.pas
+   
     
     current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
     current *= 1000     # Convert to mA
@@ -108,6 +112,22 @@ def discharge(dev, current=1.0, vcutoff=2.0):
     data = [0xFA] + data + [checksum(data)] + [0xF8]
     
     send(dev, bytes(data))
+
+
+def encode_voltage(voltage: float) -> Tuple[int, int]:
+    # Conversion formulas from https://github.com/JOGAsoft/EBC-controller/blob/main/main.pas
+    voltage *= 1000
+    v_msb = int(voltage / 2400)
+    v_lsb = int((voltage - (v_msb * 2400)) / 10)
+    return v_msb, v_lsb
+
+
+def encode_current(current: float) -> Tuple[int, int]:
+    # Conversion formulas from https://github.com/JOGAsoft/EBC-controller/blob/main/main.pas
+    current *= 1000
+    c_msb = int(current / 2400)
+    c_lsb = int((current - (c_msb * 2400)) / 10)
+    return c_msb, c_lsb
 
 
 
@@ -142,16 +162,17 @@ def _monitor(dev, filename):
     f.close()
 
 
-def start_monitoring(dev):
+def start_monitoring(dev, filename):
     global monitoring
     
-    t = threading.Thread(target=_monitor, args=(dev,))
+    t = threading.Thread(target=_monitor, args=(dev, filename))
     monitoring = True
     t.start()
 
 
-def stop_monitoring()
-    global monitoring = False
+def stop_monitoring():
+    global monitoring
+    monitoring = False
     
 
 
