@@ -22,7 +22,7 @@ Connexion via SSH :
 
 ### Modification du module CAN MCP2515
 
-![MCP2515](doc/MCP2515 MODULE.jpg)
+![MCP2515](https://github.com/antoine40watts/ebc_b20h_py/blob/main/doc/MCP2515%20MODULE.jpg)
 
 Voir https://github.com/tolgakarakurt/CANBus-MCP2515-Raspi
 
