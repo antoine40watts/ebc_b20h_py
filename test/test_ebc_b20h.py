@@ -74,5 +74,5 @@ def test_log():
     discharge(dev, current=1.0, vcutoff=2.5)
     
     start_monitoring(dev, "test_log.txt")
-    time.sleep(10)
+    time.sleep(100)
     stop_monitoring()
