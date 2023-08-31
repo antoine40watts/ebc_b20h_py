@@ -191,7 +191,7 @@ class EBC_B20H():
 
 
     def start_monitoring(self, filename=None):        
-        self.t = threading.Thread(target=self._monitor, args=(filename))
+        self.t = threading.Thread(target=self._monitor, args=(filename,))
         self.monitoring = True
         self.t.start()
 
