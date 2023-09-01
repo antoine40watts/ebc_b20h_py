@@ -14,7 +14,7 @@ new_lines="auto can0
 iface can0 can static
     bitrate 250000"
 
-$interfaces_file="/etc/network/interfaces"
+interfaces_file="/etc/network/interfaces"
 
 if ! grep -qF "$new_lines" "$interfaces_file"; then
     echo "$new_lines" >> "$interfaces_file"
