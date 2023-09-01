@@ -22,7 +22,7 @@ from pydantic import BaseModel
 from ebc_b20h import EBC_B20H
 from q2_charger import Q2Charger
 
-# from test.test_ebc_b20h import FakeEBC_B20H
+from test.test_ebc_b20h import FakeEBC_B20H
 
 
 
@@ -30,11 +30,16 @@ from q2_charger import Q2Charger
 async def lifespan(app: FastAPI):
     global charger
     global discharger
+    global device_error
 
     # Initializing battery test devices
-    charger = Q2Charger()
-    discharger = EBC_B20H()
-    # discharger = FakeEBC_B20H()
+    try:
+        charger = Q2Charger()
+        discharger = EBC_B20H()
+    except:
+        device_error = True
+        discharger = FakeEBC_B20H()
+
     discharger.connect()
     yield
 
@@ -52,10 +57,9 @@ templates = Jinja2Templates(directory="templates")
 
 
 
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: Union[bool, None] = None
+class ChargeRequest(BaseModel):
+    current: float
+    maxVoltage: float
     
 
 
@@ -73,6 +77,17 @@ def welcome(request: Request):
     return templates.TemplateResponse("index.html", {"request": request, "id": 42})
 
 
+@app.post("/charge")
+async def charge_battery(charge_request: ChargeRequest):
+    current = charge_request.current
+    max_voltage = charge_request.maxVoltage
+
+    charger.charge(current, max_voltage)
+    print(f"Charging at {current}Amps and {max_voltage}V max voltage")
+
+    return {"message": "Charge request received"}
+
+
 @app.get("/get_datapoints.json")
 def get_datapoints():
     # query_params = {"xstart" : xstart, "ystart": ystart, "length": length}
@@ -82,21 +97,3 @@ def get_datapoints():
         datapoints.append({"t": t, "v": float(v), "c": float(c), "mah": int(mah)})
 
     return datapoints
-
-
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
-
-
-
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
-
-
-
-@app.on_event("shutdown")
-def shutdown_event():
-    print("Shutting down...")
-    discharger.disconnect()

@@ -80,7 +80,7 @@ Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d`
 
 ### Démarrage du serveur Web
 
-    uvicorn main:app --reload
+    uvicorn main:app --reload --host 0.0.0.0
 
 ## Ressources
 

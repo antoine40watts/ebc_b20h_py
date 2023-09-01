@@ -188,13 +188,12 @@ class EBC_B20H():
             for line in data:
                 if not self.is_frame_valid(line):
                     continue
-                # formatted = ' '.join([f'{b:3}' for b in line])
                 frame_data = self.decode_frame(line)
                 # print(frame_data)
                 datapoint = [dt, frame_data['voltage'], frame_data['current'], frame_data['mah']]
                 self.monitoring_data.append(datapoint)
                 formatted = ', '.join(map(str, datapoint))
-                print(formatted)
+                # print(formatted)
 
                 if filename:
                     f.write(formatted + '\n')

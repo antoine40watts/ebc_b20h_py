@@ -1,7 +1,7 @@
 <!-- index.html -->
 <html>
 <head>
-<title>CanvasJS Python Charts</title>
+<title>Battery Monitoring</title>
 <script>
     window.onload = function () {
      
@@ -15,7 +15,7 @@
         animationEnabled: true,
         exportEnabled: true,
         title: {
-            text: "Python Dynamic Chart"
+            text: "Battery Monitoring 2000"
         },
         toolTip: {
           shared: true
@@ -81,7 +81,6 @@
             dataPointsAh = [];
         
             $.each(data, function(key, value) {
-                console.log("key", key, "valu", value);
 			    dataPointsV.push({x: value['t'], y: value['v']});
 			    dataPointsC.push({x: value['t'], y: value['c']});
 			    dataPointsAh.push({x: value['t'], y: value['mah']});
@@ -96,7 +95,6 @@
         chart.render();
         setTimeout(updateData, 3000);
     }
-    
     }
 </script>
 </head>
@@ -105,7 +103,37 @@
     <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script src="{{ url_for('static', path='js/canvasjs.min.js') }}"></script>
     
-    <button id="startButton">Start Test</button>
-    <button id="getDataButton">Get Data</button>
+    <label for="current">Current (A):</label>
+    <input type="number" step="0.01" id="current" name="current"><br>
+
+    <label for="maxVoltage">Max Voltage (V):</label>
+    <input type="number" step="0.01" id="maxVoltage" name="maxVoltage"><br>
+
+    <button id="chargeButton">Charge</button>
+    
+    <script>
+    $(document).ready(function() {
+        $("#chargeButton").click(function() {
+            const current = $("#current").val();
+            const maxVoltage = $("#maxVoltage").val();
+
+            $.ajax({
+                url: 'http://127.0.0.1:8000/charge',  // Point to your FastAPI server
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    'current': parseFloat(current),
+                    'maxVoltage': parseFloat(maxVoltage)
+                }),
+                success: function(response) {
+                },
+                error: function(error) {
+                    alert("Failed to send the charge request: " + JSON.stringify(error));
+                }
+            });
+        });
+    });
+    </script>
 </body>
 </html>
