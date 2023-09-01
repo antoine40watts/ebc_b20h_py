@@ -102,7 +102,7 @@ async def discharge_battery(charge_request: ChargeRequest):
 
 
 @app.post("/stop")
-async def charge_battery():
+async def stop():
     discharger.stop()
 
     return {"message": "Charge request received"}
