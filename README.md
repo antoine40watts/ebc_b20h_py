@@ -67,8 +67,9 @@ Pour activer l'interface CAN automatiquement à chaque démarrage du Raspberry P
 
 ### Ajouter les droits d'accès au périphérique USB
 
-Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d`
+Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d` et y inscrire la ligne suivante :
 
+    ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="660", GROUP="plugdev"
 
 ### Installation du logiciel
 
