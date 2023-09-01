@@ -121,6 +121,10 @@
 
     <button id="dischargeButton">Discharge</button>
     
+    <br>
+    
+    <button id="stopButton">STOP</button>
+    
     <script>
     $(document).ready(function() {
         $("#chargeButton").click(function() {
@@ -160,7 +164,21 @@
                 success: function(response) {
                 },
                 error: function(error) {
-                    alert("Failed to send the charge request: " + JSON.stringify(error));
+                    alert("Failed to send the discharge request: " + JSON.stringify(error));
+                }
+            });
+        });
+        
+        $("#stopButton").click(function() {
+            $.ajax({
+                url: 'http://{{ hostname }}:8000/stop',  // Point to your FastAPI server
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                success: function(response) {
+                },
+                error: function(error) {
+                    alert("Failed to send the stop request: " + JSON.stringify(error));
                 }
             });
         });

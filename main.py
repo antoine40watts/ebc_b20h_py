@@ -98,6 +98,13 @@ async def discharge_battery(charge_request: ChargeRequest):
     discharger.discharge(current, max_voltage)
     print(f"Discharging at {current}Amps and {max_voltage}V max voltage")
 
+    return {"message": "Discharge request received"}
+
+
+@app.post("/stop")
+async def charge_battery():
+    discharger.stop()
+
     return {"message": "Charge request received"}
 
 
