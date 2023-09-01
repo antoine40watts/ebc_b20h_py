@@ -103,19 +103,29 @@
     <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script src="{{ url_for('static', path='js/canvasjs.min.js') }}"></script>
     
-    <label for="current">Current (A):</label>
-    <input type="number" step="0.01" id="current" name="current"><br>
+    <label for="cCurrent">Current (A):</label>
+    <input type="number" step="0.01" id="cCurrent" name="cCurrent"><br>
 
-    <label for="maxVoltage">Max Voltage (V):</label>
-    <input type="number" step="0.01" id="maxVoltage" name="maxVoltage"><br>
+    <label for="cMaxVoltage">Max Voltage (V):</label>
+    <input type="number" step="0.01" id="cMaxVoltage" name="cMaxVoltage"><br>
 
     <button id="chargeButton">Charge</button>
+    
+    <br>
+    
+    <label for="dCurrent">Current (A):</label>
+    <input type="number" step="0.01" id="dCurrent" name="dCurrent"><br>
+
+    <label for="dMaxVoltage">Max Voltage (V):</label>
+    <input type="number" step="0.01" id="dMaxVoltage" name="dMaxVoltage"><br>
+
+    <button id="dischargeButton">Discharge</button>
     
     <script>
     $(document).ready(function() {
         $("#chargeButton").click(function() {
-            const current = $("#current").val();
-            const maxVoltage = $("#maxVoltage").val();
+            const current = $("#cCurrent").val();
+            const maxVoltage = $("#cMaxVoltage").val();
 
             $.ajax({
                 url: 'http://{{ hostname }}:8000/charge',  // Point to your FastAPI server
@@ -133,6 +143,29 @@
                 }
             });
         });
+        
+        $("#dischargeButton").click(function() {
+            const current = $("#dCurrent").val();
+            const maxVoltage = $("#dMaxVoltage").val();
+
+            $.ajax({
+                url: 'http://{{ hostname }}:8000/discharge',  // Point to your FastAPI server
+                type: 'POST',
+                dataType: 'json',
+                contentType: 'application/json',
+                data: JSON.stringify({
+                    'current': parseFloat(current),
+                    'maxVoltage': parseFloat(maxVoltage)
+                }),
+                success: function(response) {
+                },
+                error: function(error) {
+                    alert("Failed to send the charge request: " + JSON.stringify(error));
+                }
+            });
+        });
+        
+        
     });
     </script>
 </body>
