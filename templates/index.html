@@ -6,10 +6,9 @@
     window.onload = function () {
      
     // Initial Values
-    var xValue = 0;
-    var yValue = 10;
-    var newDataCount = 6;
-    dataPoints = [];
+    dataPointsV = [];
+    dataPointsC = [];
+    dataPointsAh = [];
      
     var chart = new CanvasJS.Chart("chartContainer", {
         theme: "light2",
@@ -23,46 +22,81 @@
         },
         axisX: {
           title: "Time",
-          suffix : " s"
+          suffix: "s",
+          minimum: 0,
         },
-        axisY: {
-          title: "Voltage",
-          titleFontColor: "#6D78AD",
-          suffix : " V",
-          lineThickness: 1,
-          lineColor: "#6D78AD",
-          tickColor: "#6D78AD"
+        axisY: [
+            {
+              title: "Voltage",
+              titleFontColor: "#6D78AD",
+              suffix: "V",
+              includeZero: true,
+              lineThickness: 1,
+              lineColor: "#6D78AD",
+              tickColor: "#6D78AD"
+            },
+            {
+                title: "Current",
+                titleFontColor: "#DF7970",
+                suffix: "A",
+                lineColor: "#DF7970",
+                tickColor: "#DF7970"
+            }
+        ],
+        axisY2: {
+            title: "Energy",
+            titleFontColor: "#51CDA0",
+            suffix: "mAh",
+            lineColor: "#51CDA0",
+            tickColor: "#51CDA0"
         },
-        data: [{
-            type: "spline",
-            dataPoints: dataPoints
-        }]
+        data: [
+            {
+                type: "spline",
+                name: "Voltage",
+                axisYIndex: 0,
+                dataPoints: dataPointsV
+            },
+            {
+                type: "spline",
+                name: "Current",
+                axisYIndex: 1,
+                dataPoints: dataPointsC
+            },
+            {
+                type: "spline",
+                name: "Energy",
+                axisYType: "secondary",
+                dataPoints: dataPointsAh
+            }
+        ]
     });
      
     updateData();
      
-    function addData(data) {
-        if (newDataCount !== 1) {
-            $.each(data, function (key, value) {
-                dataPoints.push({ x: value.x, y: parseFloat(value.y) });
-                xValue++;
-                yValue = parseFloat(value.y);
-            });
-            newDataCount = 1;
-        } else {
-            //dataPoints.shift();
-            dataPoints.push({ x: data[0].x, y: parseFloat(data[0].y) });
-            xValue++;
-            yValue = parseFloat(data[0].y);
-        }
+    function updateData() {
+        $.getJSON("get_datapoints.json", function(data) {
+            dataPointsV = [];
+            dataPointsC = [];
+            dataPointsAh = [];
+        
+            $.each(data, function(key, value) {
+                console.log("key", key, "valu", value);
+			    dataPointsV.push({x: value['t'], y: value['v']});
+			    dataPointsC.push({x: value['t'], y: value['c']});
+			    dataPointsAh.push({x: value['t'], y: value['mah']});
+		    });
+		    
+		    chart.options.data[0].dataPoints = dataPointsV;
+		    chart.options.data[1].dataPoints = dataPointsC;
+		    chart.options.data[2].dataPoints = dataPointsAh;
+		    //console.log(data);
+        });
+
         chart.render();
         setTimeout(updateData, 3000);
     }
-     
-    function updateData() {
-        $.getJSON("get_datapoints.json?xstart=" + xValue + "&ystart=" + yValue + "&length=" + newDataCount, addData);
-    }
-     
+    
     }
 </script>
 </head>
@@ -70,5 +104,8 @@
     <div id="chartContainer" style="height: 360px; width: 100%;"></div>
     <script src="https://canvasjs.com/assets/script/jquery-1.11.1.min.js"></script>
     <script src="{{ url_for('static', path='js/canvasjs.min.js') }}"></script>
+    
+    <button id="startButton">Start Test</button>
+    <button id="getDataButton">Get Data</button>
 </body>
 </html>

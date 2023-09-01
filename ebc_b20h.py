@@ -13,9 +13,10 @@ import usb.util
 class EBC_B20H():
 
     def __init__(self):
-        self.find_device()
         self.buffer = []
         self.monitoring = False
+        self.monitoring_data = []
+        self.find_device()
 
 
     def find_device(self):
@@ -99,7 +100,7 @@ class EBC_B20H():
         v_msb, v_lsb = self.encode_voltage(vcutoff)
         
         data = [0x01, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
-        data = [0xFA] + data + [self.checksum(data)] + [0xF8]
+        data = [0xFA] + data + [EBC_B20H.checksum(data)] + [0xF8]
         
         self.send(bytes(data))
 
@@ -120,20 +121,23 @@ class EBC_B20H():
         self.send(bytes([0xFA, 0x02, 0, 0, 0, 0, 0, 0, 0x02, 0xF8]))
 
 
-    def decode_frame(self, data : List[int]) -> dict:
-        amp = self.decode_current(data[2], data[3])
-        vbatt = self.decode_voltage(data[4], data[5])
-        mah = self.decode_mah(data[6], data[7])
-        return {'amp': amp, 'vbatt': vbatt, 'mah': mah}
+    @staticmethod
+    def decode_frame(data : List[int]) -> dict:
+        amp = EBC_B20H.decode_current(data[2], data[3])
+        vbatt = EBC_B20H.decode_voltage(data[4], data[5])
+        mah = EBC_B20H.decode_mah(data[6], data[7])
+        return {'current': amp, 'voltage': vbatt, 'mah': mah}
 
 
-    def is_frame_valid(self, data: List[int]) -> bool:
+    @staticmethod
+    def is_frame_valid(data: List[int]) -> bool:
         if len(data) != 19:
             return False
-        return self.checksum(data[1: -2]) == data[-2]
+        return EBC_B20H.checksum(data[1: -2]) == data[-2]
 
 
-    def encode_voltage(self, voltage: float) -> Tuple[int, int]:
+    @staticmethod
+    def encode_voltage(voltage: float) -> Tuple[int, int]:
         # Conversion formulas from https://github.com/JOGAsoft/EBC-controller/blob/main/main.pas
         voltage *= 1000
         v_msb = int(voltage / 2400)
@@ -141,11 +145,13 @@ class EBC_B20H():
         return v_msb, v_lsb
 
 
-    def decode_voltage(self, msb: int, lsb: int) -> float:
+    @staticmethod
+    def decode_voltage(msb: int, lsb: int) -> float:
         return (msb * 2400 + lsb * 10) / 10000
 
 
-    def encode_current(self, current: float) -> Tuple[int, int]:
+    @staticmethod
+    def encode_current(current: float) -> Tuple[int, int]:
         # Conversion formulas from https://github.com/JOGAsoft/EBC-controller/blob/main/main.pas
         current *= 1000
         c_msb = int(current / 2400)
@@ -153,15 +159,18 @@ class EBC_B20H():
         return c_msb, c_lsb
 
 
-    def decode_current(self, msb: int, lsb: int) -> float:
+    @staticmethod
+    def decode_current(msb: int, lsb: int) -> float:
         return (msb * 2400 + lsb * 10) / 1000
 
 
-    def decode_mah(self, msb: int, lsb: int) -> int:
+    @staticmethod
+    def decode_mah(msb: int, lsb: int) -> int:
         return round((msb * 2400 + lsb * 10) / 10)
 
 
-    def checksum(self, data):
+    @staticmethod
+    def checksum(data):
         cs = 0
         for b in data:
             cs = cs^b
@@ -171,29 +180,38 @@ class EBC_B20H():
     def _monitor(self, filename):
         if filename:
             f = open(filename, 'w')
+            f.write("dtime, current, voltage, mah\n")
         
         while self.monitoring:
             data = self.recieve()
+            dt = time.time() - self.monitoring_t0
             for line in data:
                 if not self.is_frame_valid(line):
                     continue
-                formated = ' '.join([f'{b:3}' for b in line])
+                # formatted = ' '.join([f'{b:3}' for b in line])
                 frame_data = self.decode_frame(line)
-                print(formated[1:-2])
-                print(frame_data)
+                # print(frame_data)
+                datapoint = [dt, frame_data['voltage'], frame_data['current'], frame_data['mah']]
+                self.monitoring_data.append(datapoint)
+                formatted = ', '.join(map(str, datapoint))
+                print(formatted)
+
                 if filename:
-                    f.write(formated + '\n')
+                    f.write(formatted + '\n')
             time.sleep(2)
         
         print("Monitoring stopped")
         
         if filename:
             f.close()
+            print("Data file saved to", filename)
 
 
     def start_monitoring(self, filename=None):        
-        self.t = threading.Thread(target=self._monitor, args=(filename,))
         self.monitoring = True
+        self.monitoring_data.clear()
+        self.monitoring_t0 = time.time()
+        self.t = threading.Thread(target=self._monitor, args=(filename,))
         self.t.start()
 
 

@@ -4,7 +4,7 @@
 from array import array
 import time
 import os.path
-from ebc_b20h import *
+from ebc_b20h import EBC_B20H
 
 
 class FakeUSBDevice():
@@ -33,6 +33,15 @@ class FakeUSBDevice():
         return
 
 
+
+class FakeEBC_B20H(EBC_B20H):
+    def __init__(self):
+        self.buffer = []
+        self.monitoring = False
+        self.monitoring_data = []
+        self.dev = FakeUSBDevice()
+
+
 def test_checksum():
     test_cases = [
         ([0x01, 0, 0x32, 0x0C, 0x78, 0, 0], 0x47),
@@ -41,7 +50,7 @@ def test_checksum():
         ([0x01, 0, 0x64, 0x03, 0x50, 0, 0], 0x36),
     ]
     for t, result in test_cases:
-        assert checksum(t) == result
+        assert EBC_B20H.checksum(t) == result
 
 
 def test_encode_voltage():
@@ -53,7 +62,7 @@ def test_encode_voltage():
 
     ]
     for v, result in test_cases:
-        assert encode_voltage(v) == result
+        assert EBC_B20H.encode_voltage(v) == result
 
 
 def test_encode_current():
@@ -64,15 +73,17 @@ def test_encode_current():
         (12.0, (0x05, 0x0)),
     ]
     for c, result in test_cases:
-        assert encode_current(c) == result
+        assert EBC_B20H.encode_current(c) == result
 
 
 def test_log():
     print()
-    dev = FakeUSBDevice()
-    connect(dev)
-    discharge(dev, current=1.0, vcutoff=2.5)
+    dev = FakeEBC_B20H()
+    dev.connect()
+    dev.discharge(current=1.0, vcutoff=2.5)
+
+    print(dev.recieve())
     
-    start_monitoring(dev, "test_log.txt")
+    dev.start_monitoring("test_log.txt")
     time.sleep(100)
-    stop_monitoring()
+    dev.stop_monitoring()
