@@ -10,13 +10,11 @@ fi
 # Add the lines to the /etc/network/interfaces file
 echo "Adding CAN interface to /etc/network/interfaces"
 
-new_lines="
-auto can0
+new_lines="auto can0
 iface can0 can static
-    bitrate 250000
-"
+    bitrate 250000"
+
 $interfaces_file="/etc/network/interfaces"
-echo "$new_lines" >> /etc/network/interfaces
 
 if ! grep -qF "$new_lines" "$interfaces_file"; then
     echo "$new_lines" >> "$interfaces_file"
@@ -40,9 +38,6 @@ else
     echo "File $udev_rule_file already exist"
 fi
 
-
-
-ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="171b", ATTRS{idProduct}=="2001", MODE="660", GROUP="plugdev"
 
 echo "Done !"
 
