@@ -8,7 +8,10 @@ from time import sleep
 import can  # pip install python-can
 
 
+
 class Q2Charger():
+    # Deligreen Q2-1.5KWh Charger
+
     emit_id = 0x18FF50E5
     recv_id = 0x1806E5F4
 
@@ -67,6 +70,3 @@ class Q2Charger():
             is_extended_id=True
             )
         return msg
-
-
-charger = Q2Charger()

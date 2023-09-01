@@ -9,6 +9,7 @@ import usb.core
 import usb.util
 
 
+
 class EBC_B20H():
 
     def __init__(self):

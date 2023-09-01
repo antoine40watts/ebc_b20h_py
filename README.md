@@ -66,3 +66,12 @@ Pour activer l'interface CAN manuellement :
 ### Installation du logiciel
 
     git clone https://github.com/antoine40watts/ebc_b20h_py.git
+
+### Démarrage du serveur Web
+
+    uvicorn main:app --reload
+
+## Ressources
+
+* https://www.pragmaticlinux.com/2021/10/can-communication-on-the-raspberry-pi-with-socketcan/
+* https://www.beyondlogic.org/adding-can-controller-area-network-to-the-raspberry-pi/

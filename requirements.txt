@@ -1,0 +1,5 @@
+pyusb
+python-can
+fastapi
+jinja2
+uvicorn[standard]
