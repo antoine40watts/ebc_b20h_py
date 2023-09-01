@@ -118,7 +118,7 @@
             const maxVoltage = $("#maxVoltage").val();
 
             $.ajax({
-                url: 'http://127.0.0.1:8000/charge',  // Point to your FastAPI server
+                url: 'http://{{ hostname }}:8000/charge',  // Point to your FastAPI server
                 type: 'POST',
                 dataType: 'json',
                 contentType: 'application/json',

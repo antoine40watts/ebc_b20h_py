@@ -25,6 +25,8 @@ from q2_charger import Q2Charger
 from test.test_ebc_b20h import FakeEBC_B20H
 
 
+HOSTNAME = "raspberrypi.local"
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -74,7 +76,7 @@ def welcome(request: Request):
     if not discharger.monitoring:
         discharger.start_monitoring()
     
-    return templates.TemplateResponse("index.html", {"request": request, "id": 42})
+    return templates.TemplateResponse("index.html", {"request": request, "hostname": HOSTNAME})
 
 
 @app.post("/charge")
