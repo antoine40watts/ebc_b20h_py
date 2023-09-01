@@ -90,6 +90,17 @@ async def charge_battery(charge_request: ChargeRequest):
     return {"message": "Charge request received"}
 
 
+@app.post("/discharge")
+async def discharge_battery(charge_request: ChargeRequest):
+    current = charge_request.current
+    max_voltage = charge_request.maxVoltage
+
+    discharger.discharge(current, max_voltage)
+    print(f"Discharging at {current}Amps and {max_voltage}V max voltage")
+
+    return {"message": "Charge request received"}
+
+
 @app.get("/get_datapoints.json")
 def get_datapoints():
     # query_params = {"xstart" : xstart, "ystart": ystart, "length": length}

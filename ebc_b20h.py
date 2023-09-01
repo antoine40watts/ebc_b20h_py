@@ -121,6 +121,10 @@ class EBC_B20H():
         self.send(bytes([0xFA, 0x02, 0, 0, 0, 0, 0, 0, 0x02, 0xF8]))
 
 
+    def reset(self):
+        # Reset dislay values
+        self.send([0xFA, 0x04, 0, 0, 0, 0, 0, 0, 0x04, 0xF8])
+
     @staticmethod
     def decode_frame(data : List[int]) -> dict:
         amp = EBC_B20H.decode_current(data[2], data[3])
