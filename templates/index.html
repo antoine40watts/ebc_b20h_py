@@ -13,9 +13,25 @@
      
     var chart = new CanvasJS.Chart("chartContainer", {
         theme: "light2",
+        animationEnabled: true,
         exportEnabled: true,
         title: {
             text: "Python Dynamic Chart"
+        },
+        toolTip: {
+          shared: true
+        },
+        axisX: {
+          title: "Time",
+          suffix : " s"
+        },
+        axisY: {
+          title: "Voltage",
+          titleFontColor: "#6D78AD",
+          suffix : " V",
+          lineThickness: 1,
+          lineColor: "#6D78AD",
+          tickColor: "#6D78AD"
         },
         data: [{
             type: "spline",

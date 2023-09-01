@@ -63,6 +63,17 @@ Pour activer l'interface CAN manuellement :
 
     sudo /sbin/ip link set can0 up type can bitrate 250000
 
+Pour activer l'interface CAN automatiquement à chaque démarrage du Raspberry Pi, éditer le fichier `/etc/network/interfaces` pour ajouter les lignes :
+
+    auto can0
+    iface can0 can static
+        bitrate 250000
+
+### Ajouter les droits d'accès au périphérique USB
+
+Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d`
+
+
 ### Installation du logiciel
 
     git clone https://github.com/antoine40watts/ebc_b20h_py.git
@@ -75,3 +86,4 @@ Pour activer l'interface CAN manuellement :
 
 * https://www.pragmaticlinux.com/2021/10/can-communication-on-the-raspberry-pi-with-socketcan/
 * https://www.beyondlogic.org/adding-can-controller-area-network-to-the-raspberry-pi/
+* https://forums.raspberrypi.com/viewtopic.php?t=141052
