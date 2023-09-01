@@ -1,9 +1,5 @@
 # Banc de test pour batteries
 
-## Installation
-
-    pip install -r requirements.txt
-
 ## Matériel
 
 * Raspberry Pi 3B+
@@ -13,7 +9,7 @@
 
 ## Installation du Raspberry Pi
 
-Flashage du système d'exploitation `Raspberry Pi OS` depuis l'image suivante :
+Flashage du système d'exploitation `Raspberry Pi OS` avec l'image suivante :
 https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2023-05-03/2023-05-03-raspios-bullseye-armhf.img.xz
 
 Activer SSH sur le raspberry.
@@ -77,6 +73,7 @@ Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d`
 ### Installation du logiciel
 
     git clone https://github.com/antoine40watts/ebc_b20h_py.git
+    pip install -r requirements.txt
 
 ### Démarrage du serveur Web
 
