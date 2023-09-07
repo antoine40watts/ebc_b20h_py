@@ -18,7 +18,7 @@ Connexion via SSH depuis une machine distante (sous Ubuntu):
 
     ssh pi@raspberrypi.local
 
-Utiliser l'extension `.local` sous Windows nécessite l'installation de `Bonjour`.
+Utiliser l'extension `.local` sous Windows peut nécessiter l'installation du service `Bonjour`.
 
 Mise à jour du système d'exploitation du Raspberry Pi:
 
@@ -80,8 +80,43 @@ Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d` et y i
 
     uvicorn main:app --reload --host 0.0.0.0
 
+
+## Test unitaires
+
+La batterie des tests s'exécute avec la commande suivante (nécessites l'installation de la librairie PIP `pytest`) :
+
+    pytest
+
+
+## Problèmes
+
+Aucune commande par USB pour activer le mode **CHG** (charge) du EBC-B20H depuis le logiciel officiel, à priori.
+J'ai testé quelques commandes différentes, au hasard, mais pas de réaction de l'appareil.
+
+Testé : 
+
+    0xFA, 0x03, 0, 0, 0, 0, 0, 0, 0x03, 0xF8  # Aucune réaction
+    0xFA, 0x04, 0, 0, 0, 0, 0, 0, 0x04, 0xF8  # Fait planter l'appareil
+    0xFA, 0x08, 0, 0, 0, 0, 0, 0, 0x08, 0xF8  # Aucune réaction
+    0xFA, 0x09, 0, 0, 0, 0, 0, 0, 0x09, 0xF8  # Aucune réaction
+    0xFA, 0x0a, 0, 0, 0, 0, 0, 0, 0x0a, 0xF8  # Aucune réaction
+
+
+## TODO
+
+* Tests unitaire pour la librairie `q2_charger.py`
+
+
 ## Ressources
+
+Protocole CAN sur Raspberry
 
 * https://www.pragmaticlinux.com/2021/10/can-communication-on-the-raspberry-pi-with-socketcan/
 * https://www.beyondlogic.org/adding-can-controller-area-network-to-the-raspberry-pi/
 * https://forums.raspberrypi.com/viewtopic.php?t=141052
+
+Interface WEB
+
+* https://fastapi.tiangolo.com
+* https://jinja.palletsprojects.com/en/2.10.x/
+* https://canvasjs.com

@@ -10,11 +10,10 @@
 
 from typing import Union
 from contextlib import asynccontextmanager
-
 import random
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -25,7 +24,11 @@ from q2_charger import Q2Charger
 from test.test_ebc_b20h import FakeEBC_B20H
 
 
-HOSTNAME = "raspberrypi.local"
+# HOSTNAME = "raspberrypi.local"
+HOSTNAME = "127.0.0.1"
+
+is_charging = False
+is_discharging = False
 
 
 @asynccontextmanager
@@ -66,13 +69,14 @@ class ChargeRequest(BaseModel):
 
 
 @app.get("/")
-def read_root():
+async def read_root():
+    return RedirectResponse("http://"+HOSTNAME+":8000/index")
     #return {"Hello": "World"}
-    return "hello world"
+    # return "hello world"
 
 
 @app.get("/index", response_class=HTMLResponse)
-def welcome(request: Request):
+async def welcome(request: Request):
     if not discharger.monitoring:
         discharger.start_monitoring()
     
@@ -92,6 +96,9 @@ async def charge_battery(charge_request: ChargeRequest):
 
 @app.post("/discharge")
 async def discharge_battery(charge_request: ChargeRequest):
+    if charger.is_charging:
+        charger.stop()
+
     current = charge_request.current
     max_voltage = charge_request.maxVoltage
 
@@ -109,10 +116,11 @@ async def stop():
 
 
 @app.get("/get_datapoints.json")
-def get_datapoints():
-    # query_params = {"xstart" : xstart, "ystart": ystart, "length": length}
+async def get_datapoints(start: int = 0):
+    # query_params = {"start" : start}
+    print(f"{start=}")
     datapoints = []
-    for datapoint in discharger.monitoring_data:
+    for datapoint in discharger.monitoring_data[start:]:
         t, v, c, mah = datapoint
         datapoints.append({"t": t, "v": float(v), "c": float(c), "mah": int(mah)})
 

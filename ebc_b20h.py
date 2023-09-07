@@ -11,12 +11,23 @@ import usb.util
 
 
 class EBC_B20H():
+    """
+        Serial Commands:
+            0x01    Discharge
+            0x02    Stop
+            0x03    ?
+            0x04    ?
+            0x05    Connect
+            0x06    Disconnect
+            0x07    Adjust
+    """
 
     def __init__(self):
         self.buffer = []
-        self.monitoring = False
-        self.monitoring_data = []
         self.find_device()
+        self.is_monitoring = False
+        self.monitoring_data = []
+        self.is_discharging = False
 
 
     def find_device(self):
@@ -103,6 +114,7 @@ class EBC_B20H():
         data = [0xFA] + data + [EBC_B20H.checksum(data)] + [0xF8]
         
         self.send(bytes(data))
+        self.is_discharging = True
 
 
     def adjust(self, current, vcutoff):
@@ -119,11 +131,9 @@ class EBC_B20H():
 
     def stop(self):
         self.send(bytes([0xFA, 0x02, 0, 0, 0, 0, 0, 0, 0x02, 0xF8]))
+        self.is_discharging = False
 
 
-    def reset(self):
-        # Reset dislay values
-        self.send([0xFA, 0x04, 0, 0, 0, 0, 0, 0, 0x04, 0xF8])
 
     @staticmethod
     def decode_frame(data : List[int]) -> dict:
@@ -186,7 +196,7 @@ class EBC_B20H():
             f = open(filename, 'w')
             f.write("dtime, current, voltage, mah\n")
         
-        while self.monitoring:
+        while self.is_monitoring:
             data = self.recieve()
             dt = time.time() - self.monitoring_t0
             for line in data:
@@ -211,7 +221,7 @@ class EBC_B20H():
 
 
     def start_monitoring(self, filename=None):        
-        self.monitoring = True
+        self.is_monitoring = True
         self.monitoring_data.clear()
         self.monitoring_t0 = time.time()
         self.t = threading.Thread(target=self._monitor, args=(filename,))
@@ -219,5 +229,5 @@ class EBC_B20H():
 
 
     def stop_monitoring(self):
-        self.monitoring = False
+        self.is_monitoring = False
         self.t.join()

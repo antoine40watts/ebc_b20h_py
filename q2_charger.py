@@ -17,16 +17,19 @@ class Q2Charger():
 
     def __init__(self):
         self.bus = can.Bus(interface='socketcan', channel='can0')
+        self.is_charging = False
 
 
     def charge(self, current, voltage):
         msg = self.build_message(current, voltage)
         self.task = self.bus.send_periodic(msg, 1.0)
+        self.is_charging = True
         print("Charging started")
 
 
     def stop(self):
         self.task.stop()
+        self.is_charging = False
         print("Charging stopped")
     
 
