@@ -25,9 +25,12 @@ class EBC_B20H():
     def __init__(self):
         self.buffer = []
         self.find_device()
+        self.is_discharging = False
         self.is_monitoring = False
         self.monitoring_data = []
-        self.is_discharging = False
+        self.voltage = 0.0
+        self.current = 0.0
+        self.mah = 0.0
 
 
     def find_device(self):
@@ -44,7 +47,15 @@ class EBC_B20H():
         self.dev = dev
 
 
-    def send(self, data: bytes):
+    def send(self, message: bytes):
+        START_OF_MESSAGE = 0xFA
+        END_OF_MESSAGE = 0xF8
+
+        data = [START_OF_MESSAGE]
+        data.extend(message)
+        data.append(self.checksum(message))
+        data.append(END_OF_MESSAGE)
+
         self.dev.write(0x2, data, 100)
 
 
@@ -97,11 +108,20 @@ class EBC_B20H():
         self.dev.ctrl_transfer(0x40, 0x9a, 0x2727, 0x0, None)
         
         # "Connect" serial message
-        self.send(bytes([0xFA, 0x05, 0, 0, 0, 0, 0, 0, 0x05, 0xF8]))
+        self.send(bytes([0x05, 0, 0, 0, 0, 0, 0]))
+        
+        self.start_monitoring()
 
 
     def disconnect(self):
-        self.send(bytes([0xFA, 0x06, 0, 0, 0, 0, 0, 0, 0x06, 0xF8]))
+        if self.is_monitoring:
+            self.stop_monitoring()
+        self.send(bytes([0x06, 0, 0, 0, 0, 0, 0]))
+    
+
+    def stop(self):
+        self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
+        self.is_discharging = False
 
 
     def discharge(self, current=1.0, vcutoff=2.0):
@@ -111,7 +131,6 @@ class EBC_B20H():
         v_msb, v_lsb = self.encode_voltage(vcutoff)
         
         data = [0x01, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
-        data = [0xFA] + data + [EBC_B20H.checksum(data)] + [0xF8]
         
         self.send(bytes(data))
         self.is_discharging = True
@@ -124,15 +143,60 @@ class EBC_B20H():
         v_msb, v_lsb = self.encode_voltage(vcutoff)
 
         data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
-        data = [0xFA] + data + [self.checksum(data)] + [0xF8]
         
         self.send(bytes(data))
 
 
-    def stop(self):
-        self.send(bytes([0xFA, 0x02, 0, 0, 0, 0, 0, 0, 0x02, 0xF8]))
-        self.is_discharging = False
+    def _monitor(self, filename):
+        if filename:
+            f = open(filename, 'w')
+            f.write("dtime, current, voltage, mah\n")
+        
+        print("Monitoring started")
 
+        while self.is_monitoring:
+            data = self.recieve()
+            dt = time.time() - self.monitoring_t0
+            for line in data:
+                if not self.is_frame_valid(line):
+                    continue
+                frame_data = self.decode_frame(line)
+                self.voltage = frame_data['voltage']
+                self.current = frame_data['current']
+                self.mah = frame_data['mah']
+                datapoint = [dt, self.voltage, self.current, self.mah]
+                self.monitoring_data.append(datapoint)
+
+                formatted = ', '.join(map(str, datapoint))
+                if filename:
+                    f.write(formatted + '\n')
+            time.sleep(2)
+        
+        print("Monitoring stopped")
+        
+        if filename:
+            f.close()
+            print("Data file saved to", filename)
+
+
+    def start_monitoring(self, filename=None):
+        if self.is_monitoring:
+            self.stop_monitoring()
+        
+        self.is_monitoring = True
+        self.monitoring_data.clear()
+        self.monitoring_t0 = time.time()
+        self.t = threading.Thread(target=self._monitor, args=(filename,))
+        self.t.start()
+
+
+    def stop_monitoring(self):
+        self.is_monitoring = False
+        self.t.join()
+
+
+    def clear(self):
+        self.monitoring_data.clear()
 
 
     @staticmethod
@@ -189,45 +253,3 @@ class EBC_B20H():
         for b in data:
             cs = cs^b
         return cs
-
-
-    def _monitor(self, filename):
-        if filename:
-            f = open(filename, 'w')
-            f.write("dtime, current, voltage, mah\n")
-        
-        while self.is_monitoring:
-            data = self.recieve()
-            dt = time.time() - self.monitoring_t0
-            for line in data:
-                if not self.is_frame_valid(line):
-                    continue
-                frame_data = self.decode_frame(line)
-                # print(frame_data)
-                datapoint = [dt, frame_data['voltage'], frame_data['current'], frame_data['mah']]
-                self.monitoring_data.append(datapoint)
-                formatted = ', '.join(map(str, datapoint))
-                # print(formatted)
-
-                if filename:
-                    f.write(formatted + '\n')
-            time.sleep(2)
-        
-        print("Monitoring stopped")
-        
-        if filename:
-            f.close()
-            print("Data file saved to", filename)
-
-
-    def start_monitoring(self, filename=None):        
-        self.is_monitoring = True
-        self.monitoring_data.clear()
-        self.monitoring_t0 = time.time()
-        self.t = threading.Thread(target=self._monitor, args=(filename,))
-        self.t.start()
-
-
-    def stop_monitoring(self):
-        self.is_monitoring = False
-        self.t.join()

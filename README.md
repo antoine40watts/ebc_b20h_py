@@ -9,8 +9,8 @@
 
 ## Installation du Raspberry Pi
 
-Flashage du système d'exploitation `Raspberry Pi OS` avec l'image suivante :
-https://downloads.raspberrypi.org/raspios_armhf/images/raspios_armhf-2023-05-03/2023-05-03-raspios-bullseye-armhf.img.xz
+Flashage du système d'exploitation `Raspberry Pi OS` (64-bit) avec l'image suivante :
+https://downloads.raspberrypi.org/raspios_lite_arm64/images/raspios_lite_arm64-2023-05-03/2023-05-03-raspios-bullseye-arm64-lite.img.xz
 
 Activer SSH sur le raspberry.
 
@@ -36,6 +36,9 @@ Voir https://github.com/tolgakarakurt/CANBus-MCP2515-Raspi
 
 On peut aussi (et avantageusement) utiliser le module RS485 CAN hat : https://www.waveshare.com/rs485-can-hat.htm
 
+Voir le wiki:
+https://www.waveshare.com/wiki/RS485_CAN_HAT
+
 Activer l'interface SPI depuis l'outil `raspi-config`.
 
 Éditer le fichier `/boot/config.txt`. Vérifier que la ligne `dtparam=spi=on` est bien présente, et ajouter la ligne :
@@ -54,6 +57,8 @@ Installation des outils de communication avec l'interface CAN :
 
     sudo apt-get install can-utils
     sudo pip3 install python-can
+
+Voir https://python-can.readthedocs.io/en/stable/
 
 Pour activer l'interface CAN manuellement :
 
@@ -76,10 +81,19 @@ Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d` et y i
     git clone https://github.com/antoine40watts/ebc_b20h_py.git
     pip install -r requirements.txt
 
-### Démarrage du serveur Web
+### Démarrage du serveur Web (back-end)
 
     uvicorn main:app --reload --host 0.0.0.0
 
+Ouvrir un navigateur à l'adresse http://localhost:8000
+
+### Démarrage de l'interface Web (front-end)
+
+Depuis le dossier `front`
+
+    npm run dev
+
+Appuyer sur la touche 'o' pour ouvrir le naviguateur sur la page de l'interface.
 
 ## Test unitaires
 
@@ -87,13 +101,12 @@ La batterie des tests s'exécute avec la commande suivante (nécessites l'instal
 
     pytest
 
-
 ## Problèmes
 
 Aucune commande par USB pour activer le mode **CHG** (charge) du EBC-B20H depuis le logiciel officiel, à priori.
 J'ai testé quelques commandes différentes, au hasard, mais pas de réaction de l'appareil.
 
-Testé : 
+Testé :
 
     0xFA, 0x03, 0, 0, 0, 0, 0, 0, 0x03, 0xF8  # Aucune réaction
     0xFA, 0x04, 0, 0, 0, 0, 0, 0, 0x04, 0xF8  # Fait planter l'appareil
@@ -101,11 +114,9 @@ Testé :
     0xFA, 0x09, 0, 0, 0, 0, 0, 0, 0x09, 0xF8  # Aucune réaction
     0xFA, 0x0a, 0, 0, 0, 0, 0, 0, 0x0a, 0xF8  # Aucune réaction
 
-
 ## TODO
 
 * Tests unitaire pour la librairie `q2_charger.py`
-
 
 ## Ressources
 
@@ -120,3 +131,7 @@ Interface WEB
 * https://fastapi.tiangolo.com
 * https://jinja.palletsprojects.com/en/2.10.x/
 * https://canvasjs.com
+
+Divers
+
+* https://github.com/JOGAsoft/EBC-controller
