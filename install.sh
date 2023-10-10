@@ -6,6 +6,12 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
+apt install can-utils
+
+# Installing python CAN module
+apt install python3-pip
+pip3 install python-can
+
 
 # Add the lines to the /etc/network/interfaces file
 echo "Adding CAN interface to /etc/network/interfaces"

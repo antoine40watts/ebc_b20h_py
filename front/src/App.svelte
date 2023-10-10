@@ -43,9 +43,8 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    width: 100%;
     height: 350px;
-    margin: 25px 0 32px 0;
+    margin: 25px 16px 32px 16px;
   }
 
   .control-container {
@@ -57,5 +56,11 @@
 
   .border-left {
     border-left: 1px solid rgba(10, 59, 23, 0.4);
+  }
+
+  @media print{
+    .border-left {
+      display: none;
+    }
   }
 </style>

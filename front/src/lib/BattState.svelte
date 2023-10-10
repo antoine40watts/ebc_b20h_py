@@ -38,7 +38,7 @@
         margin: 8px;
     }
     .state {
-        font-size: 1.6em;
+        font-size: 2.2em;
         font-weight: 500;
     }
 </style>

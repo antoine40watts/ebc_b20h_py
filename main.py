@@ -184,7 +184,7 @@ async def stop():
 @app.get("/battery-state")
 async def get_datapoints(start: int = 0, id: str = ""):
     # query_params = {"start" : start}
-    print(f"{start=}")
+    print(f"{start=} {id=}")
     response = {}
 
     if chart_id != id:
@@ -193,6 +193,7 @@ async def get_datapoints(start: int = 0, id: str = ""):
     if start == 0:
         # First request, will send the current chart id
         response["chart_id"] = chart_id
+        print("sending id", chart_id)
 
     response["battery_state"] = battery_state
 
@@ -200,7 +201,6 @@ async def get_datapoints(start: int = 0, id: str = ""):
     for datapoint in discharger.monitoring_data[start:]:
         t, v, c, mah = datapoint
         datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
-    print(datapoints)
     response["data"] = datapoints
 
     return response

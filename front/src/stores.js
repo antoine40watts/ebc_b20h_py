@@ -7,13 +7,21 @@ let arrayCurrent = [];
 let arrayMah = [];
 let arrayTime = [];
 let batteryState = 0;
+let chartId = "";
 
 async function updateData() {
   try {
-    const url = `http://localhost:8000/battery-state?start=${arrayVoltage.length}`;
+    const url = `http://localhost:8000/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
     if (response.ok) {
       const responseData = await response.json();
+      if ("chart_id" in responseData) {
+        chartId = responseData.chart_id;
+        arrayVoltage = [];
+        arrayCurrent = [];
+        arrayMah = [];
+        arrayTime = [];
+      }
       responseData.data.forEach((element) => {
         arrayVoltage = [...arrayVoltage, element.v];
         arrayCurrent = [...arrayCurrent, element.c];

@@ -110,4 +110,14 @@ async function measureCapacity() {
         font-size: 1em;
     }
 
+    @media print{
+    .button-capacity {
+      display: none;
+    }
+    .container {
+        position: absolute;
+        bottom: 40px;
+    }
+  }
+
 </style>

@@ -177,4 +177,24 @@
         text-align: right;
         /* margin-right: 16px; */
     }
+
+    @media print{
+    .export-button {
+      display: none;
+    }
+    .chart-container {
+        /* transform: rotate(90deg);
+        display: flow;
+        position: absolute; */
+        width: 100px;
+        height: 75%;
+    }
+    .container {
+        /* transform: rotate(90deg);
+        display: flow;
+        position: absolute; */
+        width: 100px;
+        height: 75%;
+    }
+  }
 </style>
