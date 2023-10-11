@@ -1,85 +1,65 @@
 <script>
+    import { deviceParameters } from "../stores.js";
 
-export let charge_v = 1;
-export let charge_c = 1;
-export let discharge_v = 1;
-export let discharge_c = 1;
-
-const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
+    const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
 
-async function measureCapacity() {
-    const url = apiUrl + "/measure";
-    const queryParams = `?cv=${charge_v}&cc=${charge_c}&dv=${discharge_v}&dc=${discharge_c}`;
-    console.log(url+queryParams);
+    async function sendDevice(command) {
+        const url = apiUrl + "/" + command;
 
-    const rpc_data = {
-        cv: charge_v,
-        cc: charge_c,
-        dv: discharge_v,
-        dc: discharge_c,
-    };
-    
-    let resultMessage = '';
-
-    try {
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(rpc_data),
-        });
-      
-        if (!response.ok) {
-            throw new Error('RPC request failed');
-        }
+        const rpc_data = {
+            cv: $deviceParameters.charge_v,
+            cc: $deviceParameters.charge_c,
+            dv: $deviceParameters.discharge_v,
+            dc: $deviceParameters.discharge_c,
+        };
         
-        const data = await response.json();
-        resultMessage = data.message;
-    } catch (error) {
-        console.error('Error making RPC call:', error);
-        resultMessage = 'RPC call failed';
+        let resultMessage = '';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(rpc_data),
+            });
+        
+            if (!response.ok) {
+                throw new Error('RPC request failed');
+            }
+            
+            const data = await response.json();
+            resultMessage = data.message;
+        } catch (error) {
+            console.error('Error making RPC call:', error);
+            resultMessage = 'RPC call failed';
+        }
     }
 
-        console.log(resultMessage)
-}
+    function discharge() {
 
+    }
 </script>
+
 
 <div class="container">
     <div style="text-align: center">
-        <p style="font-size: 20px">Capacity (Ah): </p>
-    </div>
-
-    <div class="container-capacity">
-        <!-- <p>196,42</p>
-        <p>194,96</p>
-        <p>193,15</p> -->
-        <button class="button-capacity" on:click={measureCapacity}>Measure</button>
-    </div>
-
-    <br>
-
-    <div style="text-align: center">
-        <label for="cycles_input">Cycle(s)</label>
-        <input type="text" id="cycles_input" name="cycles_input" size="1" value="1"/>
-    </div>
-
-    <div style="text-align: center">
             <label for="charge_input_v">Charge to</label>
-            <input type="text" id="charge_input_v" name="charge_input_v" size="3"
-                value={charge_v}/> V,
+            <input type="number" id="charge_input_v" name="charge_input_v" size="4"
+                bind:value={$deviceParameters.charge_v}/> V,
             <label for="charge_input_c">@</label>
-            <input type="text" id="charge_input_c" name="charge_input_c" size="3"
-                bind:value={charge_c}/> A
+            <input type="number" id="charge_input_c" name="charge_input_c" size="2"
+                bind:value={$deviceParameters.charge_c}/> A
+            <div><button class="button-charge" on:click={() => sendDevice("charge")}>Charge</button></div>
     </div>
 
     <div style="text-align: center">
             <label for="discharge_input_v">Discharge to</label>
-            <input type="text" id="discharge_input_v" name="discharge_input_v" size="2" 
-                value={discharge_v} /> V,
+            <input type="number" id="discharge_input_v" name="discharge_input_v" size="4" 
+                bind:value={$deviceParameters.discharge_v} /> V,
             <label for="discharge_input_c">@</label>
-            <input type="text" id="discharge_input_c" name="discharge_input_c" size="2"
-                bind:value={discharge_c} /> A
+            <input type="number" id="discharge_input_c" name="discharge_input_c" size="2"
+                bind:value={$deviceParameters.discharge_c} /> A
+            <div><button class="button-discharge" on:click={() => sendDevice("discharge")}>Discharge</button></div>
     </div>
 </div>
 
@@ -87,40 +67,10 @@ async function measureCapacity() {
 <style>
     .container {
         /* background-color: blueviolet; */
-        max-width: fit-content;
-    }
-    .container div {
-        margin: 6px;
-    }
-    .container-capacity {
-        display: flex;
-        justify-content: center;
-        max-width: 400px;
-        /* background-color: blueviolet; */
-    }
-    .container-capacity p {
-        margin: 0 4px 0 4px;
-        padding: 2px 4px 2px 4px;
-        color: #50C74B;
-        font-family: inherit;
-        font-weight: 500;
-        border: 1px solid #50C74B;
-        border-radius: 12px;
-    }
-    .button-capacity {
-        margin: 0 4px 0 4px;
-        border-radius: 10px;
-        font-size: 1em;
+        text-align: center;
     }
 
-    @media print{
-    .button-capacity {
-      display: none;
+    button {
+        margin: 8px;
     }
-    .container {
-        position: absolute;
-        bottom: 40px;
-    }
-  }
-
 </style>

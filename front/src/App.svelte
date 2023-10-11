@@ -4,6 +4,7 @@
   import IDBar from "./lib/IDBar.svelte";
   import BattState from "./lib/BattState.svelte";
   import BattChart from "./lib/BattChart.svelte";
+  import BattCapacity from "./lib/BattCapacity.svelte";
   import BattControl from "./lib/BattControl.svelte";
 
   let cells_s = 1;
@@ -17,7 +18,7 @@
 
 
 <main>
-  <IDBar bind:cells_s bind:cells_p />
+  <IDBar />
 
   <div class="chart-container">
     <BattChart />
@@ -25,12 +26,15 @@
 
   <div>
     <div class="control-container">
-      <div style="padding-right: 40px;">
-        <!-- <BattControl {charge_v} {charge_c} {discharge_v} {discharge_c} /> -->
-        <BattControl {charge_v} {discharge_v} />
-      </div>
-      <div class="border-left" style="padding-left: 40px">
+      <div>
         <BattState />
+      </div>
+      <div class="border-left">
+        <BattControl />
+      </div>
+      <div class="border-left">
+        <!-- <BattControl {charge_v} {charge_c} {discharge_v} {discharge_c} /> -->
+        <BattCapacity/>
       </div>
     </div>
   </div>
@@ -49,9 +53,13 @@
 
   .control-container {
     display: flex;
-    justify-content: space-around;
+    align-items: center;
     max-width: fit-content;
+    /* justify-content: space-around; */
     margin: auto;
+  }
+  .control-container div {
+    padding: 20px;
   }
 
   .border-left {

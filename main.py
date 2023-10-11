@@ -97,12 +97,7 @@ app.add_middleware(
 templates = Jinja2Templates(directory="templates")
 
 
-
-class ChargeRequest(BaseModel):
-    current: float
-    maxVoltage: float
-
-class MeasureRequest(BaseModel):
+class CDRequest(BaseModel):
     cv: float
     cc: float
     dv: float
@@ -125,7 +120,7 @@ async def read_root():
 
 
 @app.post("/measure")
-async def measure_capacity(request: MeasureRequest):
+async def measure_capacity(request: CDRequest):
     global battery_state
 
     charge_v = request.cv
@@ -142,44 +137,45 @@ async def measure_capacity(request: MeasureRequest):
     return {"message": "measuring capacity"}
 
 
-# @app.post("/charge")
-# async def charge_battery(charge_request: ChargeRequest):
-#     global battery_state
+@app.post("/charge")
+async def charge_battery(charge_request: CDRequest):
+    global battery_state
 
-#     current = charge_request.current
-#     max_voltage = charge_request.maxVoltage
+    current = charge_request.cc
+    max_voltage = charge_request.cv
 
-#     charger.charge(current, max_voltage)
-#     battery_state = BatteryState.CHARGING
+    charger.charge(current, max_voltage)
+    battery_state = BatteryState.CHARGING
     
-#     print(f"Charging at {current}Amps and {max_voltage}V max voltage")
+    print(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
-#     return {"message": "Charge request received"}
+    return {"message": "Charge request received"}
 
 
-# @app.post("/discharge")
-# async def discharge_battery(charge_request: ChargeRequest):
-#     global battery_state
+@app.post("/discharge")
+async def discharge_battery(discharge_request: CDRequest):
+    global battery_state
     
-#     if charger.is_charging:
-#         charger.stop()
+    if charger.is_charging:
+        charger.stop()
 
-#     current = charge_request.current
-#     max_voltage = charge_request.maxVoltage
+    current = discharge_request.dc
+    max_voltage = discharge_request.dv
 
-#     discharger.discharge(current, max_voltage)
-#     battery_state = BatteryState.DISCHARGING
+    discharger.discharge(current, max_voltage)
+    battery_state = BatteryState.DISCHARGING
     
-#     print(f"Discharging at {current}Amps and {max_voltage}V max voltage")
+    print(f"Discharging at {current}Amps and {max_voltage}V max voltage")
 
-#     return {"message": "Discharge request received"}
+    return {"message": "Discharge request received"}
 
 
 @app.post("/stop")
 async def stop():
+    charger.stop()
     discharger.stop()
 
-    return {"message": "Charge request received"}
+    return {"message": "Stop request received"}
 
 
 @app.get("/battery-state")

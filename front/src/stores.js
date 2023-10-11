@@ -1,4 +1,5 @@
 import { readable } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 
 const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
@@ -39,14 +40,14 @@ async function updateData() {
   }
 }
 
+
 const initialState = {
   state: 0,
   voltage: [],
   current: [],
   mah: [],
   time: [],
-}
-
+};
 
 export const batteryData = readable(initialState, (set) => {
   const interval = setInterval(() => {
@@ -64,3 +65,14 @@ export const batteryData = readable(initialState, (set) => {
     clearInterval(interval);
   };
 });
+
+
+const initialParams = {
+  charge_v: 4.2,
+  charge_c: 1,
+  discharge_v: 2.7,
+  discharge_c: 1,
+  n_cycles: 1,
+};
+
+export const deviceParameters = writable(initialParams);

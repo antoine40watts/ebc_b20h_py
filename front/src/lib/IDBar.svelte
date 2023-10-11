@@ -1,4 +1,6 @@
 <script>
+    import { deviceParameters } from "../stores.js";
+
     let cell_tech_list = [
         "Li-ion",
         "Li-Fe",
@@ -7,10 +9,18 @@
         "other",
     ]
 
-    export let cell_tech = cell_tech_list[0];
-    export let cells_s = 1;
-    export let cells_p = 1;
-    export let cell_cap = 2200;
+    let cell_tech = cell_tech_list[0];
+    let cells_s = 1;
+    let cells_p = 1;
+    let cell_cap = 2200;
+
+    function updateParams() {
+        deviceParameters.update((params) => {
+            params.charge_v = Math.round(4.2 * cells_s * 100) / 100;
+            params.discharge_v = Math.round(2.7 * cells_s * 100) / 100;
+            return params;
+        });
+    }
 
 </script>
 
@@ -42,20 +52,20 @@
 
         <span>
             <label for="cells_s">Cells Series</label>
-            <input type="number" id="cells_s" name="cells_s" size="2"
-                bind:value={cells_s} />
+            <input type="number" id="cells_s" name="cells_s" size="3"
+                min="1" max="16" bind:value={cells_s} on:input={updateParams} />
         </span>
 
         <span>
             <label for="cells_p">Cells Parallel</label>
-            <input type="number" id="cells_p" name="cells_p" size="2"
-                bind:value={cells_p} />
+            <input type="number" id="cells_p" name="cells_p" size="3"
+                min="1" bind:value={cells_p} />
         </span>
 
         <span>
             <label for="cell_cap">Cell Capacity</label>
             <input type="number" id="cell_cap" name="cell_p" size="5"
-                bind:value={cell_cap} />
+                min="1" step="100" bind:value={cell_cap} />
         </span>
     </div>
 
