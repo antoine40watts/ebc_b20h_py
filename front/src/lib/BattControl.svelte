@@ -34,10 +34,6 @@
             resultMessage = 'RPC call failed';
         }
     }
-
-    function discharge() {
-
-    }
 </script>
 
 

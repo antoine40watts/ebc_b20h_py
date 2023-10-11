@@ -12,11 +12,31 @@
     const batteryStates = ["Idle", "Charging", "Discharging"];
     const statesColor = ["grey", "#3aaa35", "red"]
 
+
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
-    function stopDevices() {
+    async function stopDevices() {
         const url = apiUrl + "/stop";
-        console.log("stopped")
+        
+        let resultMessage = '';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                // headers: {'Content-Type': 'application/json'},
+                // body: JSON.stringify(rpc_data),
+            });
+        
+            if (!response.ok) {
+                throw new Error('RPC request failed');
+            }
+            
+            const data = await response.json();
+            resultMessage = data.message;
+        } catch (error) {
+            console.error('Error making RPC call:', error);
+            resultMessage = 'RPC call failed';
+        }
     }
 </script>
 
