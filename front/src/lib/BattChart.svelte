@@ -114,6 +114,9 @@
     let csvFileName = "battery_data.csv";
     let jsonFileName = "battery_data.json";
 
+    const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
+
+
     // function downloadCSV() {
     //     const csvContent = "data:text/csv;charset=utf-8," + $batteryData.voltage.map(row => row.join(",")).join("\n");
     //     const encodedUri = encodeURI(csvContent);
@@ -134,8 +137,8 @@
     </div>
     <div class="export-button">
         Export 
-        <a href="http://localhost:8000/battery-state" download={jsonFileName} target="_blank"><button>raw</button></a>
-        <a href={"http://localhost:8000/get-csv?filename=" + csvFileName}
+        <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank"><button>raw</button></a>
+        <a href={apiUrl + "/get-csv?filename=" + csvFileName}
             download={csvFileName}><button>csv</button></a>
     </div>
 {:else}

@@ -5,8 +5,11 @@ export let charge_c = 1;
 export let discharge_v = 1;
 export let discharge_c = 1;
 
+const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
+
+
 async function measureCapacity() {
-    const url = "http://localhost:8000/measure";
+    const url = apiUrl + "/measure";
     const queryParams = `?cv=${charge_v}&cc=${charge_c}&dv=${discharge_v}&dc=${discharge_c}`;
     console.log(url+queryParams);
 

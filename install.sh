@@ -22,9 +22,9 @@ interfaces_file="/etc/network/interfaces"
 
 if ! grep -qF "$new_lines" "$interfaces_file"; then
     echo "$new_lines" >> "$interfaces_file"
-    echo "Lines added successfully to $interfaces_file"
+    echo "** Lines added successfully to $interfaces_file"
 else
-    echo "Lines are already present in $interfaces_file"
+    echo "!! Lines are already present in $interfaces_file"
 fi
 
 
@@ -36,14 +36,14 @@ if [[ ! -e "$udev_rule_file" ]]; then
     touch "$udev_rule_file"
     new_line='ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="660", GROUP="plugdev"'
     echo "$new_line" >> "$udev_rule_file"
-    echo "File created: $udev_rule_file"
+    echo "** File created: $udev_rule_file"
 else
-    echo "File $udev_rule_file already exist"
+    echo "!! File $udev_rule_file already exist"
 fi
 
 
-# Installing required packages and modules
-echo "Installing required packages and modules"
+# Installing required packages
+echo "Installing required packages"
 apt install git can-utils python3-pip -y
 
 
@@ -67,7 +67,7 @@ cd ..
 
 # Installing required Python modules
 echo "Installing required Python modules"
-pip install -r requirements
+pip install -r requirements.txt
 
 
 # Setting up the web server autostart at boot time
