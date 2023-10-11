@@ -78,6 +78,7 @@ app = FastAPI(lifespan=lifespan)
 # Allow request from svelte frontend
 origins = [
     "http://localhost:5173",
+    "http://battest.local:5173"
 ]
 
 app.add_middleware(
@@ -89,9 +90,9 @@ app.add_middleware(
 )
 
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 # Svelte mount point
-app.mount("/front", StaticFiles(directory="front/public", html=True), name="front")
+# app.mount("/front", StaticFiles(directory="front/public", html=True), name="front")
 
 templates = Jinja2Templates(directory="templates")
 

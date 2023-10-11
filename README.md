@@ -74,7 +74,7 @@ Activer l'interface SPI depuis l'outil `raspi-config`.
 
 Éditer le fichier `/boot/config.txt`. Vérifier que la ligne `dtparam=spi=on` est bien présente, et ajouter la ligne :
 
-    dtoverlay=mcp2515-can0,oscillator=12000000,interrupt=25,spimaxfrequency=2000000
+    dtoverlay=mcp2515-can0,oscillator=8000000,interrupt=25,spimaxfrequency=2000000
 
 Si le quartz de votre module MCP2515 est cadencé à 12MHz, remplacer la valeur `8000000` par `12000000`.
 
@@ -84,10 +84,20 @@ Après redémarrage du Raspberry Pi, on peut vérifer la bonne connection du mod
 
     dmesg | grep "spi"
 
+### Installation automatique du logiciel
+
+    sudo apt install git
+    git clone https://github.com/antoine40watts/ebc_b20h_py.git
+    sudo ./install.sh
+
+### Installation manuelle du logiciel
+
+Les instructions suivantes sont équivalentes à celles exécutées par le script d'installation `install.sh`.
+
 Installation des outils de communication avec l'interface CAN :
 
-    sudo apt-get install can-utils
-    sudo apt-get install python3-pip
+    sudo apt install can-utils
+    sudo apt install python3-pip
     sudo pip3 install python-can
 
 Voir https://python-can.readthedocs.io/en/stable/
@@ -104,14 +114,10 @@ Pour activer l'interface CAN automatiquement à chaque démarrage du Raspberry P
 
 ### Ajouter les droits d'accès au périphérique USB
 
-Créer un fichier `50-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d` et y inscrire la ligne suivante :
+Créer un fichier `99-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d` et y inscrire la ligne suivante :
 
     ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="660", GROUP="plugdev"
 
-### Installation du logiciel
-
-    git clone https://github.com/antoine40watts/ebc_b20h_py.git
-    pip install -r requirements.txt
 
 ### Démarrage du serveur Web (back-end)
 

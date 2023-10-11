@@ -1,6 +1,7 @@
 import { readable } from 'svelte/store';
-// import { writable } from 'svelte/store';
 
+
+const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
 let arrayVoltage = [];
 let arrayCurrent = [];
@@ -9,9 +10,10 @@ let arrayTime = [];
 let batteryState = 0;
 let chartId = "";
 
+
 async function updateData() {
   try {
-    const url = `http://localhost:8000/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
+    const url = `${apiUrl}/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
     if (response.ok) {
       const responseData = await response.json();
