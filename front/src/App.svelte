@@ -59,7 +59,7 @@
     margin: auto;
   }
   .control-container div {
-    padding: 20px;
+    padding: 0px 50px 0px 50px;
   }
 
   .border-left {

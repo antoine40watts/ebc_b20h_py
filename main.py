@@ -165,7 +165,7 @@ async def discharge_battery(discharge_request: CDRequest):
     discharger.discharge(current, max_voltage)
     battery_state = BatteryState.DISCHARGING
     
-    print(f"Discharging at {current}Amps and {max_voltage}V max voltage")
+    print(f"Discharging at {current}Amps down to {max_voltage}V")
 
     return {"message": "Discharge request received"}
 

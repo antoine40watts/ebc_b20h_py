@@ -107,8 +107,7 @@ else
 fi
 
 # Enable and start the service
-systemctl enable "$SERVICE_NAME.service"
-systemctl start "$SERVICE_NAME.service"
+systemctl enable "$SERVICE_NAME.service" --now
 
 # Check the service status
 systemctl status "$SERVICE_NAME.service"

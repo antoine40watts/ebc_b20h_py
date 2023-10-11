@@ -158,6 +158,7 @@ class EBC_B20H():
             data = self.recieve()
             dt = time.time() - self.monitoring_t0
             for line in data:
+                print("EBC-B20H:", line)
                 if not self.is_frame_valid(line):
                     continue
                 frame_data = self.decode_frame(line)
@@ -183,16 +184,16 @@ class EBC_B20H():
         if self.is_monitoring:
             self.stop_monitoring()
         
-        self.is_monitoring = True
-        self.monitoring_data.clear()
+        self.clear()
         self.monitoring_t0 = time.time()
         self.t = threading.Thread(target=self._monitor, args=(filename,))
         self.t.start()
+        self.is_monitoring = True
 
 
     def stop_monitoring(self):
-        self.is_monitoring = False
         self.t.join()
+        self.is_monitoring = False
 
 
     def clear(self):
