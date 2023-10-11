@@ -147,7 +147,7 @@ class EBC_B20H():
         self.send(bytes(data))
 
 
-    def _monitor(self, filename):
+    def _monitor(self, filename, raw=False):
         if filename:
             f = open(filename, 'w')
             f.write("dtime, current, voltage, mah\n")
@@ -158,7 +158,6 @@ class EBC_B20H():
             data = self.recieve()
             dt = time.time() - self.monitoring_t0
             for line in data:
-                print("EBC-B20H:", line)
                 if not self.is_frame_valid(line):
                     continue
                 frame_data = self.decode_frame(line)
@@ -168,7 +167,10 @@ class EBC_B20H():
                 datapoint = [dt, self.voltage, self.current, self.mah]
                 self.monitoring_data.append(datapoint)
 
-                formatted = ', '.join(map(str, datapoint))
+                if raw:
+                    formatted = ' '.join(line)
+                else:
+                    formatted = ', '.join(map(str, datapoint))
                 if filename:
                     f.write(formatted + '\n')
             time.sleep(2)
@@ -180,13 +182,13 @@ class EBC_B20H():
             print("Data file saved to", filename)
 
 
-    def start_monitoring(self, filename=None):
+    def start_monitoring(self, filename=None, raw=False):
         if self.is_monitoring:
             self.stop_monitoring()
         
         self.clear()
         self.monitoring_t0 = time.time()
-        self.t = threading.Thread(target=self._monitor, args=(filename,))
+        self.t = threading.Thread(target=self._monitor, args=(filename, raw,))
         self.t.start()
         self.is_monitoring = True
 

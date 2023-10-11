@@ -87,3 +87,26 @@ def test_log():
     dev.start_monitoring("test_log.txt")
     time.sleep(100)
     dev.stop_monitoring()
+
+
+def test_real_datalog():
+    discharger = EBC_B20H()
+    discharger.connect()
+    discharger.start_monitoring("datalog_device.txt", raw=True)
+
+    while len(discharger.monitoring_data) < 10:
+        time.sleep(1)
+    
+    current_voltage = discharger.voltage
+    assert current_voltage > 0
+
+    discharger.clear()
+    assert len(discharger.monitoring_data) == 0
+
+    discharger.discharge(10, current_voltage - 1)
+    
+    time.sleep(100)
+    print("Size of 'monitoring_data'", len(discharger.monitoring_data))
+
+    discharger.stop_monitoring()
+    discharger.disconnect()

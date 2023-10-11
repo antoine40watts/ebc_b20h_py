@@ -1,4 +1,10 @@
 
+# Update repository
+if ping -c 1 "github.com"; then
+    git pull
+else
+    echo "Github.com is not accessible"
+fi
 
 uvicorn main:app --reload --host 0.0.0.0 &
 
