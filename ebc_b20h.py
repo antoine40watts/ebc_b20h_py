@@ -77,7 +77,7 @@ class EBC_B20H():
                 fout = open(self.logfile, 'a')
             else:
                 fout = sys.stdout
-            print('>>> ' + ' '.join(data) + '\n', file=fout)
+            print('>>> ' + ' '.join(map(str, data)) + '\n', file=fout)
             if self.logfile:
                 fout.close()
 
@@ -111,7 +111,7 @@ class EBC_B20H():
                 fout = open(self.logfile, 'a')
             else:
                 fout = sys.stdout
-            print('<<<' + ' '.join(data) + '\n', file=fout)
+            print('<<<' + ' '.join(map(str, data)) + '\n', file=fout)
             if self.logfile:
                 fout.close()
         
