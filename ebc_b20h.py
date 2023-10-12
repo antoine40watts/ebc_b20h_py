@@ -4,6 +4,7 @@
 from typing import Tuple, List
 import time
 import threading
+import sys
 
 import usb.core
 import usb.util
@@ -31,6 +32,9 @@ class EBC_B20H():
         self.voltage = 0.0
         self.current = 0.0
         self.mah = 0.0
+
+        self.debug = False
+        self.logfile = "log_ebc-b20.txt"
 
 
     def find_device(self):
@@ -68,6 +72,15 @@ class EBC_B20H():
         data.append(self.checksum(message))
         data.append(END_OF_MESSAGE)
 
+        if self.debug:
+            if self.logfile:
+                fout = open(self.logfile, 'a')
+            else:
+                fout = sys.stdout
+            print('>>> ' + ' '.join(data) + '\n', file=fout)
+            if self.logfile:
+                fout.close()
+
         self.dev.write(0x2, data, 100)
 
 
@@ -92,6 +105,15 @@ class EBC_B20H():
             else:
                 line.append(b)
         self.buffer = line
+
+        if self.debug:
+            if self.logfile:
+                fout = open(self.logfile, 'a')
+            else:
+                fout = sys.stdout
+            print('<<<' + ' '.join(data) + '\n', file=fout)
+            if self.logfile:
+                fout.close()
         
         return lines
 
