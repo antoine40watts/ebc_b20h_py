@@ -77,7 +77,7 @@ class EBC_B20H():
                 fout = open(self.logfile, 'a')
             else:
                 fout = sys.stdout
-            print('>>> ' + ' '.join( [f"{str(val):>3}" for val in list(map)] ), file=fout)
+            print('>>> ' + ' '.join( [f"{str(val):>3}" for val in data] ), file=fout)
             if self.logfile:
                 fout.close()
 
@@ -111,7 +111,7 @@ class EBC_B20H():
                 fout = open(self.logfile, 'a')
             else:
                 fout = sys.stdout
-            print('<<< ' + ' '.join( [f"{str(val):>3}" for val in list(map)] ), file=fout)
+            print('<<< ' + ' '.join( [f"{str(val):>3}" for val in data] ), file=fout)
             if self.logfile:
                 fout.close()
         
