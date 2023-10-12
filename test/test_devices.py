@@ -3,8 +3,8 @@
 
 import time
 
-from ebc_b20h import EBC_B20H
-from q2_charger import Q2Charger
+from .ebc_b20h import EBC_B20H
+from .q2_charger import Q2Charger
 
 
 if __name__ == "__main__":
