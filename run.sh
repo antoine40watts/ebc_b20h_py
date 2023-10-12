@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # Update repository
 if ping -c 1 "github.com"; then

@@ -91,6 +91,7 @@ SCRIPT_PATH="$SCRIPT_DIR/run.sh"
 # Create the systemd service file
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
+echo "Creating the service file to automatically start the application"
 if [[ ! -e "$SERVICE_FILE" ]]; then
     cat > "$SERVICE_FILE" <<EOL
 [Unit]
@@ -110,6 +111,7 @@ EOL
 
     # Make the service file readable only by root
     chmod 644 "$SERVICE_FILE"
+    echo "Service
 else
     echo "$SERVICE_FILE already exists"
 fi

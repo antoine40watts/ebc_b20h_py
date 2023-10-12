@@ -42,6 +42,7 @@ class FakeEBC_B20H(EBC_B20H):
         self.dev = FakeUSBDevice()
 
 
+
 def test_checksum():
     test_cases = [
         ([0x01, 0, 0x32, 0x0C, 0x78, 0, 0], 0x47),
@@ -92,7 +93,7 @@ def test_log():
 def test_real_datalog():
     discharger = EBC_B20H()
     discharger.connect()
-    discharger.start_monitoring("datalog_device.txt", raw=True)
+    discharger.start_monitoring("test_log_device.txt", raw=True)
 
     while len(discharger.monitoring_data) < 10:
         time.sleep(1)
