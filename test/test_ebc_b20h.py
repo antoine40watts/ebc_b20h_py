@@ -90,7 +90,7 @@ def test_log():
     dev.stop_monitoring()
 
 
-def test_real_datalog():
+def test_real_device_datalog():
     discharger = EBC_B20H()
     discharger.connect()
     discharger.start_monitoring("test_log_device.txt", raw=True)

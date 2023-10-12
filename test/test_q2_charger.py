@@ -31,3 +31,7 @@ class FakeQ2Charger(Q2Charger):
 def test_build_message():
     test_cases = []
     pass
+
+
+def test_real_device():
+    charger = Q2Charger()

@@ -118,7 +118,6 @@ Créer un fichier `99-ebc_b20h.rules` dans le dossier `/lib/udev/rules.d` et y i
 
     ACTION=="add", SUBSYSTEMS=="usb", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="660", GROUP="plugdev"
 
-
 ### Démarrage du serveur Web (back-end)
 
     uvicorn main:app --reload --host 0.0.0.0

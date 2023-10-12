@@ -53,14 +53,17 @@ class EBC_B20H():
         self.dev = dev
     
 
-    def destroy():
+    def destroy(self):
         # This is needed to release interface, otherwise attach_kernel_driver fails
         # due to "Resource busy"
-        usb.util.dispose_resources(dev)
+        usb.util.dispose_resources(self.dev)
 
         # It may raise USBError if there's e.g. no kernel driver loaded at all
         if self.reattach:
             dev.attach_kernel_driver(0)
+        if self.debug:
+            print("Destroying")
+
 
 
     def send(self, message: bytes):
@@ -84,7 +87,26 @@ class EBC_B20H():
         self.dev.write(0x2, data, 100)
 
 
-    def recieve(self):        
+    def recieve(self):
+        """
+            Anatomy of a response:
+                250  10   4  40 150 185   0 220   0   0   4  40   0 200   0   0  28  45 248
+                som sta  c1  c2  v1  v2  e1  e2         dc1 dc2 dv1 dv2
+            
+                sta: status byte
+                    10: discharging
+                    20: battery discharged
+                    100: ?
+                    110: ?
+                    120: ?
+
+                c1, c2: battery discharge current
+                v1, v2: battery voltage
+                e1, e2: energy transfered
+                dc1, dc2: user defined discharge current
+                dv1, dv2: user defined min voltage
+
+        """
         lines = []
         line = self.buffer
         
@@ -111,7 +133,8 @@ class EBC_B20H():
                 fout = open(self.logfile, 'a')
             else:
                 fout = sys.stdout
-            print('<<< ' + ' '.join( [f"{str(val):>3}" for val in data] ), file=fout)
+            for l in lines:
+                print('<<< ' + ' '.join( [f"{str(val):>3}" for val in l] ), file=fout)
             if self.logfile:
                 fout.close()
         
@@ -119,8 +142,12 @@ class EBC_B20H():
 
 
     def connect(self):
-        # ZKTECH EBC-B20H handshake between official software and device,
-        # as seen with a USB Analyzer
+        """
+            ZKTECH EBC-B20H handshake between official software and device,
+            as seen with a USB Analyzer
+
+            The device won't communicate without connecting first
+        """
         
         # Control Transfer args : Request type, Request, Value, Index, Data or Size
         self.dev.ctrl_transfer(0x40, 0xa1, 0xc39c, 0xd98a, None)
@@ -144,21 +171,31 @@ class EBC_B20H():
         # "Connect" serial message
         self.send(bytes([0x05, 0, 0, 0, 0, 0, 0]))
         
-        self.start_monitoring()
+        # self.start_monitoring()
 
 
     def disconnect(self):
+        self.send(bytes([0x06, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
             self.stop_monitoring()
-        self.send(bytes([0x06, 0, 0, 0, 0, 0, 0]))
+        if self.debug:
+            print("Disconnect command sent")
+
     
 
     def stop(self):
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
         self.is_discharging = False
+        if self.debug:
+            print("Stop command sent")
 
 
     def discharge(self, current=1.0, vcutoff=2.0):
+        """
+            Anatomy of a discharge message:
+                250   1   4  40   0 200   0   0 229 248
+                som dis  c1  c2  v1  v2   ?   ? crc eom
+        """
         current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
         vcutoff = min(max(vcutoff, 2.0), 72.0)
         c_msb, c_lsb = self.encode_current(current)
@@ -168,6 +205,8 @@ class EBC_B20H():
         
         self.send(bytes(data))
         self.is_discharging = True
+        if self.debug:
+            print(f"Discharging to {vcutoff}V @ {current}Amps")
 
 
     def adjust(self, current, vcutoff):
@@ -184,9 +223,10 @@ class EBC_B20H():
     def _monitor(self, filename, raw=False):
         if filename:
             f = open(filename, 'w')
-            f.write("dtime, current, voltage, mah\n")
+            if not raw:
+                f.write("dtime, current, voltage, mah\n")
         
-        print("Monitoring started")
+        print("Monitoring thread started")
 
         while self.is_monitoring:
             data = self.recieve()
@@ -202,14 +242,14 @@ class EBC_B20H():
                 self.monitoring_data.append(datapoint)
 
                 if raw:
-                    formatted = ' '.join(line)
+                    formatted = ' '.join([f"{str(val):>3}" for val in line])
                 else:
                     formatted = ', '.join(map(str, datapoint))
                 if filename:
                     f.write(formatted + '\n')
             time.sleep(2)
         
-        print("Monitoring stopped")
+        print("Monitoring thread stopped")
         
         if filename:
             f.close()
@@ -226,11 +266,17 @@ class EBC_B20H():
         self.t.setDaemon(True)
         self.t.start()
         self.is_monitoring = True
+        if self.debug:
+            print("EBC-B20H monitoring started")
+
 
 
     def stop_monitoring(self):
-        self.t.join()
         self.is_monitoring = False
+        if self.t:
+            self.t.join()
+        if self.debug:
+            print("EBC-B20H monitoring stopped")
 
 
     def clear(self):
@@ -240,9 +286,9 @@ class EBC_B20H():
     @staticmethod
     def decode_frame(data : List[int]) -> dict:
         amp = EBC_B20H.decode_current(data[2], data[3])
-        vbatt = EBC_B20H.decode_voltage(data[4], data[5])
+        vbatt = EBC_B20H.decode_voltage(data[4], data[5]) / 11
         mah = EBC_B20H.decode_mah(data[6], data[7])
-        return {'current': amp, 'voltage': vbatt, 'mah': mah}
+        return {'status': data[1], 'current': amp, 'voltage': vbatt, 'mah': mah}
 
 
     @staticmethod
@@ -263,7 +309,7 @@ class EBC_B20H():
 
     @staticmethod
     def decode_voltage(msb: int, lsb: int) -> float:
-        return (msb * 2400 + lsb * 10) / 10000
+        return (msb * 2400 + lsb * 10) / 1000
 
 
     @staticmethod
