@@ -111,7 +111,7 @@ class EBC_B20H():
                 fout = open(self.logfile, 'a')
             else:
                 fout = sys.stdout
-            print('<<<' + ' '.join(map(str, data)) + '\n', file=fout)
+            print('<<< ' + ' '.join(map(str, data)) + '\n', file=fout)
             if self.logfile:
                 fout.close()
         
@@ -223,6 +223,7 @@ class EBC_B20H():
         self.clear()
         self.monitoring_t0 = time.time()
         self.t = threading.Thread(target=self._monitor, args=(filename, raw,))
+        self.t.setDeamon(True)
         self.t.start()
         self.is_monitoring = True
 
