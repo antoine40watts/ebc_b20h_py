@@ -73,7 +73,7 @@ class Q2Charger():
 
         msg = can.Message(
             arbitration_id=Q2Charger.recv_id,
-            is_extended_id=True
+            is_extended_id=True,
             data=[v_msb, v_lsb, c_msb, c_lsb, 0, 0, 0, 0],
             )
         return msg
