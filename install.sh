@@ -7,8 +7,14 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 
-# Changing hostname
-hostnamectl set-hostname battest
+# Changing hostname to "battest"
+    echo "Changing hostname to 'battest'"
+if [ $(hostname) != "battest" ]; then
+    hostnamectl set-hostname battest
+    echo "** Hostname changed"
+else
+    echo "!! Hostname already set"
+fi
 
 
 # Add the lines to the /etc/network/interfaces file
@@ -86,7 +92,7 @@ SCRIPT_PATH="$SCRIPT_DIR/run.sh"
 SERVICE_FILE="/etc/systemd/system/$SERVICE_NAME.service"
 
 if [[ ! -e "$SERVICE_FILE" ]]; then
-cat > "$SERVICE_FILE" <<EOL
+    cat > "$SERVICE_FILE" <<EOL
 [Unit]
 Description=Battery Testing Software
 
@@ -102,8 +108,8 @@ Restart=always
 WantedBy=multi-user.target
 EOL
 
-# Make the service file readable only by root
-chmod 644 "$SERVICE_FILE"
+    # Make the service file readable only by root
+    chmod 644 "$SERVICE_FILE"
 else
     echo "$SERVICE_FILE already exists"
 fi
