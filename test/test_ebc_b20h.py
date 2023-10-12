@@ -111,3 +111,4 @@ def test_real_datalog():
 
     discharger.stop_monitoring()
     discharger.disconnect()
+    discharger.destroy()

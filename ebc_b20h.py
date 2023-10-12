@@ -41,10 +41,22 @@ class EBC_B20H():
         if dev is None:
             raise ValueError("EBC-B20H Discharger not found")
         
+        self.reattach = False
         if dev.is_kernel_driver_active(0):
             dev.detach_kernel_driver(0)
+            self.reattach = True
         
         self.dev = dev
+    
+
+    def destroy():
+        # This is needed to release interface, otherwise attach_kernel_driver fails
+        # due to "Resource busy"
+        usb.util.dispose_resources(dev)
+
+        # It may raise USBError if there's e.g. no kernel driver loaded at all
+        if self.reattach:
+            dev.attach_kernel_driver(0)
 
 
     def send(self, message: bytes):

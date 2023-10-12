@@ -70,6 +70,7 @@ async def lifespan(app: FastAPI):
     # Release USB device
     discharger.stop_monitoring()
     discharger.disconnect()
+    discharger.destroy()
     print("Bye !")
 
 
