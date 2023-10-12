@@ -262,10 +262,10 @@ class EBC_B20H():
         
         self.clear()
         self.monitoring_t0 = time.time()
+        self.is_monitoring = True
         self.t = threading.Thread(target=self._monitor, args=(filename, raw,))
         self.t.setDaemon(True)
         self.t.start()
-        self.is_monitoring = True
         if self.debug:
             print("EBC-B20H monitoring started")
 

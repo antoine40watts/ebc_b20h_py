@@ -21,10 +21,14 @@ class Q2Charger():
 
 
     def charge(self, current, voltage):
-        msg = self.build_message(current, voltage)
-        self.task = self.bus.send_periodic(msg, 1.0)
-        self.is_charging = True
-        print("Charging started")
+        msg = self.build_charge_message(current, voltage)
+        if self.is_charging:
+            self.task.modify_data(msg)
+            print("Charging updated")
+        else:
+            self.task = self.bus.send_periodic(msg, 1.0)
+            self.is_charging = True
+            print("Charging started")
 
 
     def stop(self):
@@ -60,7 +64,7 @@ class Q2Charger():
         return {'voltage': output_v, 'current': output_c, 'temp': temp, 'status': status}
 
 
-    def build_message(self, current, voltage) -> can.Message:
+    def build_charge_message(self, current, voltage) -> can.Message:
         v_msb = int(voltage * 10 / 256)
         v_lsb = int(voltage * 10 - v_msb * 256)
 
@@ -69,7 +73,7 @@ class Q2Charger():
 
         msg = can.Message(
             arbitration_id=Q2Charger.recv_id,
-            data=[v_msb, v_lsb, c_msb, c_lsb, 0, 0, 0, 0],
             is_extended_id=True
+            data=[v_msb, v_lsb, c_msb, c_lsb, 0, 0, 0, 0],
             )
         return msg
