@@ -1,7 +1,7 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-impor time
+import time
 
 from ebc_b20h import EBC_B20H
 from q2_charger import Q2Charger
