@@ -80,10 +80,7 @@ logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctim
 app = FastAPI(lifespan=lifespan)
 
 # Allow request from svelte frontend
-origins = [
-    "http://battest.local:5173",
-    "http://localhost:5173",
-]
+origins = ["*"]
 
 app.add_middleware(
     CORSMiddleware,
