@@ -272,7 +272,7 @@ class EBC_B20H():
                     # end of discharge
                     self.is_discharging = False
                     logging.info("End of discharge")
-                elif status == 0x15
+                elif status == 0x15:
                     # end of charge
                     self.is_charging = False
                     logging.info("End of charge")
