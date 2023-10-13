@@ -265,6 +265,9 @@ class EBC_B20H():
                 frame_data = self.decode_frame(line)
 
                 status = frame_data['status']
+                if status == 0x01:
+                    self.is_discharging = False
+                    self.is_charging = False
                 if status == 0x0A:
                     self.is_discharging = True
                     self.is_charging = False

@@ -152,7 +152,7 @@ async def charge_battery(charge_request: CDRequest):
     discharger.charge(cutoff_c = 0.1)
     battery_state = BatteryState.CHARGING
     
-    print(f"Charging at {current}Amps and {max_voltage}V max voltage")
+    logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
     return {"message": "Charge request received"}
 
@@ -170,15 +170,23 @@ async def discharge_battery(discharge_request: CDRequest):
     discharger.discharge(current, max_voltage)
     battery_state = BatteryState.DISCHARGING
     
-    print(f"Discharging at {current}Amps down to {max_voltage}V")
+    logging.info(f"Discharging at {current}Amps down to {max_voltage}V")
 
     return {"message": "Discharge request received"}
 
 
 @app.post("/stop")
 async def stop():
-    charger.stop()
-    discharger.stop()
+    global battery_state
+
+    if charger.is_charging:
+        charger.stop()
+    if discharger.is_charging or discharger.is_discharging:
+        discharger.stop()
+
+    battery_state = BatteryState.IDLE
+
+    logging.debug("Server: stop request")
 
     return {"message": "Stop request received"}
 

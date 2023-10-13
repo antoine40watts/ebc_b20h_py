@@ -47,7 +47,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    height: 350px;
+    height: 380px;
     margin: 25px 16px 32px 16px;
   }
 

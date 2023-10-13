@@ -75,7 +75,6 @@
     .button-stop {
         margin: 0 4px 0 4px;
         border-radius: 20px;
-        border: none;
         padding: 8px;
         font-size: 1.5rem;
         font-weight: 600;
