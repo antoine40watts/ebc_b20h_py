@@ -38,8 +38,11 @@ class FakeEBC_B20H(EBC_B20H):
     def __init__(self):
         self.buffer = []
         self.is_monitoring = False
+        self.is_charging = False
+        self.is_discharging = False
         self.monitoring_data = []
         self.dev = FakeUSBDevice()
+        self.debug = False
 
 
 

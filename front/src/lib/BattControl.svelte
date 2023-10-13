@@ -39,7 +39,7 @@
 
 <div class="container">
     <div style="text-align: center">
-            <label for="charge_input_v">Charge to</label>
+            <label for="charge_input_v">Charge max</label>
             <input type="number" id="charge_input_v" name="charge_input_v" size="4"
                 style="width: 60px;"
                 bind:value={$deviceParameters.charge_v}/> V,
@@ -47,11 +47,10 @@
             <input type="number" id="charge_input_c" name="charge_input_c" size="2"
                 style="width: 50px;"
                 bind:value={$deviceParameters.charge_c}/> A
-            <div><button class="button-charge" on:click={() => sendDevice("charge")}>Charge</button></div>
     </div>
 
     <div style="text-align: center">
-            <label for="discharge_input_v">Discharge to</label>
+            <label for="discharge_input_v">Charge min</label>
             <input type="number" id="discharge_input_v" name="discharge_input_v" size="4"
                 style="width: 60px;"
                 bind:value={$deviceParameters.discharge_v} /> V,
@@ -59,7 +58,11 @@
             <input type="number" id="discharge_input_c" name="discharge_input_c" size="2"
                 style="width: 50px;"
                 bind:value={$deviceParameters.discharge_c} /> A
-            <div><button class="button-discharge" on:click={() => sendDevice("discharge")}>Discharge</button></div>
+    </div>
+
+    <div>
+        <button class="button-charge" on:click={() => sendDevice("charge")}>Charger</button>
+        <button class="button-discharge" on:click={() => sendDevice("discharge")}>Décharger</button>
     </div>
 </div>
 
@@ -68,9 +71,13 @@
     .container {
         /* background-color: blueviolet; */
         text-align: center;
+        line-height: 2em;
     }
 
     button {
-        margin: 8px;
+        margin: 12px;
+        padding: 4px;
+        border-radius: 16px;
+        font-size: 1rem;
     }
 </style>

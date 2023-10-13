@@ -2,7 +2,8 @@
 
 # Update repository
 if ping -c 1 "github.com"; then
-    git pull
+    git fetch origin
+    git reset --hard origin/main
 else
     echo "Github.com is not accessible"
 fi

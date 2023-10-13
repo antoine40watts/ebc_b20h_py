@@ -9,7 +9,7 @@
         return parseInt(10 * (n - parseInt(n)))
     }
 
-    const batteryStates = ["Idle", "Charging", "Discharging"];
+    const batteryStates = ["En attente", "En charge", "Décharge"];
     const statesColor = ["grey", "#3aaa35", "red"]
 
 
@@ -45,7 +45,7 @@
     <p class="state" style="color: {statesColor[$batteryData.state]};">
         {batteryStates[$batteryData.state]}
         {#if $batteryData.state != 0}
-            <button class="button-stop" on:click={stopDevices}>STOP</button>
+            <button class="button-stop" on:click={stopDevices}>ARRÊT</button>
         {/if}
     </p>
     <span style="font-size: 3.5rem">{parseInt(voltage)}</span>
@@ -75,9 +75,9 @@
     .button-stop {
         margin: 0 4px 0 4px;
         border-radius: 20px;
-        padding: 8px;
-        font-size: 1.5rem;
-        font-weight: 600;
+        padding: 6px;
+        font-size: 1.2rem;
+        font-weight: 500;
         color: white;
         background-color: tomato;
     }

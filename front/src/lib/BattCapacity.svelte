@@ -39,19 +39,18 @@
         console.log(rpc_data);
         console.log(resultMessage);
     }
-
 </script>
 
 <div class="container">
     <div>
-        <p style="font-size: 20px">Capacity (Ah): </p>
+        <p style="font-size: 20px">Capacité (Ah): </p>
     </div>
 
     <div class="container-capacity">
         <!-- <p>196,42</p>
         <p>194,96</p>
         <p>193,15</p> -->
-        <button class="button-capacity" on:click={measureCapacity}>Measure</button>
+        <button class="button-capacity" on:click={measureCapacity}>Mesurer</button>
     </div>
 
     <br>
@@ -91,8 +90,9 @@
     
     .button-capacity {
         margin: 0 4px 0 4px;
-        border-radius: 10px;
-        font-size: 1em;
+        padding: 4px;
+        border-radius: 16px;
+        font-size: 1rem;
     }
 
     @media print{

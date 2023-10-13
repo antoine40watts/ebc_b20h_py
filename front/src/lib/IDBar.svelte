@@ -51,21 +51,21 @@
         </span> -->
 
         <span>
-            <label for="cells_s">Cells Series</label>
+            <label for="cells_s">Cellules Série</label>
             <input type="number" id="cells_s" name="cells_s" size="3"
                 style="width: 50px;"
                 min="1" max="16" bind:value={cells_s} on:input={updateParams} />
         </span>
 
         <span>
-            <label for="cells_p">Cells Parallel</label>
+            <label for="cells_p">Cellules Parallèle</label>
             <input type="number" id="cells_p" name="cells_p" size="3"
             style="width: 50px;"
                 min="1" bind:value={cells_p} />
         </span>
 
         <span>
-            <label for="cell_cap">Cell Capacity</label>
+            <label for="cell_cap">Capacité cellule</label>
             <input type="number" id="cell_cap" name="cell_p" size="5"
                 style="width: 70px;"
                 min="1" step="100" bind:value={cell_cap} />
