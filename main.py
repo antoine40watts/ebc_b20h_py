@@ -35,6 +35,7 @@ from test.test_q2_charger import FakeQ2Charger
 HOSTNAME = "battest.local"
 # HOSTNAME = "127.0.0.1"
 
+logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 
 class DeviceController():
@@ -48,7 +49,6 @@ class DeviceController():
 
     def __init__(self):
         self.battery_state = self.BatteryState.IDLE
-        # self.state = 
         self._running = False
 
         try:
@@ -64,7 +64,6 @@ class DeviceController():
         self.monitoring_data = self.discharger.monitoring_data
 
     async def _run(self):
-        print("runnnn")
         while self._running:
             if self.discharger.is_charging:
                 self.battery_state = self.BatteryState.CHARGING
@@ -76,7 +75,6 @@ class DeviceController():
             await asyncio.sleep(1)
     
     def start_monitoring(self):
-        print("device start monit")
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
@@ -106,9 +104,6 @@ class DeviceController():
         if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
 
-        logging.debug("Server: stop request")
-
-
 
 
 def new_chart_id():
@@ -119,9 +114,9 @@ def new_chart_id():
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     new_chart_id()
-    print("starting device")
+    logging.info("Starting device...")
     device.start_monitoring()
-    print("device started")
+    logging.info("Device started")
     yield
 
     device.stop_monitoring()    
@@ -131,9 +126,10 @@ async def lifespan(app: FastAPI):
 
 device = DeviceController()
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
-
 app = FastAPI(lifespan=lifespan)
+
+logging.warning("tesssssst3")
+
 
 # Allow request from svelte frontend
 origins = ["*"]
@@ -150,7 +146,7 @@ app.add_middleware(
 # Svelte mount point
 # app.mount("/front", StaticFiles(directory="front/public", html=True), name="front")
 
-templates = Jinja2Templates(directory="templates")
+# templates = Jinja2Templates(directory="templates")
 
 
 class CDRequest(BaseModel):
@@ -190,6 +186,8 @@ async def measure_capacity(request: CDRequest):
     charger.charge(charge_c, charge_v)
     discharger.charge(cutoff_c = 0.1)
 
+    logging.info("Measure battery capacity request")
+
     return {"message": "measuring capacity"}
 
 
@@ -198,6 +196,7 @@ async def charge_battery(charge_request: CDRequest):
     current = charge_request.cc
     max_voltage = charge_request.cv
     device.charge(current, max_voltage)
+    logging.info("Charge battery request")
     return {"message": "Charge request received"}
 
 
@@ -206,12 +205,14 @@ async def discharge_battery(discharge_request: CDRequest):
     current = discharge_request.dc
     min_voltage = discharge_request.dv
     device.discharge(current, min_voltage)
+    logging.info("Discharge battery request")
     return {"message": "Discharge request received"}
 
 
 @app.post("/stop")
 async def stop():
     device.stop_all()
+    logging.info("Stop all request")
     return {"message": "Stop request received"}
 
 

@@ -43,6 +43,9 @@ class FakeEBC_B20H(EBC_B20H):
         self.monitoring_data = []
         self.dev = FakeUSBDevice()
         self.debug = False
+    
+    def destroy(self):
+        return
 
 
 
