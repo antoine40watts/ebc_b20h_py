@@ -31,8 +31,8 @@ from test.test_ebc_b20h import FakeEBC_B20H
 from test.test_q2_charger import FakeQ2Charger
 
 
-# HOSTNAME = "raspberrypi.local"
-HOSTNAME = "127.0.0.1"
+HOSTNAME = "battest.local"
+# HOSTNAME = "127.0.0.1"
 
 
 class BatteryState(Enum):
@@ -75,14 +75,14 @@ async def lifespan(app: FastAPI):
 
 
 
-logging.basicConfig(filename='main.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 app = FastAPI(lifespan=lifespan)
 
 # Allow request from svelte frontend
 origins = [
+    "http://battest.local:5173",
     "http://localhost:5173",
-    "http://battest.local:5173"
 ]
 
 app.add_middleware(
