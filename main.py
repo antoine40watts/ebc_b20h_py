@@ -15,6 +15,7 @@ import random
 import io
 import csv
 import uuid
+import logging
 
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
@@ -39,7 +40,6 @@ class BatteryState(Enum):
     CHARGING = 1
     DISCHARGING = 2
 
-battery_state = BatteryState.IDLE
 
 def new_chart_id():
     global chart_id
@@ -74,6 +74,9 @@ async def lifespan(app: FastAPI):
     print("Bye !")
 
 
+
+logging.basicConfig(filename='main.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+
 app = FastAPI(lifespan=lifespan)
 
 # Allow request from svelte frontend
@@ -90,12 +93,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-
 # app.mount("/static", StaticFiles(directory="static"), name="static")
 # Svelte mount point
 # app.mount("/front", StaticFiles(directory="front/public", html=True), name="front")
 
 templates = Jinja2Templates(directory="templates")
+
+battery_state = BatteryState.IDLE
+
 
 
 class CDRequest(BaseModel):
@@ -130,9 +135,10 @@ async def measure_capacity(request: CDRequest):
     discharge_c = request.dc
     num_cycles = request.nc
 
-    discharger.clear()
     new_chart_id()
+    discharger.clear()
     charger.charge(charge_c, charge_v)
+    discharger.charge(cutoff_c = 0.1)
     battery_state = BatteryState.CHARGING
 
     return {"message": "measuring capacity"}
@@ -146,6 +152,7 @@ async def charge_battery(charge_request: CDRequest):
     max_voltage = charge_request.cv
 
     charger.charge(current, max_voltage)
+    discharger.charge(cutoff_c = 0.1)
     battery_state = BatteryState.CHARGING
     
     print(f"Charging at {current}Amps and {max_voltage}V max voltage")

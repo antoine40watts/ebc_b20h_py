@@ -5,6 +5,7 @@ from typing import Tuple, List
 import time
 import threading
 import sys
+import logging
 
 import usb.core
 import usb.util
@@ -21,20 +22,23 @@ class EBC_B20H():
             0x05    Connect
             0x06    Disconnect
             0x07    Adjust
+            0x11    Charge
+            0x18    Charge (continue)
     """
 
     def __init__(self):
         self.buffer = []
         self.find_device()
-        self.is_discharging = False
+        self.debug = False
+        self.logfile = "log_ebc-b20.txt"
+
         self.is_monitoring = False
         self.monitoring_data = []
         self.voltage = 0.0
         self.current = 0.0
         self.mah = 0.0
-
-        self.debug = False
-        self.logfile = "log_ebc-b20.txt"
+        self.is_discharging = False
+        self.is_charging = False
 
 
     def find_device(self):
@@ -43,6 +47,7 @@ class EBC_B20H():
         dev = usb.core.find(idVendor=0x1a86, idProduct=0x7523)
 
         if dev is None:
+            logging.error("EBC-B20H Discharger not found")
             raise ValueError("EBC-B20H Discharger not found")
         
         self.reattach = False
@@ -62,8 +67,7 @@ class EBC_B20H():
         if self.reattach:
             dev.attach_kernel_driver(0)
         if self.debug:
-            print("Destroying")
-
+            logging.info("Destroying")
 
 
     def send(self, message: bytes):
@@ -74,6 +78,8 @@ class EBC_B20H():
         data.extend(message)
         data.append(self.checksum(message))
         data.append(END_OF_MESSAGE)
+
+        logging.debug('>>> ' + ' '.join( [f"{str(val):>3}" for val in data] ))
 
         if self.debug:
             if self.logfile:
@@ -94,8 +100,10 @@ class EBC_B20H():
                 som sta  c1  c2  v1  v2  e1  e2         dc1 dc2 dv1 dv2
             
                 sta: status byte
-                    10: discharging
-                    20: battery discharged
+                    10 (0x0A): discharging
+                    11 (0x0B): charging
+                    20 (0x14): end of discharge
+                    21 (0x15): end of charge
                     100: ?
                     110: ?
                     120: ?
@@ -105,7 +113,6 @@ class EBC_B20H():
                 e1, e2: energy transfered
                 dc1, dc2: user defined discharge current
                 dv1, dv2: user defined min voltage
-
         """
         lines = []
         line = self.buffer
@@ -127,6 +134,9 @@ class EBC_B20H():
             else:
                 line.append(b)
         self.buffer = line
+
+        for l in lines:
+            logging.debug('<<< ' + ' '.join( [f"{str(val):>3}" for val in l] ))
 
         if self.debug:
             if self.logfile:
@@ -170,8 +180,6 @@ class EBC_B20H():
         
         # "Connect" serial message
         self.send(bytes([0x05, 0, 0, 0, 0, 0, 0]))
-        
-        # self.start_monitoring()
 
 
     def disconnect(self):
@@ -179,7 +187,7 @@ class EBC_B20H():
         if self.is_monitoring:
             self.stop_monitoring()
         if self.debug:
-            print("Disconnect command sent")
+            logging.info("Disconnect command sent")
 
     
 
@@ -187,37 +195,54 @@ class EBC_B20H():
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
         self.is_discharging = False
         if self.debug:
-            print("Stop command sent")
+            logging.info("Stop command sent")
 
 
-    def discharge(self, current=1.0, vcutoff=2.0):
+    def discharge(self, current=1.0, cutoff_v=2.0):
         """
             Anatomy of a discharge message:
                 250   1   4  40   0 200   0   0 229 248
                 som dis  c1  c2  v1  v2   ?   ? crc eom
         """
         current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
-        vcutoff = min(max(vcutoff, 2.0), 72.0)
+        cutoff_v = min(max(cutoff_v, 2.0), 72.0)
         c_msb, c_lsb = self.encode_current(current)
-        v_msb, v_lsb = self.encode_voltage(vcutoff)
+        v_msb, v_lsb = self.encode_voltage(cutoff_v)
         
         data = [0x01, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
         self.is_discharging = True
         if self.debug:
-            print(f"Discharging to {vcutoff}V @ {current}Amps")
+            logging.info(f"Discharging to {cutoff_v}V @ {current}Amps")
 
 
-    def adjust(self, current, vcutoff):
+    def adjust(self, current, cutoff_v):
         current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
-        vcutoff = min(max(vcutoff, 2.0), 72.0)
+        cutoff_v = min(max(cutoff_v, 2.0), 72.0)
         c_msb, c_lsb = self.encode_current(current)
-        v_msb, v_lsb = self.encode_voltage(vcutoff)
+        v_msb, v_lsb = self.encode_voltage(cutoff_v)
 
         data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
+        if self.debug:
+            logging.info("Adjust command sent")
+
+
+    def charge(self, cutoff_c):
+        """ Allow charge (from an external charger)
+            until current falls below cutoff_c
+
+            Anatomy of a discharge message:
+                250 17   0   0   0 200   0   0 229 248
+                som ch   ?   ?   ?   ?  c1  c2 crc eom
+        """
+        c_msb, c_lsb = self.encode_current(cutoff_c)
+        data = [0x11, 0, 0, 0, 0xC8, c_msb, c_lsb]
+        self.send(bytes(data))
+        if self.debug:
+            logging.info("Charge command sent")
 
 
     def _monitor(self, filename, raw=False):
@@ -226,7 +251,7 @@ class EBC_B20H():
             if not raw:
                 f.write("dtime, current, voltage, mah\n")
         
-        print("Monitoring thread started")
+        logging.info("Monitoring thread started")
 
         while self.is_monitoring:
             data = self.recieve()
@@ -235,6 +260,23 @@ class EBC_B20H():
                 if not self.is_frame_valid(line):
                     continue
                 frame_data = self.decode_frame(line)
+
+                status = frame_data['status']
+                if status == 0x0A:
+                    self.is_discharging = True
+                    self.is_charging = False
+                elif status == 0x0B:
+                    self.is_discharging = False
+                    self.is_charging = True
+                elif status == 0x14:
+                    # end of discharge
+                    self.is_discharging = False
+                    logging.info("End of discharge")
+                elif status == 0x15
+                    # end of charge
+                    self.is_charging = False
+                    logging.info("End of charge")
+
                 self.voltage = frame_data['voltage']
                 self.current = frame_data['current']
                 self.mah = frame_data['mah']
@@ -249,7 +291,7 @@ class EBC_B20H():
                     f.write(formatted + '\n')
             time.sleep(2)
         
-        print("Monitoring thread stopped")
+        logging.info("Monitoring thread stopped")
         
         if filename:
             f.close()
@@ -267,7 +309,7 @@ class EBC_B20H():
         self.t.setDaemon(True)
         self.t.start()
         if self.debug:
-            print("EBC-B20H monitoring started")
+            logging.info("EBC-B20H monitoring started")
 
 
 
@@ -276,7 +318,7 @@ class EBC_B20H():
         if self.t:
             self.t.join()
         if self.debug:
-            print("EBC-B20H monitoring stopped")
+            logging.info("EBC-B20H monitoring stopped")
 
 
     def clear(self):
