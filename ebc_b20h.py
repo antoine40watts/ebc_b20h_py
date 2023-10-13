@@ -28,7 +28,6 @@ class EBC_B20H():
 
     def __init__(self):
         self.buffer = []
-        self.find_device()
         self.debug = False
         self.logfile = "log_ebc-b20.txt"
 
@@ -39,6 +38,8 @@ class EBC_B20H():
         self.mah = 0.0
         self.is_discharging = False
         self.is_charging = False
+        
+        self.find_device()
 
 
     def find_device(self):
@@ -56,6 +57,7 @@ class EBC_B20H():
             self.reattach = True
         
         self.dev = dev
+        logging.info("EBC-B20H Discharger found")
     
 
     def destroy(self):
@@ -159,6 +161,7 @@ class EBC_B20H():
             The device won't communicate without connecting first
         """
         
+        logging.info("Trying to connect to EBC-B20H")
         # Control Transfer args : Request type, Request, Value, Index, Data or Size
         self.dev.ctrl_transfer(0x40, 0xa1, 0xc39c, 0xd98a, None)
         ret = self.dev.ctrl_transfer(0xc0, 0x95, 0x2c2c, 0x0, 0x2)

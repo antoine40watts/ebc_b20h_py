@@ -30,7 +30,6 @@ if __name__ == "__main__":
     discharger = EBC_B20H()
     discharger.debug = True
     discharger.logfile = None
-    discharger.find_device()
 
     print("Connecting")
     discharger.connect()

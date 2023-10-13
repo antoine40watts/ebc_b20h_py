@@ -101,8 +101,6 @@ Description=Battery Testing Software
 Type=simple
 ExecStart=$SCRIPT_PATH
 WorkingDirectory=$SCRIPT_DIR
-User=piwatts
-Group=piwatts
 Restart=always
 
 [Install]
