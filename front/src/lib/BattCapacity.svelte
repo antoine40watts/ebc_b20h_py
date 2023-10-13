@@ -43,17 +43,16 @@
 
 <div class="container">
     <div>
-        <p style="font-size: 20px">Capacité (Ah): </p>
+        <p style="font-size: 1.5rem">Capacité</p>
     </div>
-
-    <div class="container-capacity">
-        <!-- <p>196,42</p>
-        <p>194,96</p>
-        <p>193,15</p> -->
-        <button class="button-capacity" on:click={measureCapacity}>Mesurer</button>
+    
+    <div style="text-align: left;">
+        <span>Originale: </span>
+        <span style="font-weight: bold;">{$deviceParameters.original_capacity / 1000} Ah</span>
+        <p>Réelle:
+            <button class="button-capacity" on:click={measureCapacity}>Mesurer</button>
+        </p>
     </div>
-
-    <br>
 
     <div>
         <label for="cycles_input">Cycle(s)</label>
@@ -96,13 +95,12 @@
     }
 
     @media print{
-    .button-capacity {
-      display: none;
+        .button-capacity {
+            display: none;
+        }
+        .container {
+            position: absolute;
+            bottom: 40px;
+        }
     }
-    .container {
-        position: absolute;
-        bottom: 40px;
-    }
-  }
-
 </style>

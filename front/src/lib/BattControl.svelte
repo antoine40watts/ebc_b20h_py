@@ -80,4 +80,10 @@
         border-radius: 16px;
         font-size: 1rem;
     }
+
+    @media print{
+        button {
+            display: none;
+        }
+    }
 </style>

@@ -65,10 +65,4 @@
   .border-left {
     border-left: 1px solid rgba(10, 59, 23, 0.4);
   }
-
-  @media print{
-    .border-left {
-      display: none;
-    }
-  }
 </style>

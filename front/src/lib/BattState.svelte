@@ -87,4 +87,10 @@
     .button-stop:active {
         background-color: crimson;
     }
+
+    @media print{
+        .container {
+            display: none;
+        }
+    }
 </style>

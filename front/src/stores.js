@@ -73,6 +73,7 @@ const initialParams = {
   discharge_v: 2.7,
   discharge_c: 1,
   n_cycles: 1,
+  original_capacity: 0,
 };
 
 export const deviceParameters = writable(initialParams);

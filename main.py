@@ -98,12 +98,12 @@ class DeviceController():
         if self.charger.is_charging:
             self.charger.stop()
         self.discharger.discharge(current, min_voltage)
-        logging.info(f"Discharging at {current}Amps down to {max_voltage}V")
+        logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
     def stop_all(self):
         if self.charger.is_charging:
             self.charger.stop()
-        if self.discharger.is_charging or discharger.is_discharging:
+        if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
 
         logging.debug("Server: stop request")
