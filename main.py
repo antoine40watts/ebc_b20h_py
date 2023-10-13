@@ -95,7 +95,7 @@ class DeviceController():
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
     def discharge(self, current, min_voltage):
-        if charger.is_charging:
+        if self.charger.is_charging:
             self.charger.stop()
         self.discharger.discharge(current, min_voltage)
         logging.info(f"Discharging at {current}Amps down to {max_voltage}V")
@@ -198,7 +198,6 @@ async def charge_battery(charge_request: CDRequest):
     current = charge_request.cc
     max_voltage = charge_request.cv
     device.charge(current, max_voltage)
-    
     return {"message": "Charge request received"}
 
 
@@ -207,7 +206,6 @@ async def discharge_battery(discharge_request: CDRequest):
     current = discharge_request.dc
     min_voltage = discharge_request.dv
     device.discharge(current, min_voltage)
-    
     return {"message": "Discharge request received"}
 
 
