@@ -1,13 +1,12 @@
 <script>
     import { deviceParameters } from "../stores.js";
+    import { batteryData } from "../stores.js";
 
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
 
     async function measureCapacity() {
         const url = apiUrl + "/measure";
-        // const queryParams = `?cv=${charge_v}&cc=${charge_c}&dv=${discharge_v}&dc=${discharge_c}`;
-        // console.log(url+queryParams);
 
         const rpc_data = {
             cv: $deviceParameters.charge_v,
@@ -50,15 +49,18 @@
         <span>Originale: </span>
         <span style="font-weight: bold;">{$deviceParameters.original_capacity / 1000} Ah</span>
         <p>Réelle:
+            {#if $batteryData.capacity > 0}
+                <span class="capacity-result">{$batteryData.capacity / 1000} Ah</span>
+            {/if}
             <button class="button-capacity" on:click={measureCapacity}>Mesurer</button>
         </p>
     </div>
 
-    <div>
+    <!-- <div>
         <label for="cycles_input">Cycle(s)</label>
         <input type="number" id="cycles_input" name="cycles_input"
             size="3" value="1" min="1" max="6" />
-    </div>
+    </div> -->
 </div>
 
 
@@ -71,20 +73,10 @@
     .container div {
         margin: 6px;
     }
-    .container-capacity {
-        display: flex;
-        justify-content: center;
-        max-width: 400px;
-        /* background-color: blueviolet; */
-    }
-    .container-capacity p {
-        margin: 0 4px 0 4px;
-        padding: 2px 4px 2px 4px;
+    .capacity-result {
         color: #50C74B;
-        font-family: inherit;
-        font-weight: 500;
-        border: 1px solid #50C74B;
-        border-radius: 12px;
+        font-size: 1.2em;
+        font-weight: 600;
     }
     
     .button-capacity {

@@ -9,6 +9,7 @@ let arrayCurrent = [];
 let arrayMah = [];
 let arrayTime = [];
 let batteryState = 0;
+let batteryCapacity = 0;
 let chartId = "";
 
 
@@ -32,6 +33,9 @@ async function updateData() {
         arrayTime = [...arrayTime, element.t];
       });
       batteryState = responseData.battery_state;
+      if ("battery_capacity" in responseData) {
+        batteryCapacity = responseData.battery_capacity;
+      }
     } else {
       console.error("Failed to fetch data");
     }
@@ -47,6 +51,7 @@ const initialState = {
   current: [],
   mah: [],
   time: [],
+  capacity: 0,
 };
 
 export const batteryData = readable(initialState, (set) => {
@@ -58,6 +63,7 @@ export const batteryData = readable(initialState, (set) => {
       current: arrayCurrent,
       mah: arrayMah,
       time: arrayTime,
+      capacity: batteryCapacity,
     }
     set(battery_data);
   }, 2000);

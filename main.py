@@ -12,7 +12,6 @@ from typing import Union
 from enum import Enum
 from contextlib import asynccontextmanager
 import asyncio
-import random
 import io
 import csv
 import uuid
@@ -32,10 +31,18 @@ from test.test_ebc_b20h import FakeEBC_B20H
 from test.test_q2_charger import FakeQ2Charger
 
 
-HOSTNAME = "battest.local"
+# HOSTNAME = "battest.local"
 # HOSTNAME = "127.0.0.1"
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+
+
+class CDRequest(BaseModel):
+    cv: float
+    cc: float
+    dv: float
+    dc: float
+    nc: int = 1
 
 
 class DeviceController():
@@ -46,9 +53,16 @@ class DeviceController():
         CHARGING = 1
         DISCHARGING = 2
     
+    class DeviceMode(Enum):
+        IDLE = 0
+        CAPACITY_TEST = 1
+
 
     def __init__(self):
-        self.battery_state = self.BatteryState.IDLE
+        self.batt_state = self.BatteryState.IDLE
+        self.prev_state = self.batt_state
+        self.batt_capacity = 0
+        self.mode = self.DeviceMode.IDLE
         self._running = False
 
         try:
@@ -65,44 +79,71 @@ class DeviceController():
 
     async def _run(self):
         while self._running:
+            # Update battery state
             if self.discharger.is_charging:
-                self.battery_state = self.BatteryState.CHARGING
+                self.batt_state = self.BatteryState.CHARGING
             elif self.discharger.is_discharging:
-                self.battery_state = self.BatteryState.DISCHARGING
+                self.batt_state = self.BatteryState.DISCHARGING
             else:
-                self.battery_state = self.BatteryState.IDLE
+                self.batt_state = self.BatteryState.IDLE
             
-            await asyncio.sleep(1)
+            if self.mode == self.DeviceMode.CAPACITY_TEST:
+                if self.batt_state == self.BatteryState.IDLE and self.prev_state == self.BatteryState.CHARGING:
+                    self.discharge(self.params.dc, self.params.dv)
+                elif self.batt_state == self.BatteryState.IDLE and self.prev_state == self.BatteryState.DISCHARGING:
+                    self.batt_capacity = self.discharger.mah
+                    self.mode = self.DeviceMode.IDLE
+
+            self.prev_state = self.batt_state
+            await asyncio.sleep(0.3)
     
-    def start_monitoring(self):
+    def start(self):
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
             # await self.task
     
-    def stop_monitoring(self):
+    async def stop(self):
         self._running = False
         self.discharger.stop_monitoring()
         self.discharger.disconnect()
+
         # Release USB device
         self.discharger.destroy()
+        await self.task
     
     def charge(self, current, max_voltage):
+        if self.discharger.is_discharging:
+            self.discharger.stop()
         self.charger.charge(current, max_voltage)
         self.discharger.charge(cutoff_c = 0.1)
+        self.batt_state = self.BatteryState.CHARGING
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
     def discharge(self, current, min_voltage):
         if self.charger.is_charging:
             self.charger.stop()
         self.discharger.discharge(current, min_voltage)
+        self.batt_state = self.BatteryState.DISCHARGING
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
+    
+    def measure_capacity(self, request: CDRequest):
+        self.mode = self.DeviceMode.CAPACITY_TEST
+        self.params = request
+        self.charger.charge(request.cc, request.cv)
+        self.discharger.charge(cutoff_c = 0.1)
+        self.discharger.clear()
+        self.batt_capacity = 0
+        logging.info(f"Measuring capacity")
     
     def stop_all(self):
         if self.charger.is_charging:
             self.charger.stop()
         if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
+        self.batt_state = self.BatteryState.IDLE
+        self.mode = self.DeviceMode.IDLE
+        logging.info(f"Stop all !")
 
 
 
@@ -115,21 +156,17 @@ def new_chart_id():
 async def lifespan(app: FastAPI):
     new_chart_id()
     logging.info("Starting device...")
-    device.start_monitoring()
+    device.start()
     logging.info("Device started")
     yield
 
-    device.stop_monitoring()    
+    await device.stop()    
     print("Bye !")
-
 
 
 device = DeviceController()
 
 app = FastAPI(lifespan=lifespan)
-
-logging.warning("tesssssst3")
-
 
 # Allow request from svelte frontend
 origins = ["*"]
@@ -148,13 +185,6 @@ app.add_middleware(
 
 # templates = Jinja2Templates(directory="templates")
 
-
-class CDRequest(BaseModel):
-    cv: float
-    cc: float
-    dv: float
-    dc: float
-    nc: int = 1
 
 
 @app.get("/")
@@ -182,10 +212,7 @@ async def measure_capacity(request: CDRequest):
     num_cycles = request.nc
 
     new_chart_id()
-    discharger.clear()
-    charger.charge(charge_c, charge_v)
-    discharger.charge(cutoff_c = 0.1)
-
+    device.measure_capacity(request)
     logging.info("Measure battery capacity request")
 
     return {"message": "measuring capacity"}
@@ -230,7 +257,10 @@ async def get_datapoints(start: int = 0, id: str = ""):
         response["chart_id"] = chart_id
         print("sending id", chart_id)
 
-    response["battery_state"] = device.battery_state
+    response["battery_state"] = device.batt_state
+
+    if device.batt_capacity > 0:
+        response["battery_capacity"] = device.batt_capacity
 
     datapoints = []
     for datapoint in device.monitoring_data[start:]:

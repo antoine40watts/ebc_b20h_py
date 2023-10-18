@@ -39,7 +39,7 @@
 
 <div class="container">
     <div style="text-align: center">
-            <label for="charge_input_v">Charge max</label>
+            <label for="charge_input_v">Voltage max</label>
             <input type="number" id="charge_input_v" name="charge_input_v" size="4"
                 style="width: 60px;"
                 bind:value={$deviceParameters.charge_v}/> V,
@@ -50,7 +50,7 @@
     </div>
 
     <div style="text-align: center">
-            <label for="discharge_input_v">Charge min</label>
+            <label for="discharge_input_v">Voltage min</label>
             <input type="number" id="discharge_input_v" name="discharge_input_v" size="4"
                 style="width: 60px;"
                 bind:value={$deviceParameters.discharge_v} /> V,
@@ -82,7 +82,7 @@
     }
 
     @media print{
-        button {
+        .container {
             display: none;
         }
     }

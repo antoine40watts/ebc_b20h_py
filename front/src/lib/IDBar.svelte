@@ -18,7 +18,7 @@
         deviceParameters.update((params) => {
             params.charge_v = Math.round(4.2 * cells_s * 100) / 100;
             params.discharge_v = Math.round(2.7 * cells_s * 100) / 100;
-            params.original_capacity = Math.round(cell_cap * cells_s * cells_p);
+            params.original_capacity = Math.round(cell_cap * cells_p);
             return params;
         });
     }

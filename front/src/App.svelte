@@ -38,6 +38,8 @@
       </div>
     </div>
   </div>
+
+  <p class="version-label">v {import.meta.env.VITE_VERSION}</p>
 </main>
 
 
@@ -64,5 +66,12 @@
 
   .border-left {
     border-left: 1px solid rgba(10, 59, 23, 0.4);
+  }
+
+  .version-label {
+    position: fixed;
+    bottom: -8px;
+    right: 10px;
+    font-weight: bold;
   }
 </style>

@@ -1,5 +1,6 @@
 <script>
     import { batteryData } from "../stores.js";
+    import idleIcon from "../assets/batt_idle.png";
 
     $: voltage = $batteryData.voltage.slice(-1)[0];
     $: current = $batteryData.current.slice(-1)[0];
@@ -43,8 +44,11 @@
 
 <div class="container">
     <p class="state" style="color: {statesColor[$batteryData.state]};">
-        {batteryStates[$batteryData.state]}
-        {#if $batteryData.state != 0}
+        {#if $batteryData.state == 0}
+            <img class="idle-icon" src={idleIcon}>
+            {batteryStates[$batteryData.state]}
+        {:else}
+            {batteryStates[$batteryData.state]}
             <button class="button-stop" on:click={stopDevices}>ARRÊT</button>
         {/if}
     </p>
@@ -86,6 +90,13 @@
     }
     .button-stop:active {
         background-color: crimson;
+    }
+
+    .idle-icon {
+        translate: -120px -46px;
+        scale: 0.8;
+        position: absolute;
+        filter: opacity(0.8);
     }
 
     @media print{
