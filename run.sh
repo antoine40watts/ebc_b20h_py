@@ -22,11 +22,11 @@ done
 
 # Update repository
 if ping -c 1 "$website_url"; then
-    > error.log
-    git fetch origin 2>> error.log
-    git reset --hard origin/main 2>> error.log
+    sudo -u piwatts echo '' > github_error.log
+    sudo -u piwatts git fetch origin 2>> github_error.log
+    sudo -u piwatts git reset --hard origin/main 2>> github_error.log
 else
-    echo "Github.com is not accessible" >> error.log
+    echo "Github.com is not accessible" >> github_error.log
 fi
 
 uvicorn main:app --reload --host 0.0.0.0 &
