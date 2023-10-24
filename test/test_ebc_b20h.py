@@ -26,6 +26,8 @@ class FakeUSBDevice():
         for b in self.log[self.log_i]:
             data.append(b)
         self.log_i += 1
+        if self.log_i >= len(self.log):
+            self.log_i = 0
         return data
 
     def ctrl_transfer(self, reqtype, req, val, idx, data_size):

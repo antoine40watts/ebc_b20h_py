@@ -132,24 +132,22 @@ Depuis le dossier `front`
 
 Appuyer sur la touche 'o' pour ouvrir le naviguateur sur la page de l'interface.
 
+## Réglage des problèmes
+
+Une fois connecté en SSH sur le raspberry pi, on peut contrôler l'état du serveur avec
+
+    systemctl status battest
+
+On peut mettre en arrêt le service avec
+
+    systemctl stop battest
+
+
 ## Test unitaires
 
 La batterie des tests s'exécute avec la commande suivante (nécessites l'installation de la librairie PIP `pytest`) :
 
     pytest
-
-## Problèmes
-
-Aucune commande par USB pour activer le mode **CHG** (charge) du EBC-B20H depuis le logiciel officiel, à priori.
-J'ai testé quelques commandes différentes, au hasard, mais pas de réaction de l'appareil.
-
-Testé :
-
-    0xFA, 0x03, 0, 0, 0, 0, 0, 0, 0x03, 0xF8  # Aucune réaction
-    0xFA, 0x04, 0, 0, 0, 0, 0, 0, 0x04, 0xF8  # Fait planter l'appareil
-    0xFA, 0x08, 0, 0, 0, 0, 0, 0, 0x08, 0xF8  # Aucune réaction
-    0xFA, 0x09, 0, 0, 0, 0, 0, 0, 0x09, 0xF8  # Aucune réaction
-    0xFA, 0x0a, 0, 0, 0, 0, 0, 0, 0x0a, 0xF8  # Aucune réaction
 
 ## TODO
 
