@@ -329,6 +329,7 @@ class EBC_B20H():
 
     def clear(self):
         self.monitoring_data.clear()
+        self.monitoring_t0 = time.time()
 
 
     @staticmethod

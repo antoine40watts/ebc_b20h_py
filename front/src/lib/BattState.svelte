@@ -1,10 +1,10 @@
 <script>
-    import { batteryData } from "../stores.js";
+    import { deviceData } from "../stores.js";
     import idleIcon from "../assets/batt_idle.png";
 
-    $: voltage = $batteryData.voltage.slice(-1)[0];
-    $: current = $batteryData.current.slice(-1)[0];
-    $: mah = $batteryData.mah.slice(-1)[0];
+    $: voltage = $deviceData.voltage.slice(-1)[0];
+    $: current = $deviceData.current.slice(-1)[0];
+    $: mah = $deviceData.mah.slice(-1)[0];
 
     function getDecimalPart(n) {
         return parseInt(10 * (n - parseInt(n)))
@@ -43,12 +43,12 @@
 
 
 <div class="container">
-    <p class="state" style="color: {statesColor[$batteryData.state]};">
-        {#if $batteryData.state == 0}
+    <p class="state" style="color: {statesColor[$deviceData.battery_state]};">
+        {#if $deviceData.battery_state == 0}
             <img class="idle-icon" src={idleIcon}>
-            {batteryStates[$batteryData.state]}
+            {batteryStates[$deviceData.battery_state]}
         {:else}
-            {batteryStates[$batteryData.state]}
+            {batteryStates[$deviceData.battery_state]}
             <button class="button-stop" on:click={stopDevices}>ARRÊT</button>
         {/if}
     </p>

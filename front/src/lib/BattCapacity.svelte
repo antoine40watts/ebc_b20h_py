@@ -1,6 +1,6 @@
 <script>
     import { deviceParameters } from "../stores.js";
-    import { batteryData } from "../stores.js";
+    import { deviceData } from "../stores.js";
 
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
@@ -49,8 +49,8 @@
         <span>Originale: </span>
         <span style="font-weight: bold;">{$deviceParameters.original_capacity / 1000} Ah</span>
         <p>Réelle:
-            {#if $batteryData.capacity > 0}
-                <span class="capacity-result">{$batteryData.capacity / 1000} Ah</span>
+            {#if $deviceData.capacity > 0}
+                <span class="capacity-result">{$deviceData.capacity / 1000} Ah</span>
             {/if}
             <button class="button-capacity" on:click={measureCapacity}>Mesurer</button>
         </p>
@@ -93,6 +93,8 @@
         .container {
             position: absolute;
             bottom: 40px;
+            left: 20px;
+            background-color: blueviolet;
         }
     }
 </style>

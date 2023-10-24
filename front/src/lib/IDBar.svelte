@@ -1,18 +1,18 @@
 <script>
     import { deviceParameters } from "../stores.js";
 
-    let cell_tech_list = [
-        "Li-ion",
-        "Li-Fe",
-        "NiMH",
-        "Lead Acid",
-        "other",
-    ]
+    // let cell_tech_list = [
+    //     "Li-ion",
+    //     "Li-Fe",
+    //     "NiMH",
+    //     "Lead Acid",
+    //     "other",
+    // ]
 
     let cells_s = 1;
     let cells_p = 1;
     let cell_cap = 3200;
-    let cell_tech = cell_tech_list[0];
+    // let cell_tech = cell_tech_list[0];
 
     function updateParams() {
         deviceParameters.update((params) => {
@@ -25,9 +25,8 @@
 
 </script>
 
+
 <div class="container">
-
-
     <div class="input-group">
         <span>
             <label for="client_id">Client #</label>
@@ -75,6 +74,7 @@
 
 </div>
 
+
 <style>
     .container {
         background-color: #3aaa35;
@@ -90,5 +90,9 @@
     }
     label {
         margin-right: 6px;
+    }
+
+    @media print {
+
     }
 </style>

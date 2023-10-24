@@ -10,6 +10,7 @@ let arrayMah = [];
 let arrayTime = [];
 let batteryState = 0;
 let batteryCapacity = 0;
+let deviceError = false;
 let chartId = "";
 
 
@@ -20,6 +21,7 @@ async function updateData() {
     if (response.ok) {
       const responseData = await response.json();
       if ("chart_id" in responseData) {
+        // Reset chart data
         chartId = responseData.chart_id;
         arrayVoltage = [];
         arrayCurrent = [];
@@ -36,17 +38,21 @@ async function updateData() {
       if ("battery_capacity" in responseData) {
         batteryCapacity = responseData.battery_capacity;
       }
+      
     } else {
+      deviceError = true;
       console.error("Failed to fetch data");
     }
   } catch (error) {
+    deviceError = true;
     console.error("Error:", error);
   }
 }
 
 
-const initialState = {
-  state: 0,
+const initialDeviceState = {
+  battery_state: 0,
+  device_error: deviceError,
   voltage: [],
   current: [],
   mah: [],
@@ -54,18 +60,19 @@ const initialState = {
   capacity: 0,
 };
 
-export const batteryData = readable(initialState, (set) => {
+export const deviceData = readable(initialDeviceState, (set) => {
   const interval = setInterval(() => {
     updateData();
-    let battery_data  = {
-      state: batteryState,
+    let deviceData  = {
+      battery_state: batteryState,
+      device_error: deviceError,
       voltage: arrayVoltage,
       current: arrayCurrent,
       mah: arrayMah,
       time: arrayTime,
       capacity: batteryCapacity,
     }
-    set(battery_data);
+    set(deviceData);
   }, 2000);
   return () => {
     clearInterval(interval);
@@ -73,7 +80,7 @@ export const batteryData = readable(initialState, (set) => {
 });
 
 
-const initialParams = {
+const initialDeviceParams = {
   charge_v: 4.2,
   charge_c: 1,
   discharge_v: 2.7,
@@ -82,4 +89,4 @@ const initialParams = {
   original_capacity: 0,
 };
 
-export const deviceParameters = writable(initialParams);
+export const deviceParameters = writable(initialDeviceParams);

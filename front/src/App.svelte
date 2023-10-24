@@ -1,5 +1,5 @@
 <script>
-  // import { store } from './stores.js';
+  import { deviceData } from './stores.js';
 
   import IDBar from "./lib/IDBar.svelte";
   import BattState from "./lib/BattState.svelte";
@@ -7,17 +7,16 @@
   import BattCapacity from "./lib/BattCapacity.svelte";
   import BattControl from "./lib/BattControl.svelte";
 
-  let cells_s = 1;
-  let cells_p = 1;
-  $: charge_v = Math.round(cells_s * 4.20 * 100) / 100;
-  // $: charge_c = cells_p * 0.5;
-  $: discharge_v = Math.round(cells_s * 2.70 * 100) / 100;
-  // $: discharge_c = cells_p * 0.5;
+  import ErrorModal from './lib/ErrorModal.svelte';
+
+  // let showModal = true;
 
 </script>
 
 
 <main>
+  <ErrorModal showModal={$deviceData.device_error} />
+
   <IDBar />
 
   <div class="chart-container">
@@ -33,7 +32,6 @@
         <BattControl />
       </div>
       <div class="border-left">
-        <!-- <BattControl {charge_v} {charge_c} {discharge_v} {discharge_c} /> -->
         <BattCapacity/>
       </div>
     </div>

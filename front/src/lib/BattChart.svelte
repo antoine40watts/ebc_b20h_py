@@ -1,5 +1,5 @@
 <script>
-    import { batteryData } from "../stores.js";
+    import { deviceData } from "../stores.js";
     import { Line } from "svelte-chartjs";
 
     import {
@@ -32,7 +32,7 @@
                 // fill: true,
                 backgroundColor: 'rgba(225, 204,230, .3)',
                 borderColor: 'rgb(75, 192, 192)',
-                data: $batteryData.voltage,
+                data: $deviceData.voltage,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
@@ -41,7 +41,7 @@
                 label: 'Current',
                 yAxisID: 'cAxis',
                 borderColor: 'rgb(200, 200, 75)',
-                data: $batteryData.current,
+                data: $deviceData.current,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -51,14 +51,14 @@
                 label: 'mAh',
                 yAxisID: 'mahAxis',
                 borderColor: 'rgb(80, 230, 152)',
-                data: $batteryData.mah,
+                data: $deviceData.mah,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
             }
         ],
-        labels: $batteryData.time,
+        labels: $deviceData.time,
     }
 
 
@@ -127,19 +127,30 @@
     //     link.click();
     //     document.body.removeChild(link);
     // }
+
+    function downloadRaw() {
+        let url = apiUrl + "/battery-state";
+        window.open(url, '_blank');
+    }
+
+    function downloadCSV() {
+        let url = apiUrl + "/get-csv?filename=" + csvFileName;
+        window.open(url, '_blank');
+    }
 </script>
 
 
 <div class="container">
-{#if $batteryData.voltage.length > 0}
+{#if $deviceData.voltage.length > 0}
     <div class="chart-container">
         <Line options={options} data={chartData} />
     </div>
     <div class="export-button">
         Export 
-        <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank"><button>raw</button></a>
-        <a href={apiUrl + "/get-csv?filename=" + csvFileName}
-            download={csvFileName}><button>csv</button></a>
+        <!-- <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank">raw</a> -->
+        <button on:click={downloadRaw}>raw</button>
+        <!-- <a href={apiUrl + "/get-csv?filename=" + csvFileName} download={csvFileName}>csv</a> -->
+        <button on:click={downloadCSV}>csv</button>
     </div>
 {:else}
     <div class="error-message">
@@ -181,23 +192,23 @@
         /* margin-right: 16px; */
     }
 
-    @media print{
+    @media print {
     .export-button {
       display: none;
     }
     .chart-container {
         /* transform: rotate(90deg);
-        display: flow;
-        position: absolute; */
-        width: 100px;
-        height: 75%;
+        display: flow;*/
+        /* position: absolute;
+        top: 200;
+        left: 0; */
     }
     .container {
-        /* transform: rotate(90deg);
-        display: flow;
-        position: absolute; */
-        width: 100px;
-        height: 75%;
+        /* transform: rotate(90deg); */
+        /* display: flow; */
+        position: absolute;
+        top: 120px;
+        left: 0;
     }
   }
 </style>

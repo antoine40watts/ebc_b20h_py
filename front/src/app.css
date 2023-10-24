@@ -96,10 +96,19 @@ button:focus-visible {
     color: #213547;
     background-color: #ffffff;
   }
-  a:hover {
-    color: #747bff;
-  }
+
   button {
     background-color: #f9f9f9;
   }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  input[type=number] {
+    -moz-appearance: textfield;
+}
 }
