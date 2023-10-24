@@ -2,10 +2,11 @@
 
 # Update repository
 if ping -c 1 "github.com"; then
-    git fetch origin
-    git reset --hard origin/main
+    > error.log
+    git fetch origin 2>> error.log
+    git reset --hard origin/main 2>> error.log
 else
-    echo "Github.com is not accessible"
+    echo "Github.com is not accessible" >> error.log
 fi
 
 uvicorn main:app --reload --host 0.0.0.0 &
