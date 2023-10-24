@@ -246,7 +246,7 @@ async def stop():
 @app.get("/battery-state")
 async def get_datapoints(start: int = 0, id: str = ""):
     # query_params = {"start" : start}
-    print(f"{start=} {id=}")
+    # print(f"{start=} {id=}")
     response = {}
 
     if chart_id != id:
