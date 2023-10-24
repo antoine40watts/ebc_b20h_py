@@ -67,7 +67,7 @@ class EBC_B20H():
 
         # It may raise USBError if there's e.g. no kernel driver loaded at all
         if self.reattach:
-            dev.attach_kernel_driver(0)
+            self.dev.attach_kernel_driver(0)
         if self.debug:
             logging.info("Destroying")
 

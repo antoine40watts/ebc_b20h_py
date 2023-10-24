@@ -1,7 +1,26 @@
 #!/bin/bash
 
+
+# Define the number of retries and the delay between retries
+website_url="https://github.com"
+max_retries=5
+retry_delay=5
+retries=0
+
+# Loop to check website availability
+echo "Trying to access github.com"
+while [ $retries -lt $max_retries ]; do
+    if ping -c 1 "$website_url"; then
+        echo "Website is accessible."
+    else
+        echo "Website is not accessible. Retrying in $retry_delay seconds..."
+        sleep $retry_delay
+        retries=$((retries+1))
+    fi
+done
+
 # Update repository
-if ping -c 1 "github.com"; then
+if ping -c 1 "$website_url"; then
     > error.log
     git fetch origin 2>> error.log
     git reset --hard origin/main 2>> error.log

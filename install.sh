@@ -96,6 +96,7 @@ if [[ ! -e "$SERVICE_FILE" ]]; then
     cat > "$SERVICE_FILE" <<EOL
 [Unit]
 Description=Battery Testing Software
+After=network.target
 
 [Service]
 Type=simple

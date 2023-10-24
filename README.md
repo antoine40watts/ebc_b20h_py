@@ -142,6 +142,9 @@ On peut mettre en arrêt le service avec
 
     systemctl stop battest
 
+Lecture du journal
+
+    journalctl -u battest -r
 
 ## Test unitaires
 
