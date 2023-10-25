@@ -140,6 +140,8 @@
 </script>
 
 
+<h2>Courbe de décharge</h2>
+
 <div class="container">
 {#if $deviceData.voltage.length > 0}
     <div class="chart-container">
@@ -192,9 +194,17 @@
         /* margin-right: 16px; */
     }
 
+    h2 {
+        display: none;
+    }
+
     @media print {
+    h2 {
+        display: block;
+        text-align: left;
+    }
     .export-button {
-      display: none;
+        display: none;
     }
     .chart-container {
         /* transform: rotate(90deg);

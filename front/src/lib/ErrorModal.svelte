@@ -16,6 +16,7 @@
 <style>
     dialog {
         border-radius: 24px;
+        padding: 0 30px 0 30px;
     }
     dialog::backdrop {
         backdrop-filter: blur(4px);

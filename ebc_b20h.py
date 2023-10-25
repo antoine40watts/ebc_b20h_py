@@ -335,7 +335,7 @@ class EBC_B20H():
     @staticmethod
     def decode_frame(data : List[int]) -> dict:
         amp = EBC_B20H.decode_current(data[2], data[3])
-        vbatt = EBC_B20H.decode_voltage(data[4], data[5]) / 11
+        vbatt = EBC_B20H.decode_voltage(data[4], data[5])
         mah = EBC_B20H.decode_mah(data[6], data[7])
         return {'status': data[1], 'current': amp, 'voltage': vbatt, 'mah': mah}
 
@@ -358,7 +358,11 @@ class EBC_B20H():
 
     @staticmethod
     def decode_voltage(msb: int, lsb: int) -> float:
-        return (msb * 2400 + lsb * 10) / 1000
+        # The linear transformation to apply is different if the voltage is above 30.00V
+        # Weird stuff
+        if msb < 149:
+            return (msb * 240 + lsb) / 1000
+        return (2992 + (msb-149) * 240 + lsb) / 100
 
 
     @staticmethod

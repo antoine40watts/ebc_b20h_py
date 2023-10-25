@@ -19,6 +19,7 @@ async function updateData() {
     const url = `${apiUrl}/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
     if (response.ok) {
+      deviceError = false;
       const responseData = await response.json();
       if ("chart_id" in responseData) {
         // Reset chart data

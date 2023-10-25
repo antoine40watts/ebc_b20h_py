@@ -68,10 +68,21 @@ def test_encode_voltage():
         (32.0, (0x0D, 0x50)),
         (8.0, (0x03, 0x50)),
         (2.0, (0x0, 0xC8)),
-
     ]
     for v, result in test_cases:
         assert EBC_B20H.encode_voltage(v) == result
+
+
+def test_decode_voltage():
+    test_cases = [
+        ((67, 160), 16.24),
+        ((97, 70), 23.35),
+        ((105, 180), 25.38),
+        ((149, 0), 29.92),
+        ((155, 0), 44.32)
+    ]
+    for (msb, lsb), result in test_cases:
+        assert EBC_B20H.decode_voltage(msb, lsb) == result
 
 
 def test_encode_current():

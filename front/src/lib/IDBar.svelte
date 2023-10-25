@@ -93,6 +93,8 @@
     }
 
     @media print {
-
+        span {
+            font-size: 1.2em;
+        }
     }
 </style>
