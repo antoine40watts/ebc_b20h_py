@@ -18,7 +18,7 @@ class EBC_B20H():
             0x01    Discharge
             0x02    Stop
             0x03    ?
-            0x04    ?
+            0x04    Voltage calibration
             0x05    Connect
             0x06    Disconnect
             0x07    Adjust
@@ -191,7 +191,6 @@ class EBC_B20H():
             self.stop_monitoring()
         if self.debug:
             logging.info("Disconnect command sent")
-
     
 
     def stop(self):
@@ -248,6 +247,30 @@ class EBC_B20H():
             logging.info("Charge command sent")
 
 
+    def calibrate(self):
+        """ Voltage calibration
+            
+            Anatomy of a low calibration message:
+                250   4   0   4  40   0   0   0  40 248
+                som cal  lo  v1  v2             crc eom
+            
+            Anatomy of a high calibration message:
+                250   4   1   4  40   0   0   0  40 248
+                som cal  hi   ?   ?             crc eom
+            
+                !!! voltage encoding is weird here
+            
+            Anatomy of a calibration validation message:
+                250   4   4   0   0   0   0   0   0 248
+                som cal val                     crc eom
+        """
+
+
+        raise NotImplementedError
+        data = [0x04, 0, 0, 0, 0, 0, 0]
+        self.send(bytes(data))
+
+
     def _monitor(self, filename, raw=False):
         if filename:
             f = open(filename, 'w')
@@ -265,7 +288,7 @@ class EBC_B20H():
                 frame_data = self.decode_frame(line)
 
                 status = frame_data['status']
-                if status == 0x01:
+                if status == 0x00 or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
                 if status == 0x0A:

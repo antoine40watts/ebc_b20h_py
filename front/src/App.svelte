@@ -1,24 +1,20 @@
 <script>
-  import { deviceData } from './stores.js';
+  // import { deviceData } from './stores.js';
 
   import IDBar from "./lib/IDBar.svelte";
   import BattState from "./lib/BattState.svelte";
   import BattChart from "./lib/BattChart.svelte";
   import BattCapacity from "./lib/BattCapacity.svelte";
   import BattControl from "./lib/BattControl.svelte";
-
   import ErrorModal from './lib/ErrorModal.svelte';
-
-  // let showModal = true;
 
 </script>
 
 
 <main>
-  <ErrorModal showModal={$deviceData.device_error} />
-
   <IDBar />
 
+  <h2>Courbe de décharge</h2>
   <div class="chart-container">
     <BattChart />
   </div>
@@ -38,6 +34,7 @@
   </div>
 
   <p class="version-label">v {import.meta.env.VITE_VERSION}</p>
+  <ErrorModal />
 </main>
 
 
@@ -71,5 +68,16 @@
     bottom: -8px;
     right: 10px;
     font-weight: bold;
+  }
+
+  h2 {
+    display: none;
+  }
+
+  @media print {
+    h2 {
+      display: block;
+      text-align: left;
+    }
   }
 </style>

@@ -1,5 +1,6 @@
 <script>
     import { deviceData } from "../stores.js";
+    import { deviceParameters } from "../stores.js";
     import { Line } from "svelte-chartjs";
 
     import {
@@ -22,7 +23,6 @@
         LinearScale,
         PointElement,
     );
-
 
     $: chartData = {
         datasets: [
@@ -62,7 +62,7 @@
     }
 
 
-    let options = {
+    $: options = {
         responsive: true,
         maintainAspectRatio: false,
         scales: {
@@ -80,7 +80,7 @@
                     display: true,
                 },
                 type: 'linear',
-                suggestedMax: 56,
+                suggestedMax: $deviceParameters.charge_v,
                 beginAtZero: true,
             },
             cAxis: {
@@ -93,7 +93,7 @@
                     drawOnChartArea: false, // only want the grid lines for one axis to show up
                 },
                 type: 'linear',
-                max: 20,
+                max: $deviceParameters.discharge_c,
                 beginAtZero: true,
             },
             mahAxis: {
@@ -138,9 +138,6 @@
         window.open(url, '_blank');
     }
 </script>
-
-
-<h2>Courbe de décharge</h2>
 
 <div class="container">
 {#if $deviceData.voltage.length > 0}
@@ -194,15 +191,7 @@
         /* margin-right: 16px; */
     }
 
-    h2 {
-        display: none;
-    }
-
     @media print {
-    h2 {
-        display: block;
-        text-align: left;
-    }
     .export-button {
         display: none;
     }

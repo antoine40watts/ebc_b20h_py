@@ -1,10 +1,9 @@
 <script>
-
-    export let showModal;
+    import { deviceData } from "../stores.js";
 
     let dialog; // HTMLDialogElement
-
-	$: if (dialog && showModal) dialog.showModal();
+	$: if (dialog && $deviceData.device_error) dialog.showModal();
+    $: if (dialog && dialog.open && !$deviceData.device_error) dialog.close();
 </script>
 
 
