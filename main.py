@@ -187,10 +187,10 @@ app.add_middleware(
 
 
 
-@app.get("/")
-async def read_root():
+# @app.get("/")
+# async def read_root():
     # return RedirectResponse("http://"+HOSTNAME+":8000/index")
-    return RedirectResponse(url='index')
+    # return RedirectResponse(url='index')
 
 
 # @app.get("/index", response_class=HTMLResponse)
@@ -201,21 +201,21 @@ async def read_root():
 #     return templates.TemplateResponse("index.html", {"request": request, "hostname": HOSTNAME})
 
 
+
+@app.post("/")
+async def read_root():
+    return {"message": "oh yeah post"}
+
+
+
 @app.post("/measure")
 async def measure_capacity(request: CDRequest):
-    # global battery_state
-
-    charge_v = request.cv
-    charge_c = request.cc
-    discharge_v = request.dv
-    discharge_c = request.dc
-    num_cycles = request.nc
-
     new_chart_id()
     device.measure_capacity(request)
     logging.info("Measure battery capacity request")
 
     return {"message": "measuring capacity"}
+
 
 
 @app.post("/charge")
@@ -227,6 +227,7 @@ async def charge_battery(charge_request: CDRequest):
     return {"message": "Charge request received"}
 
 
+
 @app.post("/discharge")
 async def discharge_battery(discharge_request: CDRequest):
     current = discharge_request.dc
@@ -236,11 +237,13 @@ async def discharge_battery(discharge_request: CDRequest):
     return {"message": "Discharge request received"}
 
 
+
 @app.post("/stop")
 async def stop():
     device.stop_all()
     logging.info("Stop all request")
     return {"message": "Stop request received"}
+
 
 
 @app.get("/battery-state")
@@ -269,6 +272,7 @@ async def get_datapoints(start: int = 0, id: str = ""):
     response["data"] = datapoints
 
     return response
+
 
 
 @app.get("/get-csv")
