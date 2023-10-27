@@ -7,7 +7,7 @@
     async function sendDevice(command) {
         const url = apiUrl + "/" + command;
 
-        const rpc_data = {
+        const rpcData = {
             cv: $deviceParameters.charge_v,
             cc: $deviceParameters.charge_c,
             dv: $deviceParameters.discharge_v,
@@ -20,7 +20,7 @@
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(rpc_data),
+                body: JSON.stringify(rpcData),
             });
         
             if (!response.ok) {
