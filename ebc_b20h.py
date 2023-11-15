@@ -403,6 +403,14 @@ class EBC_B20H():
 
 
     @staticmethod
+    def encode_mah(mah: int) -> Tuple[int, int]:
+        mah *= 10
+        msb = int(mah / 2400)
+        lsb = int((mah - (msb * 2400)) / 10)
+        return msb, lsb
+
+
+    @staticmethod
     def decode_mah(msb: int, lsb: int) -> int:
         return round((msb * 2400 + lsb * 10) / 10)
 

@@ -4,7 +4,7 @@ import asyncio
 
 from ebc_b20h import EBC_B20H
 from q2_charger import Q2Charger
-from test.test_ebc_b20h import FakeEBC_B20H
+from test.test_ebc_b20h import LogEBC_B20H, VirtEBC_B20H
 from test.test_q2_charger import FakeQ2Charger
 
 
@@ -34,7 +34,7 @@ class DeviceController():
             self.discharger = EBC_B20H()
         except:
             self.charger = FakeQ2Charger()
-            self.discharger = FakeEBC_B20H()
+            self.discharger = VirtEBC_B20H()
             self.device_error = True
         
         self.discharger.connect()

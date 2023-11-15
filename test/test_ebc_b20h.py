@@ -1,9 +1,11 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+import sys
 from array import array
 import time
 import os.path
+import logging
 from ebc_b20h import EBC_B20H
 
 
@@ -36,7 +38,7 @@ class FakeUSBDevice():
 
 
 
-class FakeEBC_B20H(EBC_B20H):
+class LogEBC_B20H(EBC_B20H):
     def __init__(self):
         self.buffer = []
         self.is_monitoring = False
@@ -49,6 +51,94 @@ class FakeEBC_B20H(EBC_B20H):
     def destroy(self):
         return
 
+
+
+class VirtEBC_B20H(EBC_B20H):
+    def __init__(self):
+        self.buffer = []
+        self.is_monitoring = False
+        self.is_charging = False
+        self.is_discharging = False
+        self.monitoring_data = []
+        self.dev = FakeUSBDevice()
+        self.debug = False
+
+        self.fake_mah = 0
+        self.fake_v = 29.4
+        self.discharge_current = 0
+        self.discharge_cutoff_v = 0
+    
+    def destroy(self):
+        return
+
+    def charge(self, cutoff_c = 0.1):
+        self.charge_cutoff_c = cutoff_c
+        self.fake_mah = 0
+        print("yop yop charging")
+        return super().charge(cutoff_c)
+
+    def discharge(self, current=1, cutoff_v=2):
+        self.discharge_current = current
+        self.discharge_cutoff_v = cutoff_v
+        return super().discharge(current, cutoff_v)
+
+    def recieve(self):
+        """
+            Anatomy of a response:
+                250  10   4  40 150 185   0 220   0   0   4  40   0 200   0   0  28  45 248
+                som sta  c1  c2  v1  v2  e1  e2         dc1 dc2 dv1 dv2
+            
+                sta: status byte
+                    10 (0x0A): discharging
+                    11 (0x0B): charging
+                    20 (0x14): end of discharge
+                    21 (0x15): end of charge
+                    100: ?
+                    110: ?
+                    120: ?
+
+                c1, c2: battery discharge current
+                v1, v2: battery voltage
+                e1, e2: energy transfered
+                dc1, dc2: user defined discharge current
+                dv1, dv2: user defined min voltage
+        """
+
+        print("recieve")
+
+        state = 0
+        c1, c2 = 0, 0
+        if self.is_discharging:
+            self.fake_v -= self.fake_mah * 0.00001
+            self.fake_mah += self.discharge_current * 10000 * 2 / 3600
+            state = 10
+            c1, c2 = EBC_B20H.encode_current(self.discharge_current)
+        elif self.is_charging:
+            self.fake_mah += 20 * 1000 * 2 / 3600 # 20 bogo-Amps
+            state = 11
+            c1, c2 = 0, 0
+        v1, v2 = EBC_B20H.encode_voltage(self.fake_v * 10)
+        e1, e2 = EBC_B20H.encode_mah(self.fake_mah)
+        dc1, dc2 = EBC_B20H.encode_current(self.discharge_current)
+        dv1, dv2 = EBC_B20H.encode_voltage(self.discharge_cutoff_v)
+        
+        data = [state, c1, c2, v1, v2, e1, e2, 0, 0, dc1, dc2, dv1, dv2, 0, 0, 28]
+        crc = EBC_B20H.checksum(data)
+
+        line = [250] + data + [crc] + [248]
+        
+        logging.debug('<<< ' + ' '.join( [f"{str(val):>3}" for val in line] ))
+
+        if self.debug:
+            if self.logfile:
+                fout = open(self.logfile, 'a')
+            else:
+                fout = sys.stdout
+            print('<<< ' + ' '.join( [f"{str(val):>3}" for val in line] ), file=fout)
+            if self.logfile:
+                fout.close()
+        
+        return [line]
 
 
 def test_checksum():
@@ -98,7 +188,7 @@ def test_encode_current():
 
 def test_log():
     print()
-    dev = FakeEBC_B20H()
+    dev = LogEBC_B20H()
     dev.connect()
     dev.discharge(current=1.0, vcutoff=2.5)
 
