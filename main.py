@@ -8,10 +8,10 @@
 # https://tutorials-raspberrypi.com/control-all-gpios-with-the-raspberry-pi-rest-api-via-python/
 
 
-from typing import Union
-from enum import Enum
+# from typing import Union
+# from enum import Enum
 from contextlib import asynccontextmanager
-import asyncio
+# import asyncio
 import io
 import csv
 import uuid
@@ -24,11 +24,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from ebc_b20h import EBC_B20H
-from q2_charger import Q2Charger
-
-from test.test_ebc_b20h import FakeEBC_B20H
-from test.test_q2_charger import FakeQ2Charger
+from device import DeviceController
 
 
 # HOSTNAME = "battest.local"
@@ -43,108 +39,6 @@ class CDRequest(BaseModel):
     dv: float
     dc: float
     nc: int = 1
-
-
-class DeviceController():
-    """ External Device logic is here """
-
-    class BatteryState(Enum):
-        IDLE = 0
-        CHARGING = 1
-        DISCHARGING = 2
-    
-    class DeviceMode(Enum):
-        IDLE = 0
-        CAPACITY_TEST = 1
-
-
-    def __init__(self):
-        self.batt_state = self.BatteryState.IDLE
-        self.prev_state = self.batt_state
-        self.batt_capacity = 0
-        self.mode = self.DeviceMode.IDLE
-        self._running = False
-
-        try:
-            self.charger = Q2Charger()
-            self.discharger = EBC_B20H()
-        except:
-            self.charger = FakeQ2Charger()
-            self.discharger = FakeEBC_B20H()
-            self.device_error = True
-        
-        self.discharger.connect()
-        self.discharger.start_monitoring()
-        self.monitoring_data = self.discharger.monitoring_data
-
-    async def _run(self):
-        while self._running:
-            # Update battery state
-            if self.discharger.is_charging:
-                self.batt_state = self.BatteryState.CHARGING
-            elif self.discharger.is_discharging:
-                self.batt_state = self.BatteryState.DISCHARGING
-            else:
-                self.batt_state = self.BatteryState.IDLE
-            
-            if self.mode == self.DeviceMode.CAPACITY_TEST:
-                if self.batt_state == self.BatteryState.IDLE and self.prev_state == self.BatteryState.CHARGING:
-                    self.discharge(self.params.dc, self.params.dv)
-                elif self.batt_state == self.BatteryState.IDLE and self.prev_state == self.BatteryState.DISCHARGING:
-                    self.batt_capacity = self.discharger.mah
-                    self.mode = self.DeviceMode.IDLE
-
-            self.prev_state = self.batt_state
-            await asyncio.sleep(0.3)
-    
-    def start(self):
-        if not self._running:
-            self._running = True
-            self.task = asyncio.create_task(self._run())
-            # await self.task
-    
-    async def stop(self):
-        self._running = False
-        self.discharger.stop_monitoring()
-        self.discharger.disconnect()
-
-        # Release USB device
-        self.discharger.destroy()
-        await self.task
-    
-    def charge(self, current, max_voltage):
-        if self.discharger.is_discharging:
-            self.discharger.stop()
-        self.charger.charge(current, max_voltage)
-        self.discharger.charge(cutoff_c = 0.1)
-        self.batt_state = self.BatteryState.CHARGING
-        logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
-
-    def discharge(self, current, min_voltage):
-        if self.charger.is_charging:
-            self.charger.stop()
-        self.discharger.discharge(current, min_voltage)
-        self.batt_state = self.BatteryState.DISCHARGING
-        logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
-    
-    def measure_capacity(self, request: CDRequest):
-        self.mode = self.DeviceMode.CAPACITY_TEST
-        self.params = request
-        self.charger.charge(request.cc, request.cv)
-        self.discharger.charge(cutoff_c = 0.1)
-        self.discharger.clear()
-        self.batt_capacity = 0
-        logging.info(f"Measuring capacity")
-    
-    def stop_all(self):
-        if self.charger.is_charging:
-            self.charger.stop()
-        if self.discharger.is_charging or self.discharger.is_discharging:
-            self.discharger.stop()
-        self.batt_state = self.BatteryState.IDLE
-        self.mode = self.DeviceMode.IDLE
-        logging.info(f"Stop all !")
-
 
 
 def new_chart_id():
@@ -187,10 +81,10 @@ app.add_middleware(
 
 
 
-@app.get("/")
-async def read_root():
+# @app.get("/")
+# async def read_root():
     # return RedirectResponse("http://"+HOSTNAME+":8000/index")
-    return RedirectResponse(url='index')
+    # return RedirectResponse(url='index')
 
 
 # @app.get("/index", response_class=HTMLResponse)
@@ -201,16 +95,42 @@ async def read_root():
 #     return templates.TemplateResponse("index.html", {"request": request, "hostname": HOSTNAME})
 
 
+class OpRequest(BaseModel):
+    operation: str
+    params: dict
+
+
+@app.post("/add-op")
+async def add_op(request: OpRequest):
+    logging.info("POST request recieved : add operation")
+    print(request)
+    device.add_operation(request.operation, request.params)
+    return {"message": "oh yeah post"}
+
+
+@app.post("/start-op")
+async def start_op():
+    logging.info("POST request recieved : start all operations")
+    device.start_operations()
+    return
+
+
+@app.post("/stop-op")
+async def stop_op():
+    logging.info("POST request recieved : stop all operations")
+    device.stop_operations()
+    return
+
+
+@app.post("/clear-op")
+async def clear_op():
+    logging.info("POST request recieved : clear all operations")
+    device.clear_operations()
+    return {"message": "oh yeah post"}
+
+
 @app.post("/measure")
 async def measure_capacity(request: CDRequest):
-    # global battery_state
-
-    charge_v = request.cv
-    charge_c = request.cc
-    discharge_v = request.dv
-    discharge_c = request.dc
-    num_cycles = request.nc
-
     new_chart_id()
     device.measure_capacity(request)
     logging.info("Measure battery capacity request")
@@ -245,8 +165,6 @@ async def stop():
 
 @app.get("/battery-state")
 async def get_datapoints(start: int = 0, id: str = ""):
-    # query_params = {"start" : start}
-    # print(f"{start=} {id=}")
     response = {}
 
     if chart_id != id:
@@ -267,6 +185,9 @@ async def get_datapoints(start: int = 0, id: str = ""):
         t, v, c, mah = datapoint
         datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
     response["data"] = datapoints
+
+    response["operations"] = [ {"operation": op, "params": params}
+                              for op, params in device.operations ]
 
     return response
 

@@ -12,6 +12,7 @@ let batteryState = 0;
 let batteryCapacity = 0;
 let deviceError = false;
 let chartId = "";
+let operations = [];
 
 
 async function updateData() {
@@ -39,6 +40,9 @@ async function updateData() {
       if ("battery_capacity" in responseData) {
         batteryCapacity = responseData.battery_capacity;
       }
+      if ("operations" in responseData) {
+        operations = responseData.operations;
+      }
       
     } else {
       deviceError = true;
@@ -59,6 +63,7 @@ const initialDeviceState = {
   mah: [],
   time: [],
   capacity: 0,
+  operations: [],
 };
 
 export const deviceData = readable(initialDeviceState, (set) => {
@@ -72,6 +77,7 @@ export const deviceData = readable(initialDeviceState, (set) => {
       mah: arrayMah,
       time: arrayTime,
       capacity: batteryCapacity,
+      operations: operations,
     }
     set(deviceData);
   }, 2000);
@@ -86,6 +92,8 @@ const initialDeviceParams = {
   charge_c: 1,
   discharge_v: 2.7,
   discharge_c: 1,
+  vmax: 4.2,
+  vmin: 2.7,
   n_cycles: 1,
   original_capacity: 0,
 };

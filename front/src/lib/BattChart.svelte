@@ -80,7 +80,7 @@
                     display: true,
                 },
                 type: 'linear',
-                suggestedMax: $deviceParameters.charge_v,
+                suggestedMax: Math.max($deviceParameters.charge_v, $deviceParameters.discharge_v),
                 beginAtZero: true,
             },
             cAxis: {
@@ -93,7 +93,7 @@
                     drawOnChartArea: false, // only want the grid lines for one axis to show up
                 },
                 type: 'linear',
-                max: $deviceParameters.discharge_c,
+                max: Math.max($deviceParameters.discharge_c, $deviceParameters.charge_c) + 1,
                 beginAtZero: true,
             },
             mahAxis: {

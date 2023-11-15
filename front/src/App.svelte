@@ -6,6 +6,7 @@
   import BattChart from "./lib/BattChart.svelte";
   import BattCapacity from "./lib/BattCapacity.svelte";
   import BattControl from "./lib/BattControl.svelte";
+  import BattControl2 from "./lib/BattControl2.svelte";
   import ErrorModal from './lib/ErrorModal.svelte';
 
 </script>
@@ -22,14 +23,14 @@
   <div>
     <div class="control-container">
       <div>
+        <BattControl2 />
+      </div>
+      <div class="border-left">
         <BattState />
       </div>
-      <div class="border-left">
-        <BattControl />
-      </div>
-      <div class="border-left">
+      <!-- <div class="border-left">
         <BattCapacity/>
-      </div>
+      </div> -->
     </div>
   </div>
 

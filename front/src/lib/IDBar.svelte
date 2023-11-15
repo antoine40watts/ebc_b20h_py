@@ -16,9 +16,17 @@
 
     function updateParams() {
         deviceParameters.update((params) => {
-            params.charge_v = Math.round(4.2 * cells_s * 100) / 100;
-            params.discharge_v = Math.round(2.7 * cells_s * 100) / 100;
+            params.vmax = Math.round(4.2 * cells_s * 100) / 100;
+            params.vmin = Math.round(2.7 * cells_s * 100) / 100;
             params.original_capacity = Math.round(cell_cap * cells_p);
+            
+            if (params.charge_v < params.vmin || params.charge_v > params.vmax) {
+                params.charge_v = params.vmax;
+            }
+            if (params.discharge_v < params.vmin || params.charge_v > params.vmax) {
+                params.discharge_v = params.vmin;
+            }
+            console.log(params);
             return params;
         });
     }
@@ -77,7 +85,7 @@
 
 <style>
     .container {
-        background-color: #3aaa35;
+        background-color: #56ac77;
         display: flex;
         /* justify-content: space-around; */
         justify-content: space-between;
