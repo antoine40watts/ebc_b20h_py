@@ -6,6 +6,7 @@ from array import array
 import time
 import os.path
 import logging
+from random import randrange
 from ebc_b20h import EBC_B20H
 
 
@@ -74,7 +75,6 @@ class VirtEBC_B20H(EBC_B20H):
     def charge(self, cutoff_c = 0.1):
         self.charge_cutoff_c = cutoff_c
         self.fake_mah = 0
-        print("yop yop charging")
         return super().charge(cutoff_c)
 
     def discharge(self, current=1, cutoff_v=2):
@@ -104,8 +104,6 @@ class VirtEBC_B20H(EBC_B20H):
                 dv1, dv2: user defined min voltage
         """
 
-        print("recieve")
-
         state = 0
         c1, c2 = 0, 0
         if self.is_discharging:
@@ -118,7 +116,7 @@ class VirtEBC_B20H(EBC_B20H):
             state = 11
             c1, c2 = 0, 0
         v1, v2 = EBC_B20H.encode_voltage(self.fake_v * 10)
-        e1, e2 = EBC_B20H.encode_mah(self.fake_mah)
+        e1, e2 = EBC_B20H.encode_mah(round(self.fake_mah))
         dc1, dc2 = EBC_B20H.encode_current(self.discharge_current)
         dv1, dv2 = EBC_B20H.encode_voltage(self.discharge_cutoff_v)
         
@@ -139,6 +137,7 @@ class VirtEBC_B20H(EBC_B20H):
                 fout.close()
         
         return [line]
+
 
 
 def test_checksum():
@@ -186,11 +185,23 @@ def test_encode_current():
         assert EBC_B20H.encode_current(c) == result
 
 
+def test_encode_decode_mah():
+    for _ in range(100):
+        mah = randrange(0, 10000)
+        msb, lsb = EBC_B20H.encode_mah(mah)
+        assert mah == EBC_B20H.decode_mah(msb, lsb)
+    
+    for _ in range(100):
+        mah = randrange(10000, 50000)
+        msb, lsb = EBC_B20H.encode_mah(mah)
+        assert abs(mah - EBC_B20H.decode_mah(msb, lsb)) <= 5
+
+
 def test_log():
     print()
     dev = LogEBC_B20H()
     dev.connect()
-    dev.discharge(current=1.0, vcutoff=2.5)
+    dev.discharge(current=1.0, cutoff_v=2.5)
 
     print(dev.recieve())
     
@@ -199,25 +210,25 @@ def test_log():
     dev.stop_monitoring()
 
 
-def test_real_device_datalog():
-    discharger = EBC_B20H()
-    discharger.connect()
-    discharger.start_monitoring("test_log_device.txt", raw=True)
+# def test_real_device_datalog():
+#     discharger = EBC_B20H()
+#     discharger.connect()
+#     discharger.start_monitoring("test_log_device.txt", raw=True)
 
-    while len(discharger.monitoring_data) < 10:
-        time.sleep(1)
+#     while len(discharger.monitoring_data) < 10:
+#         time.sleep(1)
     
-    current_voltage = discharger.voltage
-    assert current_voltage > 0
+#     current_voltage = discharger.voltage
+#     assert current_voltage > 0
 
-    discharger.clear()
-    assert len(discharger.monitoring_data) == 0
+#     discharger.clear()
+#     assert len(discharger.monitoring_data) == 0
 
-    discharger.discharge(10, current_voltage - 1)
+#     discharger.discharge(10, current_voltage - 1)
     
-    time.sleep(100)
-    print("Size of 'monitoring_data'", len(discharger.monitoring_data))
+#     time.sleep(100)
+#     print("Size of 'monitoring_data'", len(discharger.monitoring_data))
 
-    discharger.stop_monitoring()
-    discharger.disconnect()
-    discharger.destroy()
+#     discharger.stop_monitoring()
+#     discharger.disconnect()
+#     discharger.destroy()

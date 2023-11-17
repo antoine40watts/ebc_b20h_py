@@ -399,20 +399,26 @@ class EBC_B20H():
 
     @staticmethod
     def decode_current(msb: int, lsb: int) -> float:
-        return (msb * 2400 + lsb * 10) / 1000
+        return (msb * 240 + lsb) / 100
 
 
     @staticmethod
     def encode_mah(mah: int) -> Tuple[int, int]:
-        mah *= 10
-        msb = int(mah / 2400)
-        lsb = int((mah - (msb * 2400)) / 10)
-        return msb, lsb
+        if isinstance(mah, float):
+            mah = round(mah)
+        if mah >= 10000:
+            return divmod(32768 + round(mah/10), 240)
+        return divmod(mah, 240)
 
 
     @staticmethod
     def decode_mah(msb: int, lsb: int) -> int:
-        return round((msb * 2400 + lsb * 10) / 10)
+        mah = msb * 240 + lsb
+        if mah >= 10000:
+            # Above the 9999 mAh threshold
+            mah -= 32768
+            return mah * 10
+        return mah
 
 
     @staticmethod

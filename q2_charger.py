@@ -1,9 +1,6 @@
 #! /usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from typing import Tuple, List
-from time import sleep
-
 # https://python-can.readthedocs.io
 import can  # pip install python-can
 
