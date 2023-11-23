@@ -12,12 +12,12 @@ let batteryState = 0;
 let batteryCapacity = 0;
 let deviceError = false;
 let chartId = "";
-let operations = [];
+let devops = [];
 
 
 async function updateData() {
   try {
-    const url = `${apiUrl}/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
+    const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
     if (response.ok) {
       deviceError = false;
@@ -41,9 +41,10 @@ async function updateData() {
         batteryCapacity = responseData.battery_capacity;
       }
       if ("operations" in responseData) {
-        operations = responseData.operations;
+        devops = responseData.operations;
       }
-      
+
+      console.log(responseData);      
     } else {
       deviceError = true;
       console.error("Failed to fetch data");
@@ -66,10 +67,10 @@ const initialDeviceState = {
   operations: [],
 };
 
-export const deviceData = readable(initialDeviceState, (set) => {
+export const deviceState = readable(initialDeviceState, (set) => {
   const interval = setInterval(() => {
     updateData();
-    let deviceData  = {
+    let deviceState_tmp = {
       battery_state: batteryState,
       device_error: deviceError,
       voltage: arrayVoltage,
@@ -77,9 +78,10 @@ export const deviceData = readable(initialDeviceState, (set) => {
       mah: arrayMah,
       time: arrayTime,
       capacity: batteryCapacity,
-      operations: operations,
+      operations: devops,
     }
-    set(deviceData);
+    set(deviceState_tmp);
+    console.log("device status updated");
   }, 2000);
   return () => {
     clearInterval(interval);

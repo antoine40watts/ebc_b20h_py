@@ -1,5 +1,5 @@
 <script>
-    import { deviceData } from "../stores.js";
+    import { deviceState } from "../stores.js";
     import { deviceParameters } from "../stores.js";
     import { Line } from "svelte-chartjs";
 
@@ -32,7 +32,7 @@
                 // fill: true,
                 backgroundColor: 'rgba(225, 204,230, .3)',
                 borderColor: 'rgb(75, 192, 192)',
-                data: $deviceData.voltage,
+                data: $deviceState.voltage,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
@@ -41,7 +41,7 @@
                 label: 'Current',
                 yAxisID: 'cAxis',
                 borderColor: 'rgb(200, 200, 75)',
-                data: $deviceData.current,
+                data: $deviceState.current,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -51,14 +51,14 @@
                 label: 'mAh',
                 yAxisID: 'mahAxis',
                 borderColor: 'rgb(80, 230, 152)',
-                data: $deviceData.mah,
+                data: $deviceState.mah,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
             }
         ],
-        labels: $deviceData.time,
+        labels: $deviceState.time,
     }
 
 
@@ -140,7 +140,7 @@
 </script>
 
 <div class="container">
-{#if $deviceData.voltage.length > 0}
+{#if $deviceState.voltage.length > 0}
     <div class="chart-container">
         <Line options={options} data={chartData} />
     </div>

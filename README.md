@@ -163,6 +163,7 @@ Protocole CAN sur Raspberry
 * https://www.pragmaticlinux.com/2021/10/can-communication-on-the-raspberry-pi-with-socketcan/
 * https://www.beyondlogic.org/adding-can-controller-area-network-to-the-raspberry-pi/
 * https://forums.raspberrypi.com/viewtopic.php?t=141052
+* https://stackoverflow.com/questions/3738173/why-does-pyusb-libusb-require-root-sudo-permissions-on-linux
 
 Interface WEB
 

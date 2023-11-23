@@ -1,17 +1,23 @@
 <script>
     import { deviceParameters } from "../stores.js";
-    import { deviceData } from "../stores.js";
+    import { deviceState } from "../stores.js";
+    import { onMount } from 'svelte';
 
     
     let selectedOperation;
     let chargeVLim = $deviceParameters.vmax;
     let dischargeVLim = $deviceParameters.vmin;
     let current = 1;
-    let duration = 0;
-    let waitDuration = 60;
+    let duration = 0;       // In seconds
+    let waitDuration = 60;  // In seconds
 
+    // $: operations = $deviceState.operations;
 
-    $: operations = $deviceData.operations;
+    // $: {
+    //     console.log('deviceState updated:', $deviceState);
+    //     const operations = $deviceState.operations || [];
+    //     updateOperationsList(operations);
+    // }
 
     // $: chargeVPc = Math.round(100 * (chargeVLim - $deviceParameters.discharge_v) /
     //     ($deviceParameters.charge_v - $deviceParameters.discharge_v));
@@ -39,12 +45,16 @@
         handleVLim();
     }
 
+    // Update the list on component mount and whenever deviceState.operations changes
+    let operations = [];
+    $: {
+        operations = $deviceState.operations || [];
+    }
+
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
     async function handleSubmit() {
         console.log("submit");
-
-        operations = [...operations, {operation: selectedOperation, params: {}}];
 
         const opParams = {};
         if (selectedOperation === "charge") {
@@ -70,7 +80,9 @@
             body: JSON.stringify(rpcData),
         });
         const responseData = await response.json();
-        
+
+        //operations = [...operations, rpcData];
+
         console.log(responseData);
 	}
 
@@ -83,8 +95,7 @@
     }
 
     async function handleClear() {
-        operations = [];
-
+        //operations = [];
         const response = await fetch(apiUrl + '/clear-op', {method: "POST"});
     }
 
@@ -128,7 +139,7 @@
             <option value="discharge">Décharge</option>
             <option value="wait">Attendre</option>
         </select>
-        <button id="addOperationButton" on:click={handleSubmit}>Ajouter</button>
+        <button id="addOperationButton" on:click={handleSubmit}>Ajouter =></button>
     </div>
 
     <div>
@@ -186,7 +197,7 @@
 </div>
 
 <div id="rightContainer">
-    <ul id="opList">
+    <ul id="operationsList">
         {#each operations as op }
             <li class="listItem">
                 {getDescription(op)}
@@ -248,7 +259,7 @@
         width: 300px;
     }
 
-    #opList {
+    #operationsList {
         overflow: auto;
         background-color: aqua;
         height: 126px;

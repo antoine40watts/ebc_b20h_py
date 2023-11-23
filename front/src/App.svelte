@@ -1,5 +1,5 @@
 <script>
-  // import { deviceData } from './stores.js';
+  // import { deviceState } from './stores.js';
 
   import IDBar from "./lib/IDBar.svelte";
   import BattState from "./lib/BattState.svelte";
@@ -8,6 +8,8 @@
   import BattControl from "./lib/BattControl.svelte";
   import BattControl2 from "./lib/BattControl2.svelte";
   import ErrorModal from './lib/ErrorModal.svelte';
+
+  // import BattControl2 from "./lib/BattControl2.svelte";
 
 </script>
 
@@ -35,7 +37,7 @@
   </div>
 
   <p class="version-label">v {import.meta.env.VITE_VERSION}</p>
-  <ErrorModal />
+  <!-- <ErrorModal /> -->
 </main>
 
 

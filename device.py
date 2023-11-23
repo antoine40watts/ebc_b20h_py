@@ -7,7 +7,7 @@ import time
 
 from ebc_b20h import EBC_B20H
 from q2_charger import Q2Charger
-from test.test_ebc_b20h import FakeEBC_B20H
+from test.test_ebc_b20h import LogEBC_B20H, VirtEBC_B20H
 from test.test_q2_charger import FakeQ2Charger
 
 
@@ -57,7 +57,7 @@ class DeviceController():
             self.discharger = EBC_B20H()
         except:
             self.charger = FakeQ2Charger()
-            self.discharger = FakeEBC_B20H()
+            self.discharger = VirtEBC_B20H()
             self.device_error = True
         
         self.discharger.connect()
@@ -165,11 +165,24 @@ class DeviceController():
 
     def start_operations(self):
         if self.operations:
+            # (Re-)start current operation
+            current_op = self.operations[self.operation_idx]
+            print("Start op: " + current_op.type)
+            print(current_op.params)
+            if current_op.type == "charge":
+                current = current_op.params["current"]
+                v_max = current_op.params["vlim"]
+                self.charge(current, v_max)
+            elif current_op.type == "discharge":
+                current = current_op.params["current"]
+                v_min = current_op.params["vlim"]
+                self.discharge(current, v_min)
             self.mode = DeviceMode.IN_OPERATION
             self.t0 = time.time()
     
 
     def add_operation(self, type: str, params: dict):
+        print("op added")
         self.operations.append( Operation(type, params) )
     
 
