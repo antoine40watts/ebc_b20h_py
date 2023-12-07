@@ -1,9 +1,9 @@
 <script>
-    import { deviceState } from "../stores.js";
+    import { deviceData } from "../stores.js";
 
     let dialog; // HTMLDialogElement
-	$: if (dialog && $deviceState.device_error) dialog.showModal();
-    $: if (dialog && dialog.open && !$deviceState.device_error) dialog.close();
+	$: if (dialog && $deviceData.device_error) dialog.showModal();
+    $: if (dialog && dialog.open && !$deviceData.device_error) dialog.close();
 </script>
 
 

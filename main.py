@@ -105,21 +105,21 @@ async def add_op(request: OpRequest):
     logging.info("POST request recieved : add operation")
     print(request)
     device.add_operation(request.operation, request.params)
-    return {"message": "oh yeah post"}
+    return {"message": "Operation added: " + str(device.operations[-1])}
 
 
 @app.post("/start-op")
 async def start_op():
     logging.info("POST request recieved : start all operations")
     device.start_operations()
-    return
+    return {"message": "Operations started"}
 
 
 @app.post("/stop-op")
 async def stop_op():
     logging.info("POST request recieved : stop all operations")
-    device.stop_operations()
-    return
+    device.stop_all()
+    return {"message": "Operations stopped"}
 
 
 @app.post("/clear-op")
@@ -163,8 +163,16 @@ async def stop():
     return {"message": "Stop request received"}
 
 
-@app.get("/battery-state")
+@app.get("/get-state")
 async def get_datapoints(start: int = 0, id: str = ""):
+    """
+        Sent data :
+            battery_state <BatteryState>
+            device_state <DeviceMode>
+            data <list>             (graph points)
+            operations <list>       (recorded operations)
+            battery_capacity <int>  (displayed mAh)
+    """
     response = {}
 
     if chart_id != id:
@@ -176,6 +184,7 @@ async def get_datapoints(start: int = 0, id: str = ""):
         print("sending id", chart_id)
 
     response["battery_state"] = device.batt_state
+    response["device_state"] = device.mode
 
     if device.batt_capacity > 0:
         response["battery_capacity"] = device.batt_capacity
@@ -186,9 +195,10 @@ async def get_datapoints(start: int = 0, id: str = ""):
         datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
     response["data"] = datapoints
 
-    response["operations"] = [ {"operation": op, "params": params}
-                              for op, params in device.operations ]
+    response["operations"] = [ {"operation": op.type, "params": op.params}
+                              for op in device.operations ]
 
+    print(response)
     return response
 
 

@@ -93,16 +93,17 @@ class DeviceController():
                     next_op.status = OpStatus.ONGOING
                     next_op.t_start = time.time()
                 else:
-                    self.mode = DeviceMode.IDLE
+                    self.stop_all()
+                    self.operation_idx = 0
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
                         # End of timed operation
                         current_op.status = OpStatus.FINISHED
-                        current_op.result = (0, "no comment")
+                        current_op.result = (0, "timeout")
                         current_op.t_end = time.time()
-                        self.mode == DeviceMode.BETWEEN_OPERATIONS
+                        self.mode = DeviceMode.BETWEEN_OPERATIONS
 
             self.prev_state = self.batt_state
             await asyncio.sleep(0.3)
@@ -165,6 +166,8 @@ class DeviceController():
 
     def start_operations(self):
         if self.operations:
+            self.t0 = time.time()
+            self.mode = DeviceMode.IN_OPERATION
             # (Re-)start current operation
             current_op = self.operations[self.operation_idx]
             print("Start op: " + current_op.type)
@@ -177,8 +180,8 @@ class DeviceController():
                 current = current_op.params["current"]
                 v_min = current_op.params["vlim"]
                 self.discharge(current, v_min)
-            self.mode = DeviceMode.IN_OPERATION
-            self.t0 = time.time()
+            current_op.t_start = time.time()
+            current_op.status = OpStatus.ONGOING
     
 
     def add_operation(self, type: str, params: dict):

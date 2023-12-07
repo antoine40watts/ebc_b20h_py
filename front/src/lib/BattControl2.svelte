@@ -1,6 +1,6 @@
 <script>
     import { deviceParameters } from "../stores.js";
-    import { deviceState } from "../stores.js";
+    import { deviceData } from "../stores.js";
     import { onMount } from 'svelte';
 
     
@@ -48,8 +48,12 @@
     // Update the list on component mount and whenever deviceState.operations changes
     let operations = [];
     $: {
-        operations = $deviceState.operations || [];
+        operations = $deviceData.operations || [];
     }
+
+    $: startDisabled = operations.length === 0 || $deviceData.device_state != 0;
+    $: stopDisabled = $deviceData.device_state === 0;
+    $: clearDisabled = $deviceData.device_state != 0;
 
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
@@ -127,6 +131,8 @@
         }
     }
 </script>
+
+
 
 <div id="container">
 
@@ -206,9 +212,9 @@
         {/each}
     </ul>
 
-    <button class="progButton" on:click={handleStart}>Démarrer</button>
-    <button class="progButton" on:click={handleStop} disabled>Stop</button>
-    <button class="progButton" on:click={handleClear}>RAZ</button>
+    <button class="progButton" on:click={handleStart} disabled={startDisabled}>Démarrer</button>
+    <button class="progButton" on:click={handleStop} disabled={stopDisabled}>Stop</button>
+    <button class="progButton" on:click={handleClear} disabled={clearDisabled}>RAZ</button>
 
 </div>
 </div>
