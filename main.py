@@ -142,6 +142,11 @@ async def measure_capacity(request: CDRequest):
 async def charge_battery(charge_request: CDRequest):
     current = charge_request.cc
     max_voltage = charge_request.cv
+
+    # Reset chart to t0
+    device.discharger.clear()
+    new_chart_id()
+    
     device.charge(current, max_voltage)
     logging.info("Charge battery request")
     return {"message": "Charge request received"}
@@ -151,6 +156,11 @@ async def charge_battery(charge_request: CDRequest):
 async def discharge_battery(discharge_request: CDRequest):
     current = discharge_request.dc
     min_voltage = discharge_request.dv
+
+    # Reset chart to t0
+    device.discharger.clear()
+    new_chart_id()
+
     device.discharge(current, min_voltage)
     logging.info("Discharge battery request")
     return {"message": "Discharge request received"}

@@ -82,12 +82,13 @@ export const deviceData = readable(initialDeviceState, (set) => {
 
 
 const initialDeviceParams = {
-  charge_v: 4.2,
+  charge_v: 16.8,
   charge_c: 1,
-  discharge_v: 2.7,
+  discharge_v: 10.8,
   discharge_c: 1,
+  cells_s: 4,
   n_cycles: 1,
-  original_capacity: 0,
+  original_capacity: 0, // milliamps
 };
 
 export const deviceParameters = writable(initialDeviceParams);

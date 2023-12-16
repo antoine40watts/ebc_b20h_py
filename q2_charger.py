@@ -14,12 +14,13 @@ class Q2Charger():
 
     def __init__(self):
         self.bus = can.Bus(interface='socketcan', channel='can0')
+        self.task = None
         self.is_charging = False
 
 
     def charge(self, current, voltage):
         msg = self._build_charge_message(current, voltage)
-        if self.is_charging:
+        if self.is_charging and self.task:
             self.task.modify_data(msg)
             print("[Q2] Charging updated")
         else:
