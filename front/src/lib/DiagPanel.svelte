@@ -9,10 +9,10 @@
 <div >
     <table>
         <tr>
-            <td nowrap>Courrant de charge</td><td>{$deviceParameters.charge_c} A</td>
+            <td nowrap>Courant de charge</td><td>{$deviceParameters.charge_c} A</td>
         </tr>
         <tr>
-            <td nowrap>Courrant de décharge</td><td>{$deviceParameters.discharge_c} A</td>
+            <td nowrap>Courant de décharge</td><td>{$deviceParameters.discharge_c} A</td>
         </tr>
         <tr>
             <td>Tension minimale</td><td>{$deviceParameters.discharge_v} V</td>
@@ -30,8 +30,8 @@
             <td>Capacité mesurée</td>
             <td>
                 <!-- {#if $deviceData.capacity > 0} -->
-                <span style="font-size: 1.5em; font-weight: bold;">{$deviceData.capacity / 1000} Ah</span>&nbsp;&nbsp;
-                <span style="font-size: 1.2em; font-weight: bold;">({$deviceParameters.cells_s * 3.7 * $deviceData.capacity / 1000} Wh)</span>
+                <span style="font-size: 1.5em; font-weight: bold;">{Math.round($deviceData.capacity / 10) / 100} Ah</span>&nbsp;&nbsp;
+                <span style="font-size: 1.2em; font-weight: bold;">({Math.round($deviceParameters.cells_s * 3.7 * $deviceData.capacity / 100) / 10 } Wh)</span>
                 <!-- {:else}
                 en attente
                 {/if} -->

@@ -107,13 +107,13 @@ class VirtEBC_B20H(EBC_B20H):
         state = 0
         c1, c2 = 0, 0
         if self.is_discharging:
+            state = 20 if self.fake_v <= self.discharge_cutoff_v else 10
             self.fake_v -= self.fake_mah * 0.00001
             self.fake_mah += self.discharge_current * 10000 * 2 / 3600
-            state = 10
             c1, c2 = EBC_B20H.encode_current(self.discharge_current)
         elif self.is_charging:
+            state = 21 if self.fake_v > self.charge_cutoff_v else 11
             self.fake_mah += 20 * 1000 * 2 / 3600 # 20 bogo-Amps
-            state = 11
             c1, c2 = 0, 0
         v1, v2 = EBC_B20H.encode_voltage(self.fake_v * 10)
         e1, e2 = EBC_B20H.encode_mah(round(self.fake_mah))

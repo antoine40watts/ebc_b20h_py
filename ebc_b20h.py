@@ -291,10 +291,10 @@ class EBC_B20H():
                 if status == 0x00 or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
-                if status == 0x0A:
+                if status == 0x0A:	# Discharging
                     self.is_discharging = True
                     self.is_charging = False
-                elif status == 0x0B:
+                elif status == 0x0B: # Charging
                     self.is_discharging = False
                     self.is_charging = True
                 elif status == 0x14:

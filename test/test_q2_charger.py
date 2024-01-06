@@ -26,6 +26,13 @@ class FakeQ2Charger(Q2Charger):
         self.buffer = []
         self.monitoring = False
         self.monitoring_data = []
+    
+    def charge(self, current, voltage):
+        return super().charge(current, voltage)
+    
+    def stop():
+        self.is_charging = False
+        print("[FakeQ2] Charging stopped")
 
 
 def test_build_message():

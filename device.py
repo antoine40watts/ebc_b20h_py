@@ -97,6 +97,7 @@ class DeviceController():
             self.charger.stop()
         self.discharger.discharge(current, min_voltage)
         self.batt_state = self.BatteryState.DISCHARGING
+        self.mode = self.DeviceMode.CAPACITY_TEST	# Allows battery capacity recording when discharging only
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 
