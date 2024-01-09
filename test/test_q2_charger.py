@@ -30,7 +30,7 @@ class FakeQ2Charger(Q2Charger):
     def charge(self, current, voltage):
         return super().charge(current, voltage)
     
-    def stop():
+    def stop(self):
         self.is_charging = False
         print("[FakeQ2] Charging stopped")
 

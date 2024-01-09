@@ -62,6 +62,7 @@ const initialDeviceState = {
 };
 
 export const deviceData = readable(initialDeviceState, (set) => {
+  //console.log("Subscribed to 'deviceData' store")
   const interval = setInterval(() => {
     updateData();
     let deviceData  = {
@@ -77,6 +78,7 @@ export const deviceData = readable(initialDeviceState, (set) => {
   }, 2000);
   return () => {
     clearInterval(interval);
+    //console.log("Unsubscribed from 'deviceData' store")
   };
 });
 

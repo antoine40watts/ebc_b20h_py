@@ -25,6 +25,7 @@
     );
 
     $: chartData = {
+        labels: $deviceData.time,
         datasets: [
             {
                 label: 'Voltage',
@@ -57,8 +58,7 @@
                 pointRadius: 2,
                 pointHoverRadius: 6
             }
-        ],
-        labels: $deviceData.time,
+        ]
     }
 
 
@@ -72,6 +72,7 @@
                     display: true,
                 },
                 type: 'linear',
+                max: Math.ceil($deviceData.time[$deviceData.time.length - 1]),
             },
             vAxis: {
                 title: { 
@@ -80,7 +81,7 @@
                     display: true,
                 },
                 type: 'linear',
-                suggestedMax: $deviceParameters.charge_v,
+                suggestedMax: $deviceParameters.charge_v + 1,
                 beginAtZero: true,
             },
             cAxis: {

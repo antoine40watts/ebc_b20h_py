@@ -214,9 +214,9 @@ class EBC_B20H():
         data = [0x01, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
-        self.is_discharging = True
         if self.debug:
             logging.info(f"Discharging to {cutoff_v}V @ {current}Amps")
+        self.is_discharging = True
 
 
     def adjust(self, current, cutoff_v):
@@ -245,6 +245,7 @@ class EBC_B20H():
         self.send(bytes(data))
         if self.debug:
             logging.info("Charge command sent")
+        self.is_charging = True
 
 
     def calibrate(self):
@@ -310,7 +311,10 @@ class EBC_B20H():
                 self.current = frame_data['current']
                 self.mah = frame_data['mah']
                 datapoint = [dt, self.voltage, self.current, self.mah]
-                self.monitoring_data.append(datapoint)
+
+                # Only record data when device is active
+                if self.is_charging or self.is_discharging:
+                    self.monitoring_data.append(datapoint)
 
                 if raw:
                     formatted = ' '.join([f"{str(val):>3}" for val in line])
