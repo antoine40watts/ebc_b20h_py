@@ -9,6 +9,9 @@ let arrayCurrent = [];
 let arrayMah = [];
 let arrayTime = [];
 let batteryState = 0;
+let batteryVoltage = 0;
+let batteryCurrent = 0;
+let batteryMah = 0;
 let batteryCapacity = 0;
 let deviceError = false;
 let chartId = "";
@@ -29,16 +32,17 @@ async function updateData() {
         arrayMah = [];
         arrayTime = [];
       }
-      responseData.data.forEach((element) => {
+      responseData.chart_data.forEach((element) => {
         arrayVoltage = [...arrayVoltage, element.v];
         arrayCurrent = [...arrayCurrent, element.c];
         arrayMah = [...arrayMah, element.mah];
         arrayTime = [...arrayTime, element.t];
       });
       batteryState = responseData.battery_state;
-      if ("battery_capacity" in responseData) {
-        batteryCapacity = responseData.battery_capacity;
-      }
+      batteryVoltage = responseData.battery_voltage;
+      batteryCurrent = responseData.battery_current;
+      batteryMah = responseData.battery_mah;
+      batteryCapacity = responseData.battery_capacity;
       
     } else {
       deviceError = true;
@@ -54,26 +58,32 @@ async function updateData() {
 const initialDeviceState = {
   battery_state: 0,
   device_error: deviceError,
-  voltage: [],
-  current: [],
-  mah: [],
-  time: [],
-  capacity: 0,
+  voltage_array: [],
+  current_array: [],
+  mah_array: [],
+  time_array: [],
+  voltage: batteryVoltage,
+  current: batteryCurrent,
+  mah: batteryMah,
+  capacity: batteryCapacity,
 };
 
 export const deviceData = readable(initialDeviceState, (set) => {
   //console.log("Subscribed to 'deviceData' store")
   const interval = setInterval(() => {
     updateData();
-    let deviceData  = {
+    let deviceData = {
       battery_state: batteryState,
       device_error: deviceError,
-      voltage: arrayVoltage,
-      current: arrayCurrent,
-      mah: arrayMah,
-      time: arrayTime,
+      voltage_array: arrayVoltage,
+      current_array: arrayCurrent,
+      mah_array: arrayMah,
+      time_array: arrayTime,
+      voltage: batteryVoltage,
+      current: batteryCurrent,
+      mah: batteryMah,
       capacity: batteryCapacity,
-    }
+    };
     set(deviceData);
   }, 2000);
   return () => {
@@ -85,9 +95,9 @@ export const deviceData = readable(initialDeviceState, (set) => {
 
 const initialDeviceParams = {
   charge_v: 16.8,
-  charge_c: 1,
+  charge_c: 4,
   discharge_v: 10.8,
-  discharge_c: 1,
+  discharge_c: 4,
   cells_s: 4,
   n_cycles: 1,
   original_capacity: 0, // milliamps

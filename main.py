@@ -174,7 +174,7 @@ async def stop():
 
 
 @app.get("/battery-state")
-async def get_datapoints(start: int = 0, id: str = ""):
+async def get_battery_state(start: int = 0, id: str = ""):
     response = {}
 
     if chart_id != id:
@@ -186,15 +186,16 @@ async def get_datapoints(start: int = 0, id: str = ""):
         print("sending id", chart_id)
 
     response["battery_state"] = device.batt_state
-
-    if device.batt_capacity > 0:
-        response["battery_capacity"] = device.batt_capacity
+    response["battery_voltage"] = device.batt_voltage
+    response["battery_current"] = device.batt_current
+    response["battery_mah"] = device.discharger.mah
+    response["battery_capacity"] = device.batt_capacity
 
     datapoints = []
     for datapoint in device.monitoring_data[start:]:
         t, v, c, mah = datapoint
         datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
-    response["data"] = datapoints
+    response["chart_data"] = datapoints
 
     response["operations"] = [ {"operation": op, "params": params}
                               for op, params in device.operations ]

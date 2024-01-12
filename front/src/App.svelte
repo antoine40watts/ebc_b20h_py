@@ -1,5 +1,4 @@
 <script>
-  // import { deviceData } from './stores.js';
   import { deviceParameters } from "./stores.js";
   import { tick } from "svelte";
 

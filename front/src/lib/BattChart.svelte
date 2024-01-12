@@ -25,7 +25,7 @@
     );
 
     $: chartData = {
-        labels: $deviceData.time,
+        labels: $deviceData.time_array,
         datasets: [
             {
                 label: 'Voltage',
@@ -33,7 +33,7 @@
                 // fill: true,
                 backgroundColor: 'rgba(225, 204,230, .3)',
                 borderColor: 'rgb(75, 192, 192)',
-                data: $deviceData.voltage,
+                data: $deviceData.voltage_array,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
@@ -42,7 +42,7 @@
                 label: 'Current',
                 yAxisID: 'cAxis',
                 borderColor: 'rgb(200, 200, 75)',
-                data: $deviceData.current,
+                data: $deviceData.current_array,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -52,7 +52,7 @@
                 label: 'mAh',
                 yAxisID: 'mahAxis',
                 borderColor: 'rgb(80, 230, 152)',
-                data: $deviceData.mah,
+                data: $deviceData.mah_array,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -72,7 +72,7 @@
                     display: true,
                 },
                 type: 'linear',
-                max: Math.ceil($deviceData.time[$deviceData.time.length - 1]),
+                max: Math.ceil($deviceData.time_array[$deviceData.time_array.length - 1]),
             },
             vAxis: {
                 title: { 
@@ -113,15 +113,9 @@
 </script>
 
 <div class="container">
-{#if $deviceData.voltage.length > 0}
     <div class="chart-container">
         <Line options={options} data={chartData} />
     </div>
-{:else}
-    <div class="error-message">
-        <p>No data recieved...</p>
-    </div>
-{/if}
 </div>
 
 

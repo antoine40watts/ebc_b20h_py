@@ -23,10 +23,12 @@ class DeviceController():
 
 
     def __init__(self):
+        self.mode = self.DeviceMode.IDLE
         self.batt_state = self.BatteryState.IDLE
         self.prev_state = self.batt_state
+        self.batt_voltage = 0
+        self.batt_current = 0
         self.batt_capacity = 0
-        self.mode = self.DeviceMode.IDLE
         self._running = False
 
         try:
@@ -48,6 +50,9 @@ class DeviceController():
     async def _run(self):
         while self._running:
             # Update battery state
+            self.batt_voltage = self.discharger.voltage
+            self.batt_current = self.discharger.current
+
             if self.discharger.is_charging:
                 self.batt_state = self.BatteryState.CHARGING
             elif self.discharger.is_discharging:

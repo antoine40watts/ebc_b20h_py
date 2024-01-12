@@ -2,9 +2,9 @@
     import { deviceData } from "../stores.js";
     import idleIcon from "../assets/batt_idle.png";
 
-    $: voltage = $deviceData.voltage.slice(-1)[0];
-    $: current = $deviceData.current.slice(-1)[0];
-    $: mah = $deviceData.mah.slice(-1)[0];
+    $: voltage = $deviceData.voltage;
+    $: current = $deviceData.current;
+    $: mah = $deviceData.mah;
 
     function getDecimalPart(n) {
         return parseInt(10 * (n - parseInt(n)))
@@ -52,11 +52,11 @@
             <button class="button-stop" on:click={stopDevices}>ARRÊT</button>
         {/if}
     </p>
-    <span style="font-size: 3.5rem">{parseInt(voltage)}</span>
+    <span style="font-size: 3.5rem">{Math.floor(voltage)}</span>
     <span style="font-size: 2.5rem">.{getDecimalPart(voltage)} V</span>
     
     <span style="font-size: 1.5rem; margin: 16px;">@</span>
-    <span style="font-size: 3rem">{parseInt(current)}</span>
+    <span style="font-size: 3rem">{Math.floor(current)}</span>
     <span style="font-size: 2rem">.{getDecimalPart(current)} A</span>
     
     <p style="font-size: 2.5em; color: #3aaa35;">{mah} <span style="font-size: 0.6em">mAh</span></p>
