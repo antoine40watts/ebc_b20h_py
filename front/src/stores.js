@@ -10,6 +10,9 @@ let arrayMah = [];
 let arrayTime = [];
 let deviceState = 0;
 let batteryState = 0;
+let batteryVoltage = 0;
+let batteryCurrent = 0;
+let batteryMah = 0;
 let batteryCapacity = 0;
 let deviceError = false;
 let chartId = "";
@@ -18,7 +21,7 @@ let devops = [];
 
 async function updateData() {
   try {
-    const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
+    const url = `${apiUrl}/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
     if (response.ok) {
       deviceError = false;
@@ -31,22 +34,18 @@ async function updateData() {
         arrayMah = [];
         arrayTime = [];
       }
-      responseData.data.forEach((element) => {
+      responseData.chart_data.forEach((element) => {
         arrayVoltage = [...arrayVoltage, element.v];
         arrayCurrent = [...arrayCurrent, element.c];
         arrayMah = [...arrayMah, element.mah];
         arrayTime = [...arrayTime, element.t];
       });
       batteryState = responseData.battery_state;
-      if ("battery_capacity" in responseData) {
-        batteryCapacity = responseData.battery_capacity;
-      }
-      if ("device_state" in responseData) {
-        deviceState = responseData.device_state;
-      }
-      if ("operations" in responseData) {
-        devops = responseData.operations;
-      }
+      batteryVoltage = responseData.battery_voltage;
+      batteryCurrent = responseData.battery_current;
+      batteryMah = responseData.battery_mah;
+      batteryCapacity = responseData.battery_capacity;
+      devops = responseData.operations;
 
       console.log(responseData);      
     } else {
@@ -60,28 +59,35 @@ async function updateData() {
 }
 
 
-const initialDeviceData = {
+const initialDeviceState = {
   battery_state: 0,
+  device_state: deviceState,
   device_error: deviceError,
-  voltage: [],
-  current: [],
-  mah: [],
-  time: [],
-  capacity: 0,
+  voltage_array: [],
+  current_array: [],
+  mah_array: [],
+  time_array: [],
+  voltage: batteryVoltage,
+  current: batteryCurrent,
+  mah: batteryMah,
+  capacity: batteryCapacity,
   operations: [],
 };
 
-export const deviceData = readable(initialDeviceData, (set) => {
+export const deviceData = readable(initialDeviceState, (set) => {
   const interval = setInterval(() => {
     updateData();
     set({
       battery_state: batteryState,
       device_state: deviceState,
       device_error: deviceError,
-      voltage: arrayVoltage,
-      current: arrayCurrent,
-      mah: arrayMah,
-      time: arrayTime,
+      voltage_array: arrayVoltage,
+      current_array: arrayCurrent,
+      mah_array: arrayMah,
+      time_array: arrayTime,
+      voltage: batteryVoltage,
+      current: batteryCurrent,
+      mah: batteryMah,
       capacity: batteryCapacity,
       operations: devops,
     });
@@ -94,14 +100,12 @@ export const deviceData = readable(initialDeviceData, (set) => {
 
 
 const initialDeviceParams = {
-  charge_v: 4.2,
-  charge_c: 1,
-  discharge_v: 2.7,
-  discharge_c: 1,
-  vmax: 4.2,
-  vmin: 2.7,
-  n_cycles: 1,
-  original_capacity: 0,
+  charge_v: 16.8,
+  charge_c: 4,
+  discharge_v: 10.8,
+  discharge_c: 4,
+  cells_s: 4,
+  original_capacity: 0, // milliamps
 };
 
 export const deviceParameters = writable(initialDeviceParams);

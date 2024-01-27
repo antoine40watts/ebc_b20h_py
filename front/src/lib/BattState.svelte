@@ -2,9 +2,9 @@
     import { deviceData } from "../stores.js";
     import idleIcon from "../assets/batt_idle.png";
 
-    $: voltage = $deviceData.voltage.slice(-1)[0];
-    $: current = $deviceData.current.slice(-1)[0];
-    $: mah = $deviceData.mah.slice(-1)[0];
+    $: voltage = $deviceData.voltage;
+    $: current = $deviceData.current;
+    $: mah = $deviceData.mah;
 
     function getDecimalPart(n) {
         return parseInt(10 * (n - parseInt(n)))
@@ -45,18 +45,18 @@
 <div class="container">
     <p class="state" style="color: {statesColor[$deviceData.battery_state]};">
         {#if $deviceData.battery_state == 0}
-            {batteryStates[$deviceData.battery_state]}
             <img class="idle-icon" src={idleIcon}>
+            {batteryStates[$deviceData.battery_state]}
         {:else}
             {batteryStates[$deviceData.battery_state]}
             <!-- <button class="button-stop" on:click={stopDevices}>ARRÊT</button> -->
         {/if}
     </p>
-    <span style="font-size: 3.5rem">{parseInt(voltage)}</span>
+    <span style="font-size: 3.5rem">{Math.floor(voltage)}</span>
     <span style="font-size: 2.5rem">.{getDecimalPart(voltage)} V</span>
     
     <span style="font-size: 1.5rem; margin: 16px;">@</span>
-    <span style="font-size: 3rem">{parseInt(current)}</span>
+    <span style="font-size: 3rem">{Math.floor(current)}</span>
     <span style="font-size: 2rem">.{getDecimalPart(current)} A</span>
     
     <p style="font-size: 2.5em; color: #3aaa35;">{mah} <span style="font-size: 0.6em">mAh</span></p>
@@ -64,39 +64,27 @@
 
 <style>
     .container {
+        position: relative;
         /* max-width: fit-content; */
         text-align: center;
-        /* background-color: #df2020; */
     }
+
     .container p {
         margin: 8px;
     }
+
     .state {
         font-size: 2.2em;
         font-weight: 500;
     }
-    
-    .button-stop {
-        margin: 0 4px 0 4px;
-        border-radius: 20px;
-        padding: 6px;
-        font-size: 1.2rem;
-        font-weight: 500;
-        color: white;
-        background-color: tomato;
-    }
-    .button-stop:hover {
-        background-color: red;
-    }
-    .button-stop:active {
-        background-color: crimson;
-    }
 
     .idle-icon {
-        translate: -120px -46px;
-        scale: 0.8;
+        /* translate: -50% 0; */
+        scale: 0.5;
         position: absolute;
-        filter: opacity(0.8);
+        top: -35px;
+        right: -38px;
+        filter: opacity(0.9);
     }
 
     @media print{

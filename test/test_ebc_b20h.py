@@ -65,9 +65,10 @@ class VirtEBC_B20H(EBC_B20H):
         self.debug = False
 
         self.fake_mah = 0
-        self.fake_v = 29.4
+        self.fake_v = 29
         self.discharge_current = 0
         self.discharge_cutoff_v = 0
+        self.charge_cutoff_v = 29.4
     
     def destroy(self):
         return
@@ -80,6 +81,7 @@ class VirtEBC_B20H(EBC_B20H):
     def discharge(self, current=1, cutoff_v=2):
         self.discharge_current = current
         self.discharge_cutoff_v = cutoff_v
+        self.fake_mah = 0
         return super().discharge(current, cutoff_v)
 
     def recieve(self):
@@ -107,14 +109,15 @@ class VirtEBC_B20H(EBC_B20H):
         state = 0
         c1, c2 = 0, 0
         if self.is_discharging:
-            self.fake_v -= self.fake_mah * 0.0001
-            self.fake_mah += self.discharge_current * 1000 * 2 / 3600
-            state = 10
+            state = 20 if self.fake_v <= self.discharge_cutoff_v else 10
+            self.fake_v -= self.fake_mah * 0.00001
+            self.fake_mah += self.discharge_current * 10000 * 2 / 3600
             c1, c2 = EBC_B20H.encode_current(self.discharge_current)
         elif self.is_charging:
-            self.fake_mah += 20 * 1000 * 2 / 3600 # 20 bogo-Amps
-            state = 11
-            c1, c2 = 0, 0
+            state = 21 if self.fake_v > self.charge_cutoff_v else 11
+            self.fake_v += self.fake_mah * 0.00001
+            self.fake_mah += 20 * 10000 * 2 / 3600 # 20 bogo-Amps
+            c1, c2 = EBC_B20H.encode_current(20)
         v1, v2 = EBC_B20H.encode_voltage(self.fake_v * 10)
         e1, e2 = EBC_B20H.encode_mah(round(self.fake_mah))
         dc1, dc2 = EBC_B20H.encode_current(self.discharge_current)

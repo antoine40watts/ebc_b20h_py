@@ -243,6 +243,7 @@ class EBC_B20H():
         c_msb, c_lsb = self.encode_current(cutoff_c)
         data = [0x11, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
+        self.is_charging = True
         if self.debug:
             logging.info("Charge command sent")
 
@@ -291,10 +292,10 @@ class EBC_B20H():
                 if status == 0x00 or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
-                if status == 0x0A:
+                if status == 0x0A:   # Discharging
                     self.is_discharging = True
                     self.is_charging = False
-                elif status == 0x0B:
+                elif status == 0x0B: # Charging
                     self.is_discharging = False
                     self.is_charging = True
                 elif status == 0x14:
@@ -310,7 +311,10 @@ class EBC_B20H():
                 self.current = frame_data['current']
                 self.mah = frame_data['mah']
                 datapoint = [dt, self.voltage, self.current, self.mah]
-                self.monitoring_data.append(datapoint)
+
+                # Only record data when device is active
+                if self.is_charging or self.is_discharging:
+                    self.monitoring_data.append(datapoint)
 
                 if raw:
                     formatted = ' '.join([f"{str(val):>3}" for val in line])

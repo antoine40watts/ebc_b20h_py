@@ -46,10 +46,12 @@ class DeviceController():
     """ External Device logic is here """
 
     def __init__(self):
+        self.mode = DeviceMode.IDLE
         self.batt_state = BatteryState.IDLE
         self.prev_state = self.batt_state
+        self.batt_voltage = 0
+        self.batt_current = 0
         self.batt_capacity = 0
-        self.mode = DeviceMode.IDLE
         self._running = False
 
         try:
@@ -71,6 +73,8 @@ class DeviceController():
     async def _run(self):
         while self._running:
             # Update battery state
+            self.batt_voltage = self.discharger.voltage
+            self.batt_current = self.discharger.current
             if self.discharger.is_charging:
                 self.batt_state = BatteryState.CHARGING
             elif self.discharger.is_discharging:
@@ -141,6 +145,7 @@ class DeviceController():
             self.charger.stop()
         self.discharger.discharge(current, min_voltage)
         self.batt_state = BatteryState.DISCHARGING
+        self.mode = self.DeviceMode.CAPACITY_TEST      # Allows battery capacity recording when discharging only
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 

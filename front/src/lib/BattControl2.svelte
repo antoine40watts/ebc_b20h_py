@@ -226,7 +226,7 @@
     }
 
     #opForm {
-        width: 320px;
+        width: 300px;
         height: 200px;
         background-color: gainsboro;
         float: left;
@@ -261,13 +261,13 @@
     }
 
     #rightContainer {
-        background-color: aquamarine;
-        width: 300px;
+        /* background-color: aquamarine; */
+        width: 350px;
     }
 
     #operationsList {
         overflow: auto;
-        background-color: aqua;
+        /* background-color: aqua; */
         height: 126px;
         margin: 0px;
         padding: 20px;

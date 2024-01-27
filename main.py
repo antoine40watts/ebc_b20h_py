@@ -142,6 +142,11 @@ async def measure_capacity(request: CDRequest):
 async def charge_battery(charge_request: CDRequest):
     current = charge_request.cc
     max_voltage = charge_request.cv
+
+    # Reset chart to t0
+    device.discharger.clear()
+    new_chart_id()
+
     device.charge(current, max_voltage)
     logging.info("Charge battery request")
     return {"message": "Charge request received"}
@@ -151,6 +156,11 @@ async def charge_battery(charge_request: CDRequest):
 async def discharge_battery(discharge_request: CDRequest):
     current = discharge_request.dc
     min_voltage = discharge_request.dv
+
+    # Reset chart to t0
+    device.discharger.clear()
+    new_chart_id()
+
     device.discharge(current, min_voltage)
     logging.info("Discharge battery request")
     return {"message": "Discharge request received"}
@@ -163,13 +173,13 @@ async def stop():
     return {"message": "Stop request received"}
 
 
-@app.get("/get-state")
-async def get_datapoints(start: int = 0, id: str = ""):
+@app.get("/battery-state")
+async def get_battery_state(start: int = 0, id: str = ""):
     """
         Sent data :
             battery_state <BatteryState>
             device_state <DeviceMode>
-            data <list>             (graph points)
+            chart_data <list>             (graph points)
             operations <list>       (recorded operations)
             battery_capacity <int>  (displayed mAh)
     """
@@ -184,21 +194,22 @@ async def get_datapoints(start: int = 0, id: str = ""):
         print("sending id", chart_id)
 
     response["battery_state"] = device.batt_state
+    response["battery_voltage"] = device.batt_voltage
+    response["battery_current"] = device.batt_current
+    response["battery_mah"] = device.discharger.mah
+    response["battery_capacity"] = device.batt_capacity
     response["device_state"] = device.mode
-
-    if device.batt_capacity > 0:
-        response["battery_capacity"] = device.batt_capacity
 
     datapoints = []
     for datapoint in device.monitoring_data[start:]:
         t, v, c, mah = datapoint
         datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
-    response["data"] = datapoints
+    response["chart_data"] = datapoints
 
     response["operations"] = [ {"operation": op.type, "params": op.params}
                               for op in device.operations ]
 
-    print(response)
+    # print(response)
     return response
 
 

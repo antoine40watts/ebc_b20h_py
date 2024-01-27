@@ -25,6 +25,7 @@
     );
 
     $: chartData = {
+        labels: $deviceData.time_array,
         datasets: [
             {
                 label: 'Voltage',
@@ -32,7 +33,7 @@
                 // fill: true,
                 backgroundColor: 'rgba(225, 204,230, .3)',
                 borderColor: 'rgb(75, 192, 192)',
-                data: $deviceData.voltage,
+                data: $deviceData.voltage_array,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
@@ -41,7 +42,7 @@
                 label: 'Current',
                 yAxisID: 'cAxis',
                 borderColor: 'rgb(200, 200, 75)',
-                data: $deviceData.current,
+                data: $deviceData.current_array,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -51,14 +52,13 @@
                 label: 'mAh',
                 yAxisID: 'mahAxis',
                 borderColor: 'rgb(80, 230, 152)',
-                data: $deviceData.mah,
+                data: $deviceData.mah_array,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
             }
         ],
-        labels: $deviceData.time,
     }
 
 
@@ -72,6 +72,7 @@
                     display: true,
                 },
                 type: 'linear',
+                max: Math.ceil($deviceData.time_array[$deviceData.time_array.length - 1]),
             },
             vAxis: {
                 title: { 
@@ -80,7 +81,7 @@
                     display: true,
                 },
                 type: 'linear',
-                suggestedMax: Math.max($deviceParameters.charge_v, $deviceParameters.discharge_v),
+                suggestedMax: 1 + Math.max($deviceParameters.charge_v, $deviceParameters.discharge_v),
                 beginAtZero: true,
             },
             cAxis: {
@@ -109,53 +110,12 @@
         },
         animation: false,
     };
-
-
-    let csvFileName = "battery_data.csv";
-    let jsonFileName = "battery_data.json";
-
-    const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
-
-
-    // function downloadCSV() {
-    //     const csvContent = "data:text/csv;charset=utf-8," + $batteryData.voltage.map(row => row.join(",")).join("\n");
-    //     const encodedUri = encodeURI(csvContent);
-    //     const link = document.createElement("a");
-    //     link.setAttribute("href", encodedUri);
-    //     link.setAttribute("download", "data.csv");
-    //     document.body.appendChild(link);
-    //     link.click();
-    //     document.body.removeChild(link);
-    // }
-
-    function downloadRaw() {
-        let url = apiUrl + "/battery-state";
-        window.open(url, '_blank');
-    }
-
-    function downloadCSV() {
-        let url = apiUrl + "/get-csv?filename=" + csvFileName;
-        window.open(url, '_blank');
-    }
 </script>
 
 <div class="container">
-{#if $deviceData.voltage.length > 0}
     <div class="chart-container">
         <Line options={options} data={chartData} />
     </div>
-    <div class="export-button">
-        Export 
-        <!-- <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank">raw</a> -->
-        <button on:click={downloadRaw}>raw</button>
-        <!-- <a href={apiUrl + "/get-csv?filename=" + csvFileName} download={csvFileName}>csv</a> -->
-        <button on:click={downloadCSV}>csv</button>
-    </div>
-{:else}
-    <div class="error-message">
-        <p>No data recieved...</p>
-    </div>
-{/if}
 </div>
 
 
@@ -174,40 +134,21 @@
         width: 1px; /* Works because of flex-grow */
         height: 100%;
     }
-    .error-message {
+    /* .error-message {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-    }
-    .export-button {
-        /* position: relative; */
-        position: relative;
-        /* transform: translateX(-100px); */
-        top: 180px;
-        margin-left: -118px;
-        right: 80px;
-        text-align: right;
-        /* margin-right: 16px; */
-    }
+    } */
+    
 
     @media print {
-    .export-button {
-        display: none;
+        .container {
+            /* transform: rotate(90deg); */
+            /* display: flow; */
+            position: absolute;
+            top: 120px;
+            left: 0;
+        }
     }
-    .chart-container {
-        /* transform: rotate(90deg);
-        display: flow;*/
-        /* position: absolute;
-        top: 200;
-        left: 0; */
-    }
-    .container {
-        /* transform: rotate(90deg); */
-        /* display: flow; */
-        position: absolute;
-        top: 120px;
-        left: 0;
-    }
-  }
 </style>
