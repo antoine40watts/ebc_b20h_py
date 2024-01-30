@@ -177,8 +177,8 @@ async def stop():
 async def get_battery_state(start: int = 0, id: str = ""):
     """
         Sent data :
-            battery_state <BatteryState>
             device_state <DeviceMode>
+            battery_state <BatteryState>
             chart_data <list>             (graph points)
             operations <list>       (recorded operations)
             battery_capacity <int>  (displayed mAh)
@@ -193,12 +193,12 @@ async def get_battery_state(start: int = 0, id: str = ""):
         response["chart_id"] = chart_id
         print("sending id", chart_id)
 
+    response["device_state"] = device.mode
     response["battery_state"] = device.batt_state
     response["battery_voltage"] = device.batt_voltage
     response["battery_current"] = device.batt_current
     response["battery_mah"] = device.discharger.mah
     response["battery_capacity"] = device.batt_capacity
-    response["device_state"] = device.mode
 
     datapoints = []
     for datapoint in device.monitoring_data[start:]:

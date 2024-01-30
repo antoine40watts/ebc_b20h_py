@@ -5,9 +5,9 @@
 
     
     let selectedOperation;
-    let chargeVLim = $deviceParameters.vmax;
-    let dischargeVLim = $deviceParameters.vmin;
-    let current = 1;
+    let chargeVLim = $deviceParameters.charge_v;
+    let dischargeVLim = $deviceParameters.discharge_v;
+    let current = $deviceParameters.charge_c;
     let duration = 0;       // In seconds
     let waitDuration = 60;  // In seconds
 
@@ -39,7 +39,7 @@
     //     console.log(voltRange);
     // }
 
-    $: if ($deviceParameters.vmax) {
+    $: if ($deviceParameters.charge_v) {
         // chargeVLim = 0;
         // dischargeVLim = 0;
         handleVLim();
@@ -122,12 +122,12 @@
     }
 
     function handleVLim() {
-        console.log("chaning vlim");
-        if (chargeVLim < $deviceParameters.vmin || chargeVLim > $deviceParameters.vmax) {
-            chargeVLim = $deviceParameters.vmax;
+        console.log("changing vlim");
+        if (chargeVLim < $deviceParameters.discharge_v || chargeVLim > $deviceParameters.charge_v) {
+            chargeVLim = $deviceParameters.charge_v;
         }
-        if (dischargeVLim < $deviceParameters.vmin || dischargeVLim > $deviceParameters.vmax) {
-            dischargeVLim = $deviceParameters.vmin;
+        if (dischargeVLim < $deviceParameters.discharge_v || dischargeVLim > $deviceParameters.charge_v) {
+            dischargeVLim = $deviceParameters.discharge_v;
         }
     }
 </script>
@@ -160,7 +160,7 @@
 
                 <label for="vlim">V lim</label>
                 <input type="number" size="4" name="vlim" id="vlim"
-                    min={$deviceParameters.vmin} max={$deviceParameters.vmax} step="0.1"
+                    min={$deviceParameters.discharge_v} max={$deviceParameters.charge_v} step="0.1"
                     bind:value={chargeVLim} on:change={handleVLim}/> V
                 <!-- <input type="range" id="taux" name="taux"
                     min={$deviceParameters.discharge_v} max={$deviceParameters.charge_v} step="0.01"
@@ -180,7 +180,7 @@
 
                 <label for="vlim">V lim</label>
                 <input type="number" size="4" name="vlim" id="vlim"
-                    min={$deviceParameters.vmin} max={$deviceParameters.vmax} step="0.1"
+                    min={$deviceParameters.discharge_v} max={$deviceParameters.charge_v} step="0.1"
                     bind:value={dischargeVLim}/> V
                 <!-- <input type="range" id="taux" name="taux"
                     min={$deviceParameters.discharge_v} max={$deviceParameters.charge_v} step="0.01"
@@ -203,11 +203,12 @@
 </div>
 
 <div id="rightContainer">
-    <ul id="operationsList">
+    <ul id="operationsList" class="fa-ul">
         {#each operations as op }
-            <li class="listItem">
+            <li>
+                <span class="fa-li"><i class="fa-solid fa-spinner fa-pulse"></i></span>
                 {getDescription(op)}
-                <input type="checkbox" style="position: absolute; right: 0px;"/>
+                <input type="checkbox" style="position: relative; right: 0px;"/>
             </li>
         {/each}
     </ul>
@@ -223,12 +224,16 @@
 <style>
     #container {
         display: flex;
+        background-color: rgb(191, 238, 207);
+        padding: 8px;
+        border-radius: 30px;
     }
 
     #opForm {
         width: 300px;
         height: 200px;
-        background-color: gainsboro;
+        padding: 16px;
+        /* background-color: gainsboro; */
         float: left;
         position: relative;
     }
@@ -261,16 +266,18 @@
     }
 
     #rightContainer {
-        /* background-color: aquamarine; */
         width: 350px;
+        /* background-color: beige; */
     }
 
     #operationsList {
         overflow: auto;
-        /* background-color: aqua; */
+        background-color: whitesmoke;
+        border-radius: 20px;
+        margin: 6px;
         height: 126px;
-        margin: 0px;
-        padding: 20px;
+        padding: 16px;
+        padding-left: 30px;
         font-size: 0.9em;
     }
 

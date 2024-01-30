@@ -40,6 +40,7 @@ async function updateData() {
         arrayMah = [...arrayMah, element.mah];
         arrayTime = [...arrayTime, element.t];
       });
+      deviceState = responseData.device_state
       batteryState = responseData.battery_state;
       batteryVoltage = responseData.battery_voltage;
       batteryCurrent = responseData.battery_current;

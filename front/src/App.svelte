@@ -110,7 +110,7 @@
       <div>
         <BattControl2 />
       </div>
-      <div class="border-left">
+      <div>
         <BattState />
       </div>
       <!-- <div class="border-left">
@@ -157,11 +157,8 @@
     margin: auto;
   }
   .control-container div {
-    padding: 0px 50px 0px 50px;
-  }
-
-  .border-left {
-    border-left: 1px solid rgba(10, 59, 23, 0.4);
+    /* padding: 0px 50px 0px 50px; */
+    margin-right: 50px;
   }
 
   #version-label {
