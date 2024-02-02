@@ -37,11 +37,11 @@
                 {/if} -->
             </td>
         </tr>
-        <!-- {#if $deviceData.capacity > 0} -->
+        {#if $deviceParameters.original_capacity > 0}
         <tr>
             <td></td><td nowrap>{Math.round(100 * $deviceData.capacity / $deviceParameters.original_capacity)}% de la capacité originale</td>
         </tr>
-        <!-- {/if} -->
+        {/if}
     </table>
 </div>
 

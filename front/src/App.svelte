@@ -96,13 +96,13 @@
   </div>
 
   <div class="export-buttons hide-on-print" style="text-align: right;">
-    Export 
+    <i class="fa-solid fa-file-export"></i>
     <!-- <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank">raw</a> -->
     <button on:click={downloadRaw}>raw</button>
     <!-- <a href={apiUrl + "/get-csv?filename=" + csvFileName} download={csvFileName}>csv</a> -->
-    <button on:click={downloadCSV}>csv</button>
+    <button on:click={downloadCSV}><i class="fa-solid fa-file-csv"></i></button>
     &nbsp;
-    <button on:click={printPage}>Print</button>
+    <button on:click={printPage}><i class="fa-solid fa-print"></i></button>
   </div>
   
   <div class="hide-on-print">
@@ -175,8 +175,13 @@
 
   .export-buttons {
     position: relative;
-    right: 45px;
+    right: 70px;
     top: -14px;
+  }
+
+  .export-buttons button {
+    font-size: 0.9em;
+    padding: 2px 4px;
   }
 
   @media print {

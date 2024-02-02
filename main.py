@@ -111,7 +111,7 @@ async def add_op(request: OpRequest):
 @app.post("/start-op")
 async def start_op():
     logging.info("POST request recieved : start all operations")
-    device.start_operations()
+    device.start_next_operations()
     return {"message": "Operations started"}
 
 
@@ -173,8 +173,8 @@ async def stop():
     return {"message": "Stop request received"}
 
 
-@app.get("/battery-state")
-async def get_battery_state(start: int = 0, id: str = ""):
+@app.get("/get-state")
+async def get_device_state(start: int = 0, id: str = ""):
     """
         Sent data :
             device_state <DeviceMode>
@@ -206,7 +206,10 @@ async def get_battery_state(start: int = 0, id: str = ""):
         datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
     response["chart_data"] = datapoints
 
-    response["operations"] = [ {"operation": op.type, "params": op.params}
+    response["operations"] = [
+                                {"operation": op.type,
+                                 "params": op.params,
+                                 "status": op.status}
                               for op in device.operations ]
 
     # print(response)

@@ -12,7 +12,8 @@
 
 
 <Accordion bind:open={open} flex_size={1}>
-    <span slot="head">Client</span>
+    <span slot="header-icon"><i class="fa-regular fa-user"></i></span>
+    <span slot="header-title">Client</span>
     <div slot="details">
         <table>
             <tr>

@@ -16,12 +16,12 @@ let batteryMah = 0;
 let batteryCapacity = 0;
 let deviceError = false;
 let chartId = "";
-let devops = [];
+let operations = [];
 
 
 async function updateData() {
   try {
-    const url = `${apiUrl}/battery-state?start=${arrayVoltage.length}&id=${chartId}`;
+    const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
     if (response.ok) {
       deviceError = false;
@@ -46,7 +46,7 @@ async function updateData() {
       batteryCurrent = responseData.battery_current;
       batteryMah = responseData.battery_mah;
       batteryCapacity = responseData.battery_capacity;
-      devops = responseData.operations;
+      operations = responseData.operations;
 
       console.log(responseData);      
     } else {
@@ -90,9 +90,8 @@ export const deviceData = readable(initialDeviceState, (set) => {
       current: batteryCurrent,
       mah: batteryMah,
       capacity: batteryCapacity,
-      operations: devops,
+      operations: operations,
     });
-    console.log("device status updated");
   }, 2000);
   return () => {
     clearInterval(interval);
@@ -101,11 +100,11 @@ export const deviceData = readable(initialDeviceState, (set) => {
 
 
 const initialDeviceParams = {
-  charge_v: 16.8,
+  charge_v: 29.4,
   charge_c: 4,
-  discharge_v: 10.8,
+  discharge_v: 18.9,
   discharge_c: 4,
-  cells_s: 4,
+  cells_s: 7,
   original_capacity: 0, // milliamps
 };
 

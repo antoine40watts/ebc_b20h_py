@@ -32,12 +32,12 @@ class EBC_B20H():
         self.logfile = "log_ebc-b20.txt"
 
         self.is_monitoring = False
+        self.is_charging = False
+        self.is_discharging = False
         self.monitoring_data = []
         self.voltage = 0.0
         self.current = 0.0
         self.mah = 0.0
-        self.is_discharging = False
-        self.is_charging = False
         
         self.find_device()
 

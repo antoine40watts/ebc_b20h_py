@@ -5,7 +5,7 @@
 
     export let open = false;
 
-    let cells_s = 4;
+    let cells_s = 7;
     let cells_p = 1;
     let cell_cap = 2400;
     let original_capacity = 0;  // amps
@@ -28,7 +28,8 @@
 </script>
 
 <Accordion bind:open={open} flex_size={2}>
-    <span slot="head">Batterie</span>
+    <span slot="header-icon"><i class="fa-solid fa-car-battery"></i></span>
+    <span slot="header-title">Batterie</span>
     <div slot="details">
       <table style="width: 700px">
         <tr>

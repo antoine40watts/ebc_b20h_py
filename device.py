@@ -93,14 +93,23 @@ class DeviceController():
                 if len(self.operations) > self.operation_idx + 1:
                     # Start the next operation
                     self.operation_idx += 1
-                    next_op = self.operations[self.operation_idx]
-                    next_op.status = OpStatus.ONGOING
-                    next_op.t_start = time.time()
+                    self.start_next_operations()
                 else:
+                    # End of all operations
+                    self.mode = DeviceMode.IDLE
                     self.stop_all()
                     self.operation_idx = 0
+            
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
+                # Check if operation is completed
+                if self.batt_state == BatteryState.IDLE and self.batt_state != self.prev_state:
+                    current_op.status = OpStatus.FINISHED
+                    current_op.result = (0, "completed")
+                    current_op.t_end = time.time()
+                    self.batt_capacity = self.discharger.mah
+                    self.mode = DeviceMode.BETWEEN_OPERATIONS
+                
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
                         # End of timed operation
@@ -145,7 +154,7 @@ class DeviceController():
             self.charger.stop()
         self.discharger.discharge(current, min_voltage)
         self.batt_state = BatteryState.DISCHARGING
-        self.mode = self.DeviceMode.CAPACITY_TEST      # Allows battery capacity recording when discharging only
+        # self.mode = self.DeviceMode.CAPACITY_TEST      # Allows battery capacity recording when discharging only
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 
@@ -169,11 +178,8 @@ class DeviceController():
         logging.info(f"Stop all !")
 
 
-    def start_operations(self):
-        if self.operations:
-            self.t0 = time.time()
-            self.mode = DeviceMode.IN_OPERATION
-            # (Re-)start current operation
+    def start_next_operations(self):
+        if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
             print("Start op: " + current_op.type)
             print(current_op.params)
@@ -187,6 +193,7 @@ class DeviceController():
                 self.discharge(current, v_min)
             current_op.t_start = time.time()
             current_op.status = OpStatus.ONGOING
+            self.mode = DeviceMode.IN_OPERATION
     
 
     def add_operation(self, type: str, params: dict):

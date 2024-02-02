@@ -8,7 +8,8 @@
 
 <div class="accordion" style="flex:{flex_size}">
     <div class:open class="header" on:mousedown={() => open=!open}>
-        <h3 class="header-content"><slot name="head"></slot></h3>
+        <span class="header-icon" style="margin-right: 10px"><slot name="header-icon"></slot></span>
+        <h3><span class="header-title"><slot name="header-title"></slot></span></h3>
     </div>
     
     {#if open}
@@ -26,33 +27,44 @@
         flex-grow: 1;
     }
     
+    .open {
+        background-color: #6fdd96;
+    }
+    
     .header {
         display:flex;
         height: 38px;
         align-items: center;
-        /* justify-content: center; */
-        padding-left: 16px;
-        /* font-size: large; */
-    }
-    
-    .open {
-        background-color: #60c282;
+        color: #57976d;
     }
 
+    .header-icon {
+        margin-left: 16px;
+        font-size: 1.2em;
+    }
+
+    .header-title {
+        margin-left: 8px;
+    }
+    
     .header:hover {
-        font-weight: 720;
-        background-color: #52c87b;
-        padding-left: 32px;
+        background-color: #6fdd96;
+        color: #2a4935;
+        transition-duration: 200ms;
+    }
+
+    .header:hover .header-title {
+        margin-left: 16px;
+        transition-duration: 200ms;
+    }
+
+    .header:hover .header-icon {
+        font-size: 1.7em;
+        margin-left: 14px;
         transition-duration: 200ms;
     }
     
-    .header-content {
-        /* flex: 1; */
-        margin-right: 5px;
-    }
-    
     .details {
-        /* background-color: rgb(176, 236, 197); */
         padding: 8px;
         padding-left: 26px;
     }
