@@ -108,21 +108,22 @@ async def add_op(request: OpRequest):
     return {"message": "Operation added: " + str(device.operations[-1])}
 
 
-@app.post("/start-op")
+@app.post("/start-ops")
 async def start_op():
     logging.info("POST request recieved : start all operations")
+    new_chart_id()
     device.start_next_operations()
     return {"message": "Operations started"}
 
 
-@app.post("/stop-op")
+@app.post("/stop-ops")
 async def stop_op():
     logging.info("POST request recieved : stop all operations")
     device.stop_all()
     return {"message": "Operations stopped"}
 
 
-@app.post("/clear-op")
+@app.post("/clear-ops")
 async def clear_op():
     logging.info("POST request recieved : clear all operations")
     device.clear_operations()
@@ -200,16 +201,18 @@ async def get_device_state(start: int = 0, id: str = ""):
     response["battery_mah"] = device.discharger.mah
     response["battery_capacity"] = device.batt_capacity
 
-    datapoints = []
-    for datapoint in device.monitoring_data[start:]:
-        t, v, c, mah = datapoint
-        datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
-    response["chart_data"] = datapoints
+    # datapoints = []
+    # for datapoint in device.monitoring_data[start:]:
+    #     t, v, c, mah = datapoint
+    #     datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
+    # response["chart_data"] = datapoints
 
     response["operations"] = [
                                 {"operation": op.type,
                                  "params": op.params,
-                                 "status": op.status}
+                                 "status": op.status,
+                                 "chart": op.chart,
+                                 }
                               for op in device.operations ]
 
     # print(response)

@@ -1,6 +1,7 @@
 <script>
     import { deviceParameters } from "../stores.js";
     import { deviceData } from "../stores.js";
+    import { updateData } from "../stores.js";
     import { onMount } from 'svelte';
 
     
@@ -85,19 +86,22 @@
         });
         const responseData = await response.json();
 
-        console.log(responseData);
+        await updateData();
 	}
 
     async function handleStart() {
-        const response = await fetch(apiUrl + '/start-op', {method: "POST"});
+        const response = await fetch(apiUrl + '/start-ops', {method: "POST"});
+        await updateData();
     }
 
     async function handleStop() {
-        const response = await fetch(apiUrl + '/stop-op', {method: "POST"});
+        const response = await fetch(apiUrl + '/stop-ops', {method: "POST"});
+        await updateData();
     }
 
     async function handleClear() {
-        const response = await fetch(apiUrl + '/clear-op', {method: "POST"});
+        const response = await fetch(apiUrl + '/clear-ops', {method: "POST"});
+        await updateData();
     }
 
     function getDescription(operation) {
@@ -264,9 +268,9 @@
                 <td class="op-chart"><input type="checkbox" style="position: relative; right: 0px;"/></td>
 
                 {#if op.status === 0}
-                <td><button><i class="fa-solid fa-delete-left" style="color: #A00"></i></button></td>
+                <td class="op-delete"><button><i class="fa-solid fa-delete-left" style="color: #A00"></i></button></td>
                 {:else}
-                <td></td>
+                <td class="op-delete"></td>
                 {/if}
             </tr>
             {/each}
@@ -366,7 +370,11 @@
     }
 
     table .op-chart {
-        
+        width: 26px;
+    }
+
+    table .op-delete {
+        width: 28px;
     }
 
     #button-bar {

@@ -67,6 +67,7 @@
         position: relative;
         /* max-width: fit-content; */
         text-align: center;
+        width: 380px;
     }
 
     .container p {
@@ -83,7 +84,7 @@
         scale: 0.5;
         position: absolute;
         top: -35px;
-        right: -38px;
+        right: 0;
         filter: opacity(0.9);
     }
 

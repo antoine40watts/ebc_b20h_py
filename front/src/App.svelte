@@ -96,9 +96,8 @@
   </div>
 
   <div class="export-buttons hide-on-print" style="text-align: right;">
-    <i class="fa-solid fa-file-export"></i>
     <!-- <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank">raw</a> -->
-    <button on:click={downloadRaw}>raw</button>
+    <button on:click={downloadRaw}><i class="fa-solid fa-file-export"></i></button>
     <!-- <a href={apiUrl + "/get-csv?filename=" + csvFileName} download={csvFileName}>csv</a> -->
     <button on:click={downloadCSV}><i class="fa-solid fa-file-csv"></i></button>
     &nbsp;

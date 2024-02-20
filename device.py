@@ -1,6 +1,6 @@
 from enum import Enum
 from dataclasses import dataclass, field
-from typing import List
+from typing import List, Tuple
 import logging
 import asyncio
 import time
@@ -35,7 +35,8 @@ class Operation():
     params: dict
     status: int = OpStatus.PENDING
     result: tuple = (0, "pending")
-    #chart: List = field(default=[])
+    chart: List[Tuple] = field(default_factory=list) # List of datapoints
+    #chart: List[Tuple] = field(default=[]) # List of datapoints
     t_start: float = 0.0
     t_end: float = 0.0
     show: bool = True
@@ -53,6 +54,7 @@ class DeviceController():
         self.batt_current = 0
         self.batt_capacity = 0
         self._running = False
+        self._is_monitoring = False
 
         try:
             self.charger = Q2Charger()
@@ -122,16 +124,33 @@ class DeviceController():
             await asyncio.sleep(0.3)
     
 
+    async def _monitor(self):
+        while self._is_monitoring:
+            print(f"{self._running=} {self.mode=}")
+            if self._running and self.mode == DeviceMode.IN_OPERATION:
+                current_op = self.operations[self.operation_idx]
+                t = time.time() - self.monitoring_t0
+                datapoint = (t, self.discharger.voltage, self.discharger.current, self.discharger.mah)
+                if len(current_op.chart) > 0:
+                    last_datapoint = current_op.chart[-1]
+                    if datapoint[1:] != last_datapoint[1:]:
+                        current_op.chart.append(datapoint)
+                else:
+                    current_op.chart.append(datapoint)
+            await asyncio.sleep(1)
+        print("done...")
+
+
     def start(self):
         if not self._running:
             self._running = True
-            self.t0 = time.time()
             self.task = asyncio.create_task(self._run())
             # await self.task
     
 
     async def stop(self):
         self._running = False
+        self._is_monitoring = False
         self.discharger.stop_monitoring()
         self.discharger.disconnect()
 
@@ -169,16 +188,26 @@ class DeviceController():
     
 
     def stop_all(self):
+        self._is_monitoring = False
         if self.charger.is_charging:
             self.charger.stop()
         if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
         self.batt_state = BatteryState.IDLE
         self.mode = DeviceMode.IDLE
+        for op in self.operations:
+            op.status = OpStatus.PENDING
+        self.operation_idx = 0
+        
         logging.info(f"Stop all !")
 
 
     def start_next_operations(self):
+        if not self._is_monitoring:
+            print("start monitoring")
+            self._is_monitoring = True
+            self.monitoring_t0 = time.time()
+            self.monitoring_task = asyncio.create_task(self._monitor())
         if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
             print("Start op: " + current_op.type)

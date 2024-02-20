@@ -19,7 +19,7 @@ let chartId = "";
 let operations = [];
 
 
-async function updateData() {
+export async function updateData() {
   try {
     const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
     const response = await fetch(url);
@@ -34,12 +34,12 @@ async function updateData() {
         arrayMah = [];
         arrayTime = [];
       }
-      responseData.chart_data.forEach((element) => {
-        arrayVoltage = [...arrayVoltage, element.v];
-        arrayCurrent = [...arrayCurrent, element.c];
-        arrayMah = [...arrayMah, element.mah];
-        arrayTime = [...arrayTime, element.t];
-      });
+      // responseData.chart_data.forEach((element) => {
+      //   arrayVoltage = [...arrayVoltage, element.v];
+      //   arrayCurrent = [...arrayCurrent, element.c];
+      //   arrayMah = [...arrayMah, element.mah];
+      //   arrayTime = [...arrayTime, element.t];
+      // });
       deviceState = responseData.device_state
       batteryState = responseData.battery_state;
       batteryVoltage = responseData.battery_voltage;
@@ -47,6 +47,20 @@ async function updateData() {
       batteryMah = responseData.battery_mah;
       batteryCapacity = responseData.battery_capacity;
       operations = responseData.operations;
+
+      // Chart
+      arrayVoltage = [];
+      arrayCurrent = [];
+      arrayMah = [];
+      arrayTime = [];
+      operations.forEach((op) => {
+        op.chart.forEach((datapoint) => {
+          arrayVoltage = [...arrayVoltage, datapoint[1]];
+          arrayCurrent = [...arrayCurrent, datapoint[2]];
+          arrayMah = [...arrayMah, datapoint[3]];
+          arrayTime = [...arrayTime, datapoint[0]];
+        })
+      })
 
       console.log(responseData);      
     } else {
