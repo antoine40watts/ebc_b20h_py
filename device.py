@@ -69,7 +69,7 @@ class DeviceController():
         self.monitoring_data = self.discharger.monitoring_data
 
         self.operations = []
-        self.operation_idx = 0
+        self.operation_idx = -1
 
 
     async def _run(self):
@@ -148,7 +148,8 @@ class DeviceController():
 
 
     def start(self):
-        self.operation_idx = 0
+        # Start the device
+        
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
@@ -212,7 +213,7 @@ class DeviceController():
         self.mode = DeviceMode.IDLE
         for op in self.operations:
             op.status = OpStatus.PENDING
-        self.operation_idx = 0
+        self.operation_idx = -1
         
         logging.info(f"Stop all !")
 
@@ -255,5 +256,5 @@ class DeviceController():
 
     def clear_operations(self):
         self.operations.clear()
-        self.operation_idx = 0
+        self.operation_idx = -1
     
