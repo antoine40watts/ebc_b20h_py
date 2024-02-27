@@ -84,6 +84,7 @@
                 type: 'linear',
                 // suggestedMax: 1 + Math.max(...$chartDatapoint.voltage),
                 beginAtZero: true,
+                min: Math.floor($deviceParameters.discharge_v),
             },
             cAxis: {
                 title: { 
