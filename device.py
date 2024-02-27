@@ -167,21 +167,29 @@ class DeviceController():
         await self.task
     
 
-    def charge(self, current, max_voltage):
+    def charge(self, current, max_voltage, adjust=False):
         if self.discharger.is_discharging:
             self.discharger.stop()
+            self.discharger.charge(cutoff_c = 0.1)
+        else:
+            self.discharger.charge(cutoff_c = 0.1)
+        
         self.charger.charge(current, max_voltage)
-        self.discharger.charge(cutoff_c = 0.1)
+
         self.batt_state = BatteryState.CHARGING
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
 
-    def discharge(self, current, min_voltage):
+    def discharge(self, current, min_voltage, adjust=False):
         if self.charger.is_charging:
             self.charger.stop()
-        self.discharger.discharge(current, min_voltage)
+            self.discharger.discharge(current, min_voltage)
+        elif adjust:
+            self.discharger.adjust(current, min_voltage)
+        else:
+            self.discharger.discharge(current, min_voltage)
+        
         self.batt_state = BatteryState.DISCHARGING
-        # self.mode = self.DeviceMode.CAPACITY_TEST      # Allows battery capacity recording when discharging only
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 
@@ -224,19 +232,25 @@ class DeviceController():
                 current = current_op.params["current"]
                 v_max = current_op.params["vlim"]
                 self.charge(current, v_max)
-            elif current_op.type == "discharge":
+            elif current_op.type.startswith("discharge"):
+                adjust = "_cont" in current_op.type
                 current = current_op.params["current"]
                 v_min = current_op.params["vlim"]
-                self.discharge(current, v_min)
+                self.discharge(current, v_min, adjust)
             current_op.t_start = time.time()
             current_op.status = OpStatus.ONGOING
             self.mode = DeviceMode.IN_OPERATION
     
 
     def add_operation(self, type: str, params: dict):
-        print("op added", type, params)
+        if len(self.operations) > 0:
+            if type == "charge" and self.operations[-1].type.startswith("charge"):
+                type = "charge_cont"
+            elif type == "discharge" and self.operations[-1].type.startswith("discharge"):
+                type = "discharge_cont"
         self.operations.append( Operation(type, params) )
-    
+        print("op added", type, params)
+
 
     def clear_operations(self):
         self.operations.clear()

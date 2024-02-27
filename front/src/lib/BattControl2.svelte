@@ -79,31 +79,13 @@
         await updateData();
     }
 
-    function getDescription(operation) {
-        let desc = "";
-        if (operation.operation === "charge") {
-            desc = "Charge @" + operation.params.current + "A";
-            desc += ", jusqu'à " + operation.params.vlim + "V";
-        } else if (operation.operation === "discharge") {
-            desc = "Décharge @" + operation.params.current + "A";
-            desc += ", jusqu'à " + operation.params.vlim + "V";
-        } else if (operation.operation === "wait") {
-            desc = "Attendre " + operation.params.duration + "s";
-        }
-
-        if (duration in operation.params && operation.params.duration > 0) {
-            desc += " pendant " + operation.params.duration + "s";
-        }
-        return desc;
-    }
-
     function getOpName(operation) {
         let desc = "";
-        if (operation.operation === "charge") {
+        if (operation.type.startsWith("charge")) {
             desc = "Charge";
-        } else if (operation.operation === "discharge") {
+        } else if (operation.type.startsWith("discharge")) {
             desc = "Décharge";
-        } else if (operation.operation === "wait") {
+        } else if (operation.type === "wait") {
             desc = "Attendre";
         }
         return desc;
@@ -111,10 +93,10 @@
 
     function getOpParams(operation) {
         let desc = "";
-        if (operation.operation === "charge" || operation.operation === "discharge") {
+        if (operation.type.startsWith("charge") || operation.type.startsWith("discharge")) {
             desc += operation.params.vlim + "V";
             desc += " @ " + operation.params.current + "A";
-        } else if (operation.operation === "wait") {
+        } else if (operation.type === "wait") {
             desc += operation.params.duration + "s";
         }
         return desc;

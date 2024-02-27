@@ -208,8 +208,8 @@ class EBC_B20H():
         """
         current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
         cutoff_v = min(max(cutoff_v, 2.0), 72.0)
-        c_msb, c_lsb = self.encode_current(current)
-        v_msb, v_lsb = self.encode_voltage(cutoff_v)
+        c_msb, c_lsb = EBC_B20H.encode_current(current)
+        v_msb, v_lsb = EBC_B20H.encode_voltage(cutoff_v)
         
         data = [0x01, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
@@ -222,8 +222,8 @@ class EBC_B20H():
     def adjust(self, current, cutoff_v):
         current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
         cutoff_v = min(max(cutoff_v, 2.0), 72.0)
-        c_msb, c_lsb = self.encode_current(current)
-        v_msb, v_lsb = self.encode_voltage(cutoff_v)
+        c_msb, c_lsb = EBC_B20H.encode_current(current)
+        v_msb, v_lsb = EBC_B20H.encode_voltage(cutoff_v)
 
         data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
@@ -236,11 +236,11 @@ class EBC_B20H():
         """ Allow charge (from an external charger)
             until current falls below cutoff_c
 
-            Anatomy of a discharge message:
+            Anatomy of a charge message:
                 250 17   0   0   0 200   0   0 229 248
                 som ch   ?   ?   ?   ?  c1  c2 crc eom
         """
-        c_msb, c_lsb = self.encode_current(cutoff_c)
+        c_msb, c_lsb = EBC_B20H.encode_current(cutoff_c)
         data = [0x11, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
         self.is_charging = True

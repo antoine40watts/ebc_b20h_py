@@ -211,12 +211,12 @@ async def get_device_state(start: int = 0, id: str = ""):
     # response["chart_data"] = datapoints
 
     response["operations"] = [
-                                {"operation": op.type,
-                                 "params": op.params,
-                                 "status": op.status,
-                                 "chart": op.chart,
-                                 }
-                              for op in device.operations ]
+                            {"type": op.type,
+                                "params": op.params,
+                                "status": op.status,
+                                "chart": op.chart,
+                                }
+                            for op in device.operations ]
 
     # print(response)
     return response
