@@ -105,7 +105,9 @@ class DeviceController():
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
                 # Check if operation is completed
-                if self.batt_state == BatteryState.IDLE and self.batt_state != self.prev_state:
+                if current_op.type != "wait" and \
+                        self.batt_state == BatteryState.IDLE and \
+                        self.batt_state != self.prev_state:
                     current_op.status = OpStatus.FINISHED
                     current_op.result = (0, "completed")
                     current_op.t_end = time.time()
@@ -125,6 +127,8 @@ class DeviceController():
     
 
     async def _monitor(self):
+        cycle = 1 # seconds
+
         while self._is_monitoring:
             print(f"{self._running=} {self.mode=}")
             if self._running and self.mode == DeviceMode.IN_OPERATION:
@@ -133,11 +137,15 @@ class DeviceController():
                 datapoint = (t, self.discharger.voltage, self.discharger.current, self.discharger.mah)
                 if len(current_op.chart) > 0:
                     last_datapoint = current_op.chart[-1]
+                    # Add new datapoint only if values are different from last datapoint
                     if datapoint[1:] != last_datapoint[1:]:
+                        last_t = last_datapoint[0]
+                        # if t - last_t > 1.5:
+                        #     current_op.chart.append( [t-1] + last_datapoint[1:] )
                         current_op.chart.append(datapoint)
                 else:
                     current_op.chart.append(datapoint)
-            await asyncio.sleep(1)
+            await asyncio.sleep(cycle)
         print("done...")
 
 
@@ -226,7 +234,7 @@ class DeviceController():
     
 
     def add_operation(self, type: str, params: dict):
-        print("op added")
+        print("op added", type, params)
         self.operations.append( Operation(type, params) )
     
 

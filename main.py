@@ -112,6 +112,9 @@ async def add_op(request: OpRequest):
 async def start_op():
     logging.info("POST request recieved : start all operations")
     new_chart_id()
+    # Clear old chart datapoints
+    for op in device.operations:
+        op.chart = []
     device.start_next_operations()
     return {"message": "Operations started"}
 

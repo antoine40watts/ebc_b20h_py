@@ -1,6 +1,6 @@
 <script>
-    import { deviceParameters } from "../stores.js";
-    import { deviceData } from "../stores.js";
+    import { deviceData, deviceParameters, operationsChartDisplay } from "../stores.js";
+    // import { deviceData } from "../stores.js";
     import { updateData } from "../stores.js";
     import { onMount } from 'svelte';
 
@@ -12,37 +12,8 @@
     let duration = 0;       // In seconds
     let waitDuration = 60;  // In seconds
 
-    // $: operations = $deviceState.operations;
-
-    // $: {
-    //     console.log('deviceState updated:', $deviceState);
-    //     const operations = $deviceState.operations || [];
-    //     updateOperationsList(operations);
-    // }
-
-    // $: chargeVPc = Math.round(100 * (chargeVLim - $deviceParameters.discharge_v) /
-    //     ($deviceParameters.charge_v - $deviceParameters.discharge_v));
-    // $: dischargeVPc = Math.round(100 * (dischargeVLim - $deviceParameters.discharge_v) /
-    //     ($deviceParameters.charge_v - $deviceParameters.discharge_v));
-    
-
-    // $: voltageLimit = $deviceParameters.charge_v * voltRange/100;
-
-    // $: if (voltRange) {
-    //     const dv = $deviceParameters.charge_v - $deviceParameters.discharge_v;
-    //     voltageLimit = $deviceParameters.discharge_v + dv * voltRange / 100;
-    // }
-
-    // function changeVLim() {
-    //     const dv = $deviceParameters.charge_v - $deviceParameters.discharge_v;
-    //     voltRange = 100 * (voltageLimit - $deviceParameters.discharge_v) / dv;
-    //     console.log(voltageLimit);
-    //     console.log(voltRange);
-    // }
 
     $: if ($deviceParameters.charge_v) {
-        // chargeVLim = 0;
-        // dischargeVLim = 0;
         handleVLim();
     }
 
@@ -59,8 +30,6 @@
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
     async function handleSubmit() {
-        console.log("submit");
-
         const opParams = {};
         if (selectedOperation === "charge") {
             opParams["current"] = current;
@@ -86,6 +55,11 @@
         });
         const responseData = await response.json();
 
+        operationsChartDisplay.update((arr) => {
+            arr.push(true);
+            return arr;
+        });
+
         await updateData();
 	}
 
@@ -101,6 +75,7 @@
 
     async function handleClear() {
         const response = await fetch(apiUrl + '/clear-ops', {method: "POST"});
+        operationsChartDisplay.set([])
         await updateData();
     }
 
@@ -153,6 +128,13 @@
         if (dischargeVLim < $deviceParameters.discharge_v || dischargeVLim > $deviceParameters.charge_v) {
             dischargeVLim = $deviceParameters.discharge_v;
         }
+    }
+    
+    function handleChartToggle(opIndex) {
+        operationsChartDisplay.update((arr) => {
+            arr[opIndex] = !arr[opIndex];
+            return arr;
+        });
     }
 </script>
 
@@ -254,7 +236,7 @@
 
     <div id="operations-list">
         <table >
-            {#each operations as op }
+            {#each operations as op, index}
             <tr>
                 {#if op.status === 1}
                 <td class="op-status-icon"><i class="fa-solid fa-spinner fa-pulse"></i></td>
@@ -265,8 +247,8 @@
                 {/if}
                 <td class="op-name">{getOpName(op)}</td>
                 <td class="op-params">{getOpParams(op)}</td>
-                <td class="op-chart"><input type="checkbox" style="position: relative; right: 0px;"/></td>
-
+                <td class="op-chart">
+                    <input type="checkbox" style="position: relative; right: 0px;" checked on:change={() => handleChartToggle(index)}/></td>
                 {#if op.status === 0}
                 <td class="op-delete"><button><i class="fa-solid fa-delete-left" style="color: #A00"></i></button></td>
                 {:else}

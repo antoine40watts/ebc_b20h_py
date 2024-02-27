@@ -1,6 +1,5 @@
 <script>
-    import { deviceData } from "../stores.js";
-    import { deviceParameters } from "../stores.js";
+    import { deviceData, deviceParameters, chartDatapoint } from "../stores.js";
     import { Line } from "svelte-chartjs";
 
     import {
@@ -24,8 +23,9 @@
         PointElement,
     );
 
+    
     $: chartData = {
-        labels: $deviceData.time_array,
+        labels: $chartDatapoint.time,
         datasets: [
             {
                 label: 'Voltage',
@@ -33,7 +33,7 @@
                 // fill: true,
                 backgroundColor: 'rgba(225, 204,230, .3)',
                 borderColor: 'rgb(75, 192, 192)',
-                data: $deviceData.voltage_array,
+                data: $chartDatapoint.voltage,
                 pointStyle: 'circle',
                 pointRadius: 2,
                 pointHoverRadius: 6
@@ -42,7 +42,7 @@
                 label: 'Current',
                 yAxisID: 'cAxis',
                 borderColor: 'rgb(200, 200, 75)',
-                data: $deviceData.current_array,
+                data: $chartDatapoint.current,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -52,7 +52,7 @@
                 label: 'mAh',
                 yAxisID: 'mahAxis',
                 borderColor: 'rgb(80, 230, 152)',
-                data: $deviceData.mah_array,
+                data: $chartDatapoint.mah,
                 // pointStyle: false,
                 pointStyle: 'circle',
                 pointRadius: 2,
@@ -72,7 +72,8 @@
                     display: true,
                 },
                 type: 'linear',
-                max: Math.ceil($deviceData.time_array[$deviceData.time_array.length - 1]),
+                min: Math.floor($chartDatapoint.time[0]),
+                max: Math.ceil($chartDatapoint.time[$chartDatapoint.time.length - 1]),
             },
             vAxis: {
                 title: { 
@@ -81,7 +82,7 @@
                     display: true,
                 },
                 type: 'linear',
-                suggestedMax: 1 + Math.max($deviceParameters.charge_v, $deviceParameters.discharge_v),
+                // suggestedMax: 1 + Math.max(...$chartDatapoint.voltage),
                 beginAtZero: true,
             },
             cAxis: {
@@ -94,7 +95,7 @@
                     drawOnChartArea: false, // only want the grid lines for one axis to show up
                 },
                 type: 'linear',
-                max: Math.max($deviceParameters.discharge_c, $deviceParameters.charge_c) + 1,
+                // suggestedMax: 1 + Math.max(...$chartDatapoint.current),
                 beginAtZero: true,
             },
             mahAxis: {
@@ -134,12 +135,6 @@
         width: 1px; /* Works because of flex-grow */
         height: 100%;
     }
-    /* .error-message {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-    } */
     
 
     @media print {
