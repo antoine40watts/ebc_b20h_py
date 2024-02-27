@@ -7,7 +7,7 @@
     $: mah = $deviceData.mah;
 
     function getDecimalPart(n) {
-        return parseInt(10 * (n - parseInt(n)))
+        return parseInt( Math.round(10 * (n - Math.floor(n))) )
     }
 
     const batteryStates = ["En attente", "En charge", "Décharge"];

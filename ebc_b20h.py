@@ -4,6 +4,7 @@
 from typing import Tuple, List
 import time
 import threading
+import asyncio
 import sys
 import logging
 
@@ -266,10 +267,58 @@ class EBC_B20H():
                 som cal val                     crc eom
         """
 
-
         raise NotImplementedError
         data = [0x04, 0, 0, 0, 0, 0, 0]
         self.send(bytes(data))
+
+
+    def new_monitor(self, callback=None):
+        """Send datapoints to logger via a callback function"""
+        if self.is_monitoring:
+            self.stop_monitoring()
+        
+        self.is_monitoring = True
+        self.monitoring_t0 = time.time()
+        self.monitoring_task = asyncio.create_task(self._new_monitor(callback))
+    
+    async def _new_monitor(self, callback):
+        cycle = 2
+        while self.is_monitoring:
+            data = self.recieve()
+            for line in data:
+                if not self.is_frame_valid(line):
+                    continue
+                frame_data = self.decode_frame(line)
+                
+                status = frame_data['status']
+                if status == 0x00 or status == 0x01:
+                    self.is_discharging = False
+                    self.is_charging = False
+                if status == 0x0A:   # Discharging
+                    self.is_discharging = True
+                    self.is_charging = False
+                elif status == 0x0B: # Charging
+                    self.is_discharging = False
+                    self.is_charging = True
+                elif status == 0x14:
+                    # end of discharge
+                    self.is_discharging = False
+                    logging.info("End of discharge")
+                elif status == 0x15:
+                    # end of charge
+                    self.is_charging = False
+                    logging.info("End of charge")
+
+                self.voltage = frame_data['voltage']
+                self.current = frame_data['current']
+                self.mah = frame_data['mah']
+                datapoint = [self.voltage, self.current, self.mah]
+
+                # Only record data when device is active
+                callback(datapoint)
+
+            await asyncio.sleep(cycle)
+        print("bye")
 
 
     def _monitor(self, filename, raw=False):
@@ -348,8 +397,8 @@ class EBC_B20H():
 
     def stop_monitoring(self):
         self.is_monitoring = False
-        if self.t:
-            self.t.join()
+        # if self.t:
+        #     self.t.join()
         if self.debug:
             logging.info("EBC-B20H monitoring stopped")
 

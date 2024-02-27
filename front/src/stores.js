@@ -9,8 +9,8 @@ let arrayMah = [];
 let arrayTime = [];
 let deviceState = 0;
 let batteryState = 0;
-let batteryVoltage = 0;
-let batteryCurrent = 0;
+let batteryVoltage = 0.0;
+let batteryCurrent = 0.0;
 let batteryMah = 0;
 let batteryCapacity = 0;
 let deviceError = false;
@@ -55,12 +55,6 @@ export async function updateData() {
           arrayTime = [...arrayTime, datapoint[0]];
         })
       })
-
-      // for (let i=0; i<operations.length; ++i) {
-      //   if (i < opChartDisplay.length && true) {
-      //     console.log(operations[i]);
-      //   }
-      // }
 
       console.log(responseData);      
     } else {

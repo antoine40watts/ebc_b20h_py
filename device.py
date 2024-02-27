@@ -65,8 +65,7 @@ class DeviceController():
             self.device_error = True
         
         self.discharger.connect()
-        self.discharger.start_monitoring()
-        self.monitoring_data = self.discharger.monitoring_data
+        #self.monitoring_data = self.discharger.monitoring_data
 
         self.operations = []
         self.operation_idx = -1
@@ -124,36 +123,29 @@ class DeviceController():
             await asyncio.sleep(0.3)
     
 
-    async def _monitor(self):
-        cycle = 1 # seconds
-
-        while self._is_monitoring:
-            print(f"{self._running=} {self.mode=}")
-            if self._running and self.mode == DeviceMode.IN_OPERATION:
-                current_op = self.operations[self.operation_idx]
-                t = time.time() - self.monitoring_t0
-                datapoint = (t, self.discharger.voltage, self.discharger.current, self.discharger.mah)
-                if len(current_op.chart) > 0:
-                    last_datapoint = current_op.chart[-1]
-                    # Add new datapoint only if values are different from last datapoint
-                    if datapoint[1:] != last_datapoint[1:]:
-                        last_t = last_datapoint[0]
-                        # if t - last_t > 1.5:
-                        #     current_op.chart.append( [t-1] + last_datapoint[1:] )
-                        current_op.chart.append(datapoint)
-                else:
-                    current_op.chart.append(datapoint)
-            await asyncio.sleep(cycle)
-        print("done...")
+    def add_datapoint(self, datapoint):
+        """ Add a datapoint to current running operation
+            This function should be passed to the monitoring device as a callback
+        """
+        if not self._running or self.mode != DeviceMode.IN_OPERATION:
+            return
+        current_op = self.operations[self.operation_idx]
+        dt = time.time() - self.monitoring_t0
+        datapoint = [dt] + datapoint
+        if len(current_op.chart) > 0:
+            last_datapoint = current_op.chart[-1]
+            # Add new datapoint only if values are different from last datapoint
+            if datapoint[1:] != last_datapoint[1:]:
+                current_op.chart.append(datapoint)
+        else:
+            current_op.chart.append(datapoint)
 
 
     def start(self):
         # Start the device
-        
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
-            # await self.task
     
 
     async def stop(self):
@@ -220,14 +212,15 @@ class DeviceController():
 
     def start_next_operations(self):
         if not self._is_monitoring:
-            print("start monitoring")
             self._is_monitoring = True
             self.monitoring_t0 = time.time()
-            self.monitoring_task = asyncio.create_task(self._monitor())
+            #self.monitoring_task = asyncio.create_task(self._monitor())
+            self.discharger.new_monitor(self.add_datapoint)
 
         self.operation_idx += 1
         if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
+            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
             print("Start op: " + current_op.type)
             print(current_op.params)
             if current_op.type == "charge":
