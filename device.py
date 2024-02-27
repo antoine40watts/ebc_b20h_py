@@ -94,13 +94,11 @@ class DeviceController():
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
                     # Start the next operation
-                    self.operation_idx += 1
                     self.start_next_operations()
                 else:
                     # End of all operations
                     self.mode = DeviceMode.IDLE
                     self.stop_all()
-                    self.operation_idx = 0
             
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
@@ -150,6 +148,7 @@ class DeviceController():
 
 
     def start(self):
+        self.operation_idx = 0
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
@@ -224,6 +223,8 @@ class DeviceController():
             self._is_monitoring = True
             self.monitoring_t0 = time.time()
             self.monitoring_task = asyncio.create_task(self._monitor())
+
+        self.operation_idx += 1
         if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
             print("Start op: " + current_op.type)

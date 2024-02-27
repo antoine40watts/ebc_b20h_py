@@ -152,9 +152,6 @@ La batterie des tests s'exécute avec la commande suivante (nécessites l'instal
 
     pytest
 
-## TODO
-
-* Tests unitaire pour la librairie `q2_charger.py`
 
 ## Ressources
 
