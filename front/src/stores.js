@@ -1,5 +1,4 @@
-import { readable } from 'svelte/store';
-import { writable } from 'svelte/store';
+import { readable, writable, derived } from 'svelte/store';
 
 
 const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
@@ -34,12 +33,7 @@ export async function updateData() {
         arrayMah = [];
         arrayTime = [];
       }
-      // responseData.chart_data.forEach((element) => {
-      //   arrayVoltage = [...arrayVoltage, element.v];
-      //   arrayCurrent = [...arrayCurrent, element.c];
-      //   arrayMah = [...arrayMah, element.mah];
-      //   arrayTime = [...arrayTime, element.t];
-      // });
+
       deviceState = responseData.device_state
       batteryState = responseData.battery_state;
       batteryVoltage = responseData.battery_voltage;
@@ -61,6 +55,12 @@ export async function updateData() {
           arrayTime = [...arrayTime, datapoint[0]];
         })
       })
+
+      // for (let i=0; i<operations.length; ++i) {
+      //   if (i < opChartDisplay.length && true) {
+      //     console.log(operations[i]);
+      //   }
+      // }
 
       console.log(responseData);      
     } else {
@@ -123,3 +123,42 @@ const initialDeviceParams = {
 };
 
 export const deviceParameters = writable(initialDeviceParams);
+
+
+export const operationsChartDisplay = writable([])
+
+
+// const initialChartData = {
+//   voltage_array: arrayVoltage,
+//   current_array: arrayCurrent,
+//   mah_array: arrayMah,
+//   time_array: arrayTime,
+// };
+
+// export const chartData = readable(initialChartData, (set) => {
+//   for (let i=0; i<operations.length; ++i) {
+//     if (i < opChartDisplay.length && true) {
+//       console.log(operations[i]);
+//     }
+//   }
+// });
+
+export const chartDatapoint = derived([deviceData, operationsChartDisplay], ([$deviceData, $operationsChartDisplay]) => {
+  const voltage = [];
+  const current = [];
+  const mah = []
+  const time = [];
+
+  $deviceData.operations.forEach((operation, index) => {
+    if ($operationsChartDisplay[index]) {
+      operation.chart.forEach((datapoint) => {
+        time.push(datapoint[0]);
+        voltage.push(datapoint[1]);
+        current.push(datapoint[2]);
+        mah.push(datapoint[3]);
+      });
+    }
+  });
+
+  return { time, voltage, current, mah };
+});
