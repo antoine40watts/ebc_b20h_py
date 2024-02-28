@@ -160,11 +160,13 @@ class DeviceController():
     
 
     def charge(self, current, max_voltage, adjust=False):
+        cutoff_current = 0.5
+
         if self.discharger.is_discharging:
             self.discharger.stop()
-            self.discharger.charge(cutoff_c = 0.1)
+            self.discharger.charge(cutoff_current)
         else:
-            self.discharger.charge(cutoff_c = 0.1)
+            self.discharger.charge(cutoff_current)
         
         self.charger.charge(current, max_voltage)
 

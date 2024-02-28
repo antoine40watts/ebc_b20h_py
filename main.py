@@ -50,6 +50,7 @@ def new_chart_id():
 async def lifespan(app: FastAPI):
     new_chart_id()
     logging.info("Starting device...")
+    print("starting device (print)")
     device.start()
     logging.info("Device started")
     yield
