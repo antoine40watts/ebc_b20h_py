@@ -143,6 +143,7 @@ class DeviceController():
 
     def start(self):
         # Start the device
+        self.discharger.new_monitor(self.add_datapoint)
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())

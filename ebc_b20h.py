@@ -272,13 +272,13 @@ class EBC_B20H():
         self.send(bytes(data))
 
 
-    def new_monitor(self, callback=None):
+    async def new_monitor(self, callback=None):
         """Send datapoints to logger via a callback function"""
         if self.is_monitoring:
             self.stop_monitoring()
+            await self.monitoring_task
         
         self.is_monitoring = True
-        self.monitoring_t0 = time.time()
         self.monitoring_task = asyncio.create_task(self._new_monitor(callback))
     
     async def _new_monitor(self, callback):
@@ -318,7 +318,6 @@ class EBC_B20H():
                 callback(datapoint)
 
             await asyncio.sleep(cycle)
-        print("bye")
 
 
     def _monitor(self, filename, raw=False):
@@ -380,32 +379,30 @@ class EBC_B20H():
             print("Data file saved to", filename)
 
 
-    def start_monitoring(self, filename=None, raw=False):
-        if self.is_monitoring:
-            self.stop_monitoring()
+    # def start_monitoring(self, filename=None, raw=False):
+    #     if self.is_monitoring:
+    #         self.stop_monitoring()
         
-        self.clear()
-        self.monitoring_t0 = time.time()
-        self.is_monitoring = True
-        self.t = threading.Thread(target=self._monitor, args=(filename, raw,))
-        self.t.setDaemon(True)
-        self.t.start()
-        if self.debug:
-            logging.info("EBC-B20H monitoring started")
+    #     self.clear()
+    #     self.monitoring_t0 = time.time()
+    #     self.is_monitoring = True
+    #     self.t = threading.Thread(target=self._monitor, args=(filename, raw,))
+    #     self.t.setDaemon(True)
+    #     self.t.start()
+    #     if self.debug:
+    #         logging.info("EBC-B20H monitoring started")
 
 
 
     def stop_monitoring(self):
         self.is_monitoring = False
-        # if self.t:
-        #     self.t.join()
         if self.debug:
             logging.info("EBC-B20H monitoring stopped")
 
 
-    def clear(self):
-        self.monitoring_data.clear()
-        self.monitoring_t0 = time.time()
+    # def clear(self):
+    #     self.monitoring_data.clear()
+    #     self.monitoring_t0 = time.time()
 
 
     @staticmethod
