@@ -5,7 +5,7 @@
 
     export let open = false;
 
-    let cells_s = 7;
+    let cells_s = 10;
     let cells_p = 1;
     let cell_cap = 2400;
     let original_capacity = 0;  // amps

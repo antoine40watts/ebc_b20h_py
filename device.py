@@ -83,12 +83,12 @@ class DeviceController():
             else:
                 self.batt_state = BatteryState.IDLE
             
-            if self.mode == DeviceMode.CAPACITY_TEST:
-                if self.batt_state == BatteryState.IDLE and self.prev_state == BatteryState.CHARGING:
-                    self.discharge(self.params.dc, self.params.dv)
-                elif self.batt_state == BatteryState.IDLE and self.prev_state == BatteryState.DISCHARGING:
-                    self.batt_capacity = self.discharger.mah
-                    self.mode = DeviceMode.IDLE
+            # if self.mode == DeviceMode.CAPACITY_TEST:
+            #     if self.batt_state == BatteryState.IDLE and self.prev_state == BatteryState.CHARGING:
+            #         self.discharge(self.params.dc, self.params.dv)
+            #     elif self.batt_state == BatteryState.IDLE and self.prev_state == BatteryState.DISCHARGING:
+            #         self.batt_capacity = self.discharger.mah
+            #         self.mode = DeviceMode.IDLE
             
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
@@ -236,6 +236,9 @@ class DeviceController():
                 current = current_op.params["current"]
                 v_min = current_op.params["vlim"]
                 self.discharge(current, v_min, adjust)
+            elif current_op.type == "wait":
+                self.charger.stop()
+                self.discharger.stop()
             current_op.t_start = time.time()
             current_op.status = OpStatus.ONGOING
             self.mode = DeviceMode.IN_OPERATION

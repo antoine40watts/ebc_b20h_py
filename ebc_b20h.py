@@ -282,6 +282,7 @@ class EBC_B20H():
         self.is_monitoring = True
         self.monitoring_task = asyncio.create_task(self._new_monitor(callback))
     
+    
     async def _new_monitor(self, monitor_callback):
         logging.info("EBC-B20H Monitoring process started")
         cycle = 2
