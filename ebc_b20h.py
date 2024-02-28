@@ -35,7 +35,8 @@ class EBC_B20H():
         self.is_monitoring = False
         self.is_charging = False
         self.is_discharging = False
-        self.monitoring_data = []
+        self.waiting_for_status = 0
+        # self.monitoring_data = []
         self.voltage = 0.0
         self.current = 0.0
         self.mah = 0.0
@@ -216,6 +217,7 @@ class EBC_B20H():
         
         self.send(bytes(data))
         self.is_discharging = True
+        self.waiting_for_status = 0x0A
         if self.debug:
             logging.info(f"Discharging to {cutoff_v}V @ {current}Amps")
 
@@ -245,6 +247,7 @@ class EBC_B20H():
         data = [0x11, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
         self.is_charging = True
+        self.waiting_for_status = 0x0B
         if self.debug:
             logging.info("Charge command sent")
 
@@ -283,6 +286,7 @@ class EBC_B20H():
         logging.info("EBC-B20H Monitoring process started")
         cycle = 2
         while self.is_monitoring:
+            await asyncio.sleep(cycle)
             data = self.recieve()
             for line in data:
                 if not self.is_frame_valid(line):
@@ -290,6 +294,11 @@ class EBC_B20H():
                 frame_data = self.decode_frame(line)
                 
                 status = frame_data['status']
+                if self.waiting_for_status and status != self.waiting_for_status:
+                    continue
+                else:
+                    self.waiting_for_status = 0
+
                 if status == 0x00 or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
@@ -312,12 +321,10 @@ class EBC_B20H():
                 self.current = frame_data['current']
                 self.mah = frame_data['mah']
                 datapoint = [self.voltage, self.current, self.mah]
-                print(status, datapoint)
 
                 # Only record data when device is active
                 monitor_callback(datapoint)
 
-            await asyncio.sleep(cycle)
         logging.info("EBC-B20H Monitoring process stopped")
 
 

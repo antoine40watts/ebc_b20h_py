@@ -74,7 +74,6 @@ class DeviceController():
     async def _run(self):
         while self._running:
             # Update battery state
-            print("ping")
             self.batt_voltage = self.discharger.voltage
             self.batt_current = self.discharger.current
             if self.discharger.is_charging:

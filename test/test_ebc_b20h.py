@@ -45,7 +45,7 @@ class LogEBC_B20H(EBC_B20H):
         self.is_monitoring = False
         self.is_charging = False
         self.is_discharging = False
-        self.monitoring_data = []
+        self.waiting_for_status = 0
         self.dev = FakeUSBDevice()
         self.debug = False
     
@@ -56,21 +56,18 @@ class LogEBC_B20H(EBC_B20H):
 
 class VirtEBC_B20H(EBC_B20H):
     def __init__(self):
-        self.buffer = []
-        self.is_monitoring = False
-        self.is_charging = False
-        self.is_discharging = False
-        self.monitoring_data = []
+        super().__init__()
+
         self.dev = FakeUSBDevice()
-        self.debug = False
 
         self.discharge_current = 0
         self.discharge_cutoff_v = 0
         self.charge_cutoff_v = 29.4
         self.voltage = 29
-        self.current = 0
-        self.mah = 0
     
+    def find_device(self):
+        return
+
     def destroy(self):
         return
 
