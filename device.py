@@ -143,7 +143,7 @@ class DeviceController():
 
     def start(self):
         # Start the device
-        self.discharger.new_monitor()
+        self.discharger.new_monitor(self.add_datapoint)
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
@@ -152,8 +152,7 @@ class DeviceController():
     async def stop(self):
         self._running = False
         # self._is_monitoring = False
-        self.discharger.stop_monitoring()
-        self.discharger.disconnect()
+        await self.discharger.disconnect()
 
         # Release USB device
         self.discharger.destroy()
@@ -219,6 +218,8 @@ class DeviceController():
         #     self.monitoring_t0 = time.time()
         #     #self.monitoring_task = asyncio.create_task(self._monitor())
         #     self.discharger.new_monitor(self.add_datapoint)
+        if self.operation_idx == -1:
+            self.monitoring_t0 = time.time()
 
         self.operation_idx += 1
         if self.operation_idx < len(self.operations):

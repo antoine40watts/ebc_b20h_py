@@ -7,7 +7,7 @@ let arrayVoltage = [];
 let arrayCurrent = [];
 let arrayMah = [];
 let arrayTime = [];
-let deviceState = 0;
+let deviceMode = 0;
 let batteryState = 0;
 let batteryVoltage = 0.0;
 let batteryCurrent = 0.0;
@@ -35,7 +35,7 @@ export async function updateData() {
       //   arrayTime = [];
       // }
 
-      deviceState = responseData.device_state
+      deviceMode = responseData.device_mode
       batteryState = responseData.battery_state;
       batteryVoltage = responseData.battery_voltage;
       batteryCurrent = responseData.battery_current;
@@ -69,9 +69,9 @@ export async function updateData() {
 }
 
 
-const initialDeviceState = {
+const initialDeviceData = {
   battery_state: 0,
-  device_state: deviceState,
+  device_mode: deviceMode,
   device_error: deviceError,
   voltage_array: [],
   current_array: [],
@@ -84,12 +84,12 @@ const initialDeviceState = {
   operations: [],
 };
 
-export const deviceData = readable(initialDeviceState, (set) => {
+export const deviceData = readable(initialDeviceData, (set) => {
   const interval = setInterval(() => {
     updateData();
     set({
       battery_state: batteryState,
-      device_state: deviceState,
+      device_mode: deviceMode,
       device_error: deviceError,
       voltage_array: arrayVoltage,
       current_array: arrayCurrent,

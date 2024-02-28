@@ -186,10 +186,10 @@ class EBC_B20H():
         self.send(bytes([0x05, 0, 0, 0, 0, 0, 0]))
 
 
-    def disconnect(self):
+    async def disconnect(self):
         self.send(bytes([0x06, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
-            self.stop_monitoring()
+            await self.stop_monitoring()
         if self.debug:
             logging.info("Disconnect command sent")
     
@@ -276,11 +276,11 @@ class EBC_B20H():
         """Send datapoints to logger via a callback function"""
         if self.is_monitoring:
             self.stop_monitoring()
-        
         self.is_monitoring = True
         self.monitoring_task = asyncio.create_task(self._new_monitor(callback))
     
-    async def _new_monitor(self, callback):
+    async def _new_monitor(self, monitor_callback):
+        logging.info("EBC-B20H Monitoring process started")
         cycle = 2
         while self.is_monitoring:
             data = self.recieve()
@@ -315,68 +315,69 @@ class EBC_B20H():
                 print(datapoint)
 
                 # Only record data when device is active
-                callback(datapoint)
+                monitor_callback(datapoint)
 
             await asyncio.sleep(cycle)
+        logging.info("EBC-B20H Monitoring process stopped")
 
 
-    def _monitor(self, filename, raw=False):
-        if filename:
-            f = open(filename, 'w')
-            if not raw:
-                f.write("dtime, current, voltage, mah\n")
+    # def _monitor(self, filename, raw=False):
+    #     if filename:
+    #         f = open(filename, 'w')
+    #         if not raw:
+    #             f.write("dtime, current, voltage, mah\n")
         
-        logging.info("Monitoring thread started")
+    #     logging.info("Monitoring thread started")
 
-        while self.is_monitoring:
-            data = self.recieve()
-            dt = time.time() - self.monitoring_t0
-            for line in data:
-                if not self.is_frame_valid(line):
-                    continue
-                frame_data = self.decode_frame(line)
+    #     while self.is_monitoring:
+    #         data = self.recieve()
+    #         dt = time.time() - self.monitoring_t0
+    #         for line in data:
+    #             if not self.is_frame_valid(line):
+    #                 continue
+    #             frame_data = self.decode_frame(line)
 
-                status = frame_data['status']
-                if status == 0x00 or status == 0x01:
-                    self.is_discharging = False
-                    self.is_charging = False
-                if status == 0x0A:   # Discharging
-                    self.is_discharging = True
-                    self.is_charging = False
-                elif status == 0x0B: # Charging
-                    self.is_discharging = False
-                    self.is_charging = True
-                elif status == 0x14:
-                    # end of discharge
-                    self.is_discharging = False
-                    logging.info("End of discharge")
-                elif status == 0x15:
-                    # end of charge
-                    self.is_charging = False
-                    logging.info("End of charge")
+    #             status = frame_data['status']
+    #             if status == 0x00 or status == 0x01:
+    #                 self.is_discharging = False
+    #                 self.is_charging = False
+    #             if status == 0x0A:   # Discharging
+    #                 self.is_discharging = True
+    #                 self.is_charging = False
+    #             elif status == 0x0B: # Charging
+    #                 self.is_discharging = False
+    #                 self.is_charging = True
+    #             elif status == 0x14:
+    #                 # end of discharge
+    #                 self.is_discharging = False
+    #                 logging.info("End of discharge")
+    #             elif status == 0x15:
+    #                 # end of charge
+    #                 self.is_charging = False
+    #                 logging.info("End of charge")
 
-                self.voltage = frame_data['voltage']
-                self.current = frame_data['current']
-                self.mah = frame_data['mah']
-                datapoint = [dt, self.voltage, self.current, self.mah]
+    #             self.voltage = frame_data['voltage']
+    #             self.current = frame_data['current']
+    #             self.mah = frame_data['mah']
+    #             datapoint = [dt, self.voltage, self.current, self.mah]
 
-                # Only record data when device is active
-                if self.is_charging or self.is_discharging:
-                    self.monitoring_data.append(datapoint)
+    #             # Only record data when device is active
+    #             if self.is_charging or self.is_discharging:
+    #                 self.monitoring_data.append(datapoint)
 
-                if raw:
-                    formatted = ' '.join([f"{str(val):>3}" for val in line])
-                else:
-                    formatted = ', '.join(map(str, datapoint))
-                if filename:
-                    f.write(formatted + '\n')
-            time.sleep(2)
+    #             if raw:
+    #                 formatted = ' '.join([f"{str(val):>3}" for val in line])
+    #             else:
+    #                 formatted = ', '.join(map(str, datapoint))
+    #             if filename:
+    #                 f.write(formatted + '\n')
+    #         time.sleep(2)
         
-        logging.info("Monitoring thread stopped")
+    #     logging.info("Monitoring thread stopped")
         
-        if filename:
-            f.close()
-            print("Data file saved to", filename)
+    #     if filename:
+    #         f.close()
+    #         print("Data file saved to", filename)
 
 
     # def start_monitoring(self, filename=None, raw=False):

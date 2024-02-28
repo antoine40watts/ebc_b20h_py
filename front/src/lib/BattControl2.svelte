@@ -12,7 +12,6 @@
     let duration = 0;       // In seconds
     let waitDuration = 60;  // In seconds
 
-
     $: if ($deviceParameters.charge_v) {
         handleVLim();
     }
@@ -23,8 +22,8 @@
         operations = $deviceData.operations || [];
     }
 
-    $: startDisabled = operations.length === 0 || $deviceData.device_state != 0;
-    $: stopDisabled = $deviceData.device_state === 0;
+    $: startDisabled = operations.length === 0 || $deviceData.device_mode != 0;
+    $: stopDisabled = $deviceData.device_mode === 0;
     $: clearDisabled = $deviceData.operations.length === 0;
 
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;

@@ -198,7 +198,7 @@ async def get_device_state(start: int = 0, id: str = ""):
     #     response["chart_id"] = chart_id
     #     print("sending id", chart_id)
 
-    response["device_state"] = device.mode
+    response["device_mode"] = device.mode
     response["battery_state"] = device.batt_state
     response["battery_voltage"] = device.batt_voltage
     response["battery_current"] = device.batt_current
