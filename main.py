@@ -189,13 +189,13 @@ async def get_device_state(start: int = 0, id: str = ""):
     """
     response = {}
 
-    if chart_id != id:
-        start = 0
+    # if chart_id != id:
+    #     start = 0
 
-    if start == 0:
-        # First request, will send the current chart id
-        response["chart_id"] = chart_id
-        print("sending id", chart_id)
+    # if start == 0:
+    #     # First request, will send the current chart id
+    #     response["chart_id"] = chart_id
+    #     print("sending id", chart_id)
 
     response["device_state"] = device.mode
     response["battery_state"] = device.batt_state
