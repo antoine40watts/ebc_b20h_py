@@ -20,19 +20,20 @@ let operations = [];
 
 export async function updateData() {
   try {
-    const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
+    // const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
+    const url = `${apiUrl}/get-state`;
     const response = await fetch(url);
     if (response.ok) {
       deviceError = false;
       const responseData = await response.json();
-      if ("chart_id" in responseData) {
-        // Reset chart data
-        chartId = responseData.chart_id;
-        arrayVoltage = [];
-        arrayCurrent = [];
-        arrayMah = [];
-        arrayTime = [];
-      }
+      // if ("chart_id" in responseData) {
+      //   // Reset chart data
+      //   chartId = responseData.chart_id;
+      //   arrayVoltage = [];
+      //   arrayCurrent = [];
+      //   arrayMah = [];
+      //   arrayTime = [];
+      // }
 
       deviceState = responseData.device_state
       batteryState = responseData.battery_state;
