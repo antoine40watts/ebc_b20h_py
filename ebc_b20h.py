@@ -272,11 +272,10 @@ class EBC_B20H():
         self.send(bytes(data))
 
 
-    async def new_monitor(self, callback=None):
+    def new_monitor(self, callback=None):
         """Send datapoints to logger via a callback function"""
         if self.is_monitoring:
             self.stop_monitoring()
-            await self.monitoring_task
         
         self.is_monitoring = True
         self.monitoring_task = asyncio.create_task(self._new_monitor(callback))
@@ -313,6 +312,7 @@ class EBC_B20H():
                 self.current = frame_data['current']
                 self.mah = frame_data['mah']
                 datapoint = [self.voltage, self.current, self.mah]
+                print(datapoint)
 
                 # Only record data when device is active
                 callback(datapoint)
@@ -394,8 +394,9 @@ class EBC_B20H():
 
 
 
-    def stop_monitoring(self):
+    async def stop_monitoring(self):
         self.is_monitoring = False
+        await self.monitoring_task
         if self.debug:
             logging.info("EBC-B20H monitoring stopped")
 

@@ -54,7 +54,7 @@ class DeviceController():
         self.batt_current = 0
         self.batt_capacity = 0
         self._running = False
-        self._is_monitoring = False
+        # self._is_monitoring = False
 
         try:
             self.charger = Q2Charger()
@@ -143,7 +143,7 @@ class DeviceController():
 
     def start(self):
         # Start the device
-        self.discharger.new_monitor(self.add_datapoint)
+        self.discharger.new_monitor()
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
@@ -151,7 +151,7 @@ class DeviceController():
 
     async def stop(self):
         self._running = False
-        self._is_monitoring = False
+        # self._is_monitoring = False
         self.discharger.stop_monitoring()
         self.discharger.disconnect()
 
@@ -199,7 +199,7 @@ class DeviceController():
     
 
     def stop_all(self):
-        self._is_monitoring = False
+        # self._is_monitoring = False
         if self.charger.is_charging:
             self.charger.stop()
         if self.discharger.is_charging or self.discharger.is_discharging:
@@ -214,11 +214,11 @@ class DeviceController():
 
 
     def start_next_operations(self):
-        if not self._is_monitoring:
-            self._is_monitoring = True
-            self.monitoring_t0 = time.time()
-            #self.monitoring_task = asyncio.create_task(self._monitor())
-            self.discharger.new_monitor(self.add_datapoint)
+        # if not self._is_monitoring:
+        #     self._is_monitoring = True
+        #     self.monitoring_t0 = time.time()
+        #     #self.monitoring_task = asyncio.create_task(self._monitor())
+        #     self.discharger.new_monitor(self.add_datapoint)
 
         self.operation_idx += 1
         if self.operation_idx < len(self.operations):
