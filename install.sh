@@ -50,7 +50,7 @@ fi
 
 # Installing required packages
 echo "Installing required packages"
-apt install git can-utils python3-pip -y
+apt install git can-utils python3-pip i2c-tools -y
 
 
 # Installing nodejs

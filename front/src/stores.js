@@ -109,11 +109,11 @@ export const deviceData = readable(initialDeviceData, (set) => {
 
 
 const initialDeviceParams = {
-  charge_v: 29.4,
+  charge_v: 42,
   charge_c: 4,
-  discharge_v: 18.9,
+  discharge_v: 27,
   discharge_c: 4,
-  cells_s: 7,
+  cells_s: 10,
   original_capacity: 0, // milliamps
 };
 
