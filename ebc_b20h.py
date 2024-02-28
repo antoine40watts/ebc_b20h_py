@@ -312,7 +312,7 @@ class EBC_B20H():
                 self.current = frame_data['current']
                 self.mah = frame_data['mah']
                 datapoint = [self.voltage, self.current, self.mah]
-                print(datapoint)
+                print(status, datapoint)
 
                 # Only record data when device is active
                 monitor_callback(datapoint)
