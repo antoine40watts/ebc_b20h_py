@@ -12,8 +12,10 @@
     let duration = 0;       // In seconds
     let waitDuration = 60;  // In seconds
 
-    $: if ($deviceParameters.charge_v) {
-        handleVLim();
+    // Update the charge/discharge vlim parameters when changing battery nominal voltage
+    $: if ($deviceParameters.cells_s) {
+        chargeVLim = $deviceParameters.charge_v;
+        dischargeVLim = $deviceParameters.discharge_v;
     }
 
     // Update the list on component mount and whenever deviceState.operations changes
@@ -102,7 +104,6 @@
     }
 
     function handleVLim() {
-        console.log("changing vlim");
         if (chargeVLim < $deviceParameters.discharge_v || chargeVLim > $deviceParameters.charge_v) {
             chargeVLim = $deviceParameters.charge_v;
         }

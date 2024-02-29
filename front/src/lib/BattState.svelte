@@ -7,38 +7,22 @@
     $: mah = $deviceData.mah;
 
     function getDecimalPart(n) {
-        return parseInt( Math.round(10 * (n - Math.floor(n))) )
+        return parseInt( Math.round(10 * (n - Math.floor(n))), 10 )
+    }
+
+    function getIntegerPart(n) {
+        let int_part = Math.floor(n);
+        let dec_part = 10 * (n - int_part);
+        if (Math.round(dec_part) >= 10)
+            int_part++;
+        return int_part;
     }
 
     const batteryStates = ["En attente", "En charge", "Décharge"];
     const statesColor = ["grey", "#3aaa35", "red"]
 
+    // const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
-    const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
-
-    // async function stopDevices() {
-    //     const url = apiUrl + "/stop";
-        
-    //     let resultMessage = '';
-
-    //     try {
-    //         const response = await fetch(url, {
-    //             method: 'POST',
-    //             // headers: {'Content-Type': 'application/json'},
-    //             // body: JSON.stringify(rpc_data),
-    //         });
-        
-    //         if (!response.ok) {
-    //             throw new Error('RPC request failed');
-    //         }
-            
-    //         const data = await response.json();
-    //         resultMessage = data.message;
-    //     } catch (error) {
-    //         console.error('Error making RPC call:', error);
-    //         resultMessage = 'RPC call failed';
-    //     }
-    // }
 </script>
 
 
@@ -52,11 +36,11 @@
             <!-- <button class="button-stop" on:click={stopDevices}>ARRÊT</button> -->
         {/if}
     </p>
-    <span style="font-size: 3.5rem">{Math.floor(voltage)}</span>
+    <span style="font-size: 3.5rem">{getIntegerPart(voltage)}</span>
     <span style="font-size: 2.5rem">.{getDecimalPart(voltage)} V</span>
     
     <span style="font-size: 1.5rem; margin: 16px;">@</span>
-    <span style="font-size: 3rem">{Math.floor(current)}</span>
+    <span style="font-size: 3rem">{getIntegerPart(current)}</span>
     <span style="font-size: 2rem">.{getDecimalPart(current)} A</span>
     
     <p style="font-size: 2.5em; color: #3aaa35;">{mah} <span style="font-size: 0.6em">mAh</span></p>
