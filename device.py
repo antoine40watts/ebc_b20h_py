@@ -132,7 +132,7 @@ class DeviceController():
         current_op = self.operations[self.operation_idx]
         dt = time.time() - self.monitoring_t0
         datapoint = [dt] + datapoint
-        logging.debug(f"Datapoin: {datapoint}")
+        logging.debug(f"Datapoint: {datapoint}")
         if len(current_op.chart) > 0:
             last_datapoint = current_op.chart[-1]
             # Add new datapoint only if values are different from last datapoint
@@ -229,10 +229,11 @@ class DeviceController():
             logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
             print("Start op: " + current_op.type)
             print(current_op.params)
-            if current_op.type == "charge":
+            if current_op.type.startswith("charge"):
+                adjust = "_cont" in current_op.type
                 current = current_op.params["current"]
                 v_max = current_op.params["vlim"]
-                self.charge(current, v_max)
+                self.charge(current, v_max, adjust)
             elif current_op.type.startswith("discharge"):
                 adjust = "_cont" in current_op.type
                 current = current_op.params["current"]
