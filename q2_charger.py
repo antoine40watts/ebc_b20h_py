@@ -3,6 +3,7 @@
 
 from typing import Tuple, List
 from time import sleep
+import logging
 
 # https://python-can.readthedocs.io
 import can  # pip install python-can
@@ -26,16 +27,19 @@ class Q2Charger():
         if self.is_charging and self.task:
             self.task.modify_data(msg)
             print("[Q2] Charging updated")
+            logging.info("[Q2] Charging updated")
         else:
             self.task = self.bus.send_periodic(msg, 1.0)
             self.is_charging = True
             print("[Q2] Charging started")
+            logging.info("[Q2] Charging started")
 
 
     def stop(self):
         self.task.stop()
         self.is_charging = False
         print("[Q2] Charging stopped")
+        logging.info("[Q2] Charging stopped")
     
 
     def monitor(self):

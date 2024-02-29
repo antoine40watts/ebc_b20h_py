@@ -132,6 +132,7 @@ class DeviceController():
         current_op = self.operations[self.operation_idx]
         dt = time.time() - self.monitoring_t0
         datapoint = [dt] + datapoint
+        logging.debug(f"Datapoin: {datapoint}")
         if len(current_op.chart) > 0:
             last_datapoint = current_op.chart[-1]
             # Add new datapoint only if values are different from last datapoint
@@ -147,6 +148,7 @@ class DeviceController():
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
+        logging.info("Device started")
     
 
     async def stop(self):
@@ -157,6 +159,7 @@ class DeviceController():
         # Release USB device
         self.discharger.destroy()
         await self.task
+        logging.info("Device stopped")
     
 
     def charge(self, current, max_voltage, adjust=False):
@@ -208,7 +211,6 @@ class DeviceController():
         for op in self.operations:
             op.status = OpStatus.PENDING
         self.operation_idx = -1
-        
         logging.info(f"Stop all !")
 
 
@@ -257,4 +259,3 @@ class DeviceController():
     def clear_operations(self):
         self.operations.clear()
         self.operation_idx = -1
-    
