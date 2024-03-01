@@ -155,7 +155,7 @@ class DeviceController():
     async def stop(self):
         self._running = False
         await self.task
-        
+
         self.charger.stop()
         await self.discharger.disconnect()
         # Release USB device
@@ -184,6 +184,7 @@ class DeviceController():
             self.discharger.discharge(current, min_voltage)
         elif adjust:
             self.discharger.adjust(current, min_voltage)
+            print("adjust")
         else:
             self.discharger.discharge(current, min_voltage)
         
@@ -216,18 +217,12 @@ class DeviceController():
 
 
     def start_next_operations(self):
-        # if not self._is_monitoring:
-        #     self._is_monitoring = True
-        #     self.monitoring_t0 = time.time()
-        #     #self.monitoring_task = asyncio.create_task(self._monitor())
-        #     self.discharger.new_monitor(self.add_datapoint)
         if self.operation_idx == -1:
             self.monitoring_t0 = time.time()
 
         self.operation_idx += 1
         if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
-            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
             print("Start op: " + current_op.type)
             print(current_op.params)
             if current_op.type.startswith("charge"):
@@ -246,6 +241,7 @@ class DeviceController():
             current_op.t_start = time.time()
             current_op.status = OpStatus.ONGOING
             self.mode = DeviceMode.IN_OPERATION
+            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
     
 
     def add_operation(self, type: str, params: dict):

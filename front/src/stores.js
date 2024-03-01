@@ -140,7 +140,5 @@ export const chartDatapoint = derived([deviceData, operationsChartDisplay], ([$d
     }
   });
 
-  console.log($operationsChartDisplay);
-
   return { time, voltage, current, mah };
 });

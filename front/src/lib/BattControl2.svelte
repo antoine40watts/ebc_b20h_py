@@ -87,6 +87,11 @@
         });
     }
 
+    async function handleSave() {
+        // Save list of operations
+        // Show a modal asking for a name for the program
+    }
+
     function getOpName(operation) {
         let desc = "";
         if (operation.type.startsWith("charge")) {
@@ -251,7 +256,7 @@
         <button class="prog-button" on:click={handleStart} disabled={startDisabled} title="Démarrer les opérations" use:tooltip><i class="fa-solid fa-play"></i></button>
         <button class="prog-button" disabled><i class="fa-solid fa-pause"></i></button>
         <button class="prog-button" on:click={handleStop} disabled={stopDisabled}><i class="fa-solid fa-stop"></i></button>
-        <button class="prog-button" disabled><i class="fa-solid fa-floppy-disk"></i></button>
+        <button class="prog-button" on:click={handleSave} disabled><i class="fa-solid fa-floppy-disk"></i></button>
         <button class="red-prog-button" on:click={handleClear} disabled={clearDisabled} title="Effacer la liste des opérations" use:tooltip><i class="fa-solid fa-eraser"></i></button>
     </div>
 
@@ -346,7 +351,7 @@
 
     #button-bar {
         display: flex;
-        justify-content: flex-end;
+        justify-content: center;
         gap: 4px;
         padding: 8px;
     }
