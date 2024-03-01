@@ -2,27 +2,22 @@
     import { deviceData, deviceParameters, operationsChartDisplay } from "../stores.js";
     // import { deviceData } from "../stores.js";
     import { updateData } from "../stores.js";
-    import { onMount } from 'svelte';
+    import { tooltip } from "../tooltip.js";
 
     
     let selectedOperation;
-    let chargeVLim = $deviceParameters.charge_v;
-    let dischargeVLim = $deviceParameters.discharge_v;
+    let chargeVLim;
+    let dischargeVLim;
     let current = $deviceParameters.charge_c;
     let duration = 0;       // In seconds
     let waitDuration = 60;  // In seconds
 
-    // Update the charge/discharge vlim parameters when changing battery nominal voltage
-    $: if ($deviceParameters.cells_s) {
-        chargeVLim = $deviceParameters.charge_v;
-        dischargeVLim = $deviceParameters.discharge_v;
-    }
-
     // Update the list on component mount and whenever deviceState.operations changes
-    let operations = [];
-    $: {
-        operations = $deviceData.operations || [];
-    }
+    // let operations = [];
+    // $: {
+    //     operations = $deviceData.operations || [];
+    // }
+    $: operations = $deviceData.operations;
 
     $: startDisabled = operations.length === 0 || $deviceData.device_mode != 0;
     $: stopDisabled = $deviceData.device_mode === 0;
@@ -31,6 +26,8 @@
     const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
     async function handleSubmit() {
+        // Add a new operation to the list
+
         const opParams = {};
         if (selectedOperation === "charge") {
             opParams["current"] = current;
@@ -76,8 +73,18 @@
 
     async function handleClear() {
         const response = await fetch(apiUrl + '/clear-ops', {method: "POST"});
-        operationsChartDisplay.set([])
         await updateData();
+        operationsChartDisplay.set([]);
+    }
+
+    async function handleDeleteOp(index) {
+        const params = `?idx=${index}`
+        const response = await fetch(apiUrl + '/delete-op' + params, {method: "POST"});
+        await updateData();
+        operationsChartDisplay.update((array) => {
+            array.splice(index, 1);
+            return array
+        });
     }
 
     function getOpName(operation) {
@@ -104,19 +111,20 @@
     }
 
     function handleVLim() {
-        if (chargeVLim < $deviceParameters.discharge_v || chargeVLim > $deviceParameters.charge_v) {
-            chargeVLim = $deviceParameters.charge_v;
-        }
-        if (dischargeVLim < $deviceParameters.discharge_v || dischargeVLim > $deviceParameters.charge_v) {
-            dischargeVLim = $deviceParameters.discharge_v;
-        }
+        console.log("hanglevlim");
+        chargeVLim = Math.min(Math.max(chargeVLim, $deviceParameters.discharge_v), $deviceParameters.charge_v);
+        dischargeVLim = Math.min(Math.max(dischargeVLim, $deviceParameters.discharge_v), $deviceParameters.charge_v);
     }
+
+    // Update the charge/discharge vlim parameters when changing battery nominal voltage
+    const unsubscribe = deviceParameters.subscribe((value) => {
+        chargeVLim = value.charge_v;
+        dischargeVLim = value.discharge_v;
+    });
     
-    function handleChartToggle(opIndex) {
-        operationsChartDisplay.update((arr) => {
-            arr[opIndex] = !arr[opIndex];
-            return arr;
-        });
+    function handleChartToggle() {
+        console.log($operationsChartDisplay);
+        // operationsChartDisplay.set(checkedChart);
     }
 </script>
 
@@ -133,7 +141,7 @@
             <option value="discharge">Décharge</option>
             <option value="wait">Attendre</option>
         </select>
-        <button id="addOperationButton" on:click={handleSubmit}><i class="fa-solid fa-right-to-bracket"></i></button>
+        <button id="addOperationButton" on:click={handleSubmit} title="Ajouter l'opération" use:tooltip><i class="fa-solid fa-right-to-bracket"></i></button>
     </div>
 
     <div>
@@ -230,9 +238,9 @@
                 <td class="op-name">{getOpName(op)}</td>
                 <td class="op-params">{getOpParams(op)}</td>
                 <td class="op-chart">
-                    <input type="checkbox" style="position: relative; right: 0px;" checked on:change={() => handleChartToggle(index)}/></td>
+                    <input type="checkbox" style="position: relative; right: 0px;" bind:checked={$operationsChartDisplay[index]} on:change={handleChartToggle} title="Afficher/masquer cette opération" use:tooltip/></td>
                 {#if op.status === 0}
-                <td class="op-delete"><button><i class="fa-solid fa-delete-left" style="color: #A00"></i></button></td>
+                <td class="op-delete"><button class="delete-op-button" on:click={() => {handleDeleteOp(index)}} title="Effacer cette opération" use:tooltip><i class="fa-solid fa-delete-left"></i></button></td>
                 {:else}
                 <td class="op-delete"></td>
                 {/if}
@@ -242,11 +250,11 @@
     </div>
 
     <div id="button-bar">
-        <button class="prog-button" on:click={handleStart} disabled={startDisabled}><i class="fa-solid fa-play"></i></button>
+        <button class="prog-button" on:click={handleStart} disabled={startDisabled} title="Démarrer les opérations" use:tooltip><i class="fa-solid fa-play"></i></button>
         <button class="prog-button" disabled><i class="fa-solid fa-pause"></i></button>
         <button class="prog-button" on:click={handleStop} disabled={stopDisabled}><i class="fa-solid fa-stop"></i></button>
         <button class="prog-button" disabled><i class="fa-solid fa-floppy-disk"></i></button>
-        <button class="prog-button" on:click={handleClear} disabled={clearDisabled}><i class="fa-solid fa-eraser" style="color: #A00"></i></button>
+        <button class="red-prog-button" on:click={handleClear} disabled={clearDisabled} title="Effacer la liste des opérations" use:tooltip><i class="fa-solid fa-eraser"></i></button>
     </div>
 
 </div>
@@ -279,7 +287,6 @@
 
     #operation-selector {
         position: relative;
-        /* left: 50px; */
     }
 
     #parametersContainer {
@@ -310,7 +317,6 @@
     }
 
     #operations-list {
-        /* width: 100%; */
         height: 140px;
         padding: 16px;
         border-radius: 20px;
@@ -326,7 +332,6 @@
     table .op-name {
         width: 80px;
         font-weight: 600;
-        /* background-color: blue; */
     }
 
     table .op-params {
@@ -348,10 +353,29 @@
         padding: 8px;
     }
 
+    .delete-op-button {
+        color: #A00;
+        background-color: transparent;
+        border: none;
+    }
+    .delete-op-button:hover {
+        color: #E00;
+    }
+
     .prog-button {
         font-size: 1em;
-        /* height: 30px; */
         border-radius: 8px;
         padding: 4px 6px 4px 6px;
+    }
+
+    .red-prog-button {
+        color: #A00;
+        font-size: 1em;
+        border-radius: 8px;
+        padding: 4px 6px 4px 6px;
+    }
+
+    .red-prog-button:disabled {
+        color: rgb(160, 128, 128);
     }
 </style>

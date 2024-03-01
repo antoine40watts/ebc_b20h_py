@@ -43,7 +43,7 @@
     <span style="font-size: 3rem">{getIntegerPart(current)}</span>
     <span style="font-size: 2rem">.{getDecimalPart(current)} A</span>
     
-    <p style="font-size: 2.5em; color: #3aaa35;">{mah} <span style="font-size: 0.6em">mAh</span></p>
+    <p style="font-size: 2.5em; color: #3aaa35;">{Math.round(mah)} <span style="font-size: 0.6em">mAh</span></p>
 </div>
 
 <style>

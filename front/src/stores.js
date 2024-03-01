@@ -55,7 +55,7 @@ export async function updateData() {
           arrayMah = [...arrayMah, datapoint[3]];
           arrayTime = [...arrayTime, datapoint[0]];
         })
-      })
+      });
 
       console.log(responseData);      
     } else {
@@ -123,21 +123,6 @@ export const deviceParameters = writable(initialDeviceParams);
 export const operationsChartDisplay = writable([])
 
 
-// const initialChartData = {
-//   voltage_array: arrayVoltage,
-//   current_array: arrayCurrent,
-//   mah_array: arrayMah,
-//   time_array: arrayTime,
-// };
-
-// export const chartData = readable(initialChartData, (set) => {
-//   for (let i=0; i<operations.length; ++i) {
-//     if (i < opChartDisplay.length && true) {
-//       console.log(operations[i]);
-//     }
-//   }
-// });
-
 export const chartDatapoint = derived([deviceData, operationsChartDisplay], ([$deviceData, $operationsChartDisplay]) => {
   const voltage = [];
   const current = [];
@@ -154,6 +139,8 @@ export const chartDatapoint = derived([deviceData, operationsChartDisplay], ([$d
       });
     }
   });
+
+  console.log($operationsChartDisplay);
 
   return { time, voltage, current, mah };
 });

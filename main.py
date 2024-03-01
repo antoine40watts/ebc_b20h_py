@@ -127,11 +127,16 @@ async def stop_op():
     return {"message": "Operations stopped"}
 
 
+@app.post("/delete-op")
+async def delete_op(idx: int = -1):
+    logging.info("POST request recieved : delete operation")
+    device.delete_operation(idx)
+
 @app.post("/clear-ops")
 async def clear_op():
     logging.info("POST request recieved : clear all operations")
     device.clear_operations()
-    return {"message": "oh yeah post"}
+    return {"message": "Operations cleared"}
 
 
 @app.post("/measure")

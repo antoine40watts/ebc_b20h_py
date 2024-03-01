@@ -256,6 +256,11 @@ class DeviceController():
         self.operations.append( Operation(type, params) )
         print("op added", type, params)
 
+    def delete_operation(self, idx):
+        if len(self.operations) <= idx or idx <= self.operation_idx:
+            return
+        if self.operations[idx].status == OpStatus.PENDING:
+            del self.operations[idx]
 
     def clear_operations(self):
         self.operations.clear()

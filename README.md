@@ -3,7 +3,7 @@
 ## Matériel
 
 * Raspberry Pi 3B+
-* Module CAN MCP2515
+* Module CAN MCP2515 ou RS485
 * Testeur de batteries (décharge) ZKTECH EBC-B20H
 * Chargeur Deligreen Q2-1.5KW
 
@@ -65,7 +65,9 @@ Voir https://github.com/tolgakarakurt/CANBus-MCP2515-Raspi
 
 #### Module RS485
 
-On peut aussi (et avantageusement) utiliser le module RS485 CAN hat : https://www.waveshare.com/rs485-can-hat.htm
+Module basé sur le MCP2515, cadencé à 12 MHz et adapté au Raspberry PI.
+
+Boutique : https://www.waveshare.com/rs485-can-hat.htm
 
 Voir le wiki:
 https://www.waveshare.com/wiki/RS485_CAN_HAT
@@ -83,6 +85,15 @@ La valeur `interrupt` correspond au port GPIO sur lequel est branché le pin `in
 Après redémarrage du Raspberry Pi, on peut vérifer la bonne connection du module MCP2515 avec la commande :
 
     dmesg | grep "spi"
+
+### Module infrarouge MLX90640
+
+Librairie : https://pypi.org/project/seeed-python-mlx90640/
+
+Le module d'alimente en 3V.
+Brancher le SDA du module sur le SDA du Raspberry PI (pin 3). Brancher le SCL du module sur le SCL du Raspberry PI (pin 5).
+
+Éditer le fichier `/boot/config.txt` pour ajouter la ligne `dtparam=i2c_arm=on,i2c_arm_baudrate=400000`.
 
 ### Installation automatique du logiciel
 
@@ -151,7 +162,6 @@ Lecture du journal
 La batterie des tests s'exécute avec la commande suivante (nécessites l'installation de la librairie PIP `pytest`) :
 
     pytest
-
 
 ## Ressources
 

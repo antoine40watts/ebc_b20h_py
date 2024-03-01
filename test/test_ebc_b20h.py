@@ -82,6 +82,10 @@ class VirtEBC_B20H(EBC_B20H):
         self.mah = 0
         return super().discharge(current, cutoff_v)
 
+    def stop(self):
+        self.is_charging = False
+        super().stop()
+
     def recieve(self):
         """
             Anatomy of a response:
