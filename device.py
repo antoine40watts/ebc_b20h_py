@@ -154,12 +154,12 @@ class DeviceController():
 
     async def stop(self):
         self._running = False
-        # self._is_monitoring = False
+        await self.task
+        
+        self.charger.stop()
         await self.discharger.disconnect()
-
         # Release USB device
         self.discharger.destroy()
-        await self.task
         logging.info("Device stopped")
     
 

@@ -36,7 +36,8 @@ class Q2Charger():
 
 
     def stop(self):
-        self.task.stop()
+        if self.task:
+            self.task.stop()
         self.is_charging = False
         print("[Q2] Charging stopped")
         logging.info("[Q2] Charging stopped")
