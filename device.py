@@ -48,6 +48,7 @@ class DeviceController():
 
     def __init__(self):
         self.mode = DeviceMode.IDLE
+        # self.prev_mode = self.mode
         self.batt_state = BatteryState.IDLE
         self.prev_state = self.batt_state
         self.batt_voltage = 0
@@ -84,13 +85,6 @@ class DeviceController():
             else:
                 self.batt_state = BatteryState.IDLE
             
-            # if self.mode == DeviceMode.CAPACITY_TEST:
-            #     if self.batt_state == BatteryState.IDLE and self.prev_state == BatteryState.CHARGING:
-            #         self.discharge(self.params.dc, self.params.dv)
-            #     elif self.batt_state == BatteryState.IDLE and self.prev_state == BatteryState.DISCHARGING:
-            #         self.batt_capacity = self.discharger.mah
-            #         self.mode = DeviceMode.IDLE
-            
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
                     # Start the next operation
@@ -123,6 +117,7 @@ class DeviceController():
                         self.mode = DeviceMode.BETWEEN_OPERATIONS
 
             self.prev_state = self.batt_state
+            # self.prev_mode = self.mode
             await asyncio.sleep(0.3)
     
 
@@ -166,14 +161,12 @@ class DeviceController():
         logging.info("Device stopped")
     
 
-    def charge(self, current, max_voltage, adjust=False):
+    def charge(self, current, max_voltage, cont=False):
         cutoff_current = 0.5
 
         if self.discharger.is_discharging:
             self.discharger.stop()
-            self.discharger.charge(cutoff_current)
-        else:
-            self.discharger.charge(cutoff_current)
+        self.discharger.charge(cutoff_current, cont)
         
         self.charger.charge(current, max_voltage)
 
@@ -181,14 +174,10 @@ class DeviceController():
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
 
-    def discharge(self, current, min_voltage, adjust=False):
+    def discharge(self, current, min_voltage, cont=False):
         if self.charger.is_charging:
             self.charger.stop()
-            self.discharger.discharge(current, min_voltage)
-        elif adjust:
-            self.discharger.adjust(current, min_voltage)
-        else:
-            self.discharger.discharge(current, min_voltage)
+        self.discharger.discharge(current, min_voltage, cont)
         
         self.batt_state = BatteryState.DISCHARGING
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
@@ -228,15 +217,15 @@ class DeviceController():
             print("Start op: " + current_op.type)
             print(current_op.params)
             if current_op.type.startswith("charge"):
-                adjust = "_cont" in current_op.type
+                cont = "_cont" in current_op.type
                 current = current_op.params["current"]
                 v_max = current_op.params["vlim"]
-                self.charge(current, v_max, adjust)
+                self.charge(current, v_max, cont)
             elif current_op.type.startswith("discharge"):
-                adjust = "_cont" in current_op.type
+                cont = "_cont" in current_op.type
                 current = current_op.params["current"]
                 v_min = current_op.params["vlim"]
-                self.discharge(current, v_min, adjust)
+                self.discharge(current, v_min, cont)
             elif current_op.type == "wait":
                 self.charger.stop()
                 self.discharger.stop()
@@ -253,7 +242,6 @@ class DeviceController():
             elif type == "discharge" and self.operations[-1].type.startswith("discharge"):
                 type = "discharge_cont"
         self.operations.append( Operation(type, params) )
-        print("op added", type, params)
 
     def delete_operation(self, idx):
         if len(self.operations) <= idx or idx <= self.operation_idx:

@@ -1,6 +1,6 @@
-pyusb
-python-can
+pytest
 fastapi
 jinja2
 uvicorn[standard]
-pytest
+pyusb
+python-can

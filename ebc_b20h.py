@@ -23,6 +23,7 @@ class EBC_B20H():
             0x05    Connect
             0x06    Disconnect
             0x07    Adjust
+            0x08    Discharge (continue)
             0x11    Charge
             0x18    Charge (continue)
     """
@@ -204,7 +205,7 @@ class EBC_B20H():
         logging.debug("Stop command sent")
 
 
-    def discharge(self, current=1.0, cutoff_v=2.0):
+    def discharge(self, current=1.0, cutoff_v=2.0, cont=False):
         """
             Anatomy of a discharge message:
                 250   1   4  40   0 200   0   0 229 248
@@ -215,7 +216,8 @@ class EBC_B20H():
         c_msb, c_lsb = EBC_B20H.encode_current(current)
         v_msb, v_lsb = EBC_B20H.encode_voltage(cutoff_v)
         
-        data = [0x01, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
+        command = 0x08 if cont else 0x01
+        data = [command, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
         self.is_discharging = True
@@ -250,6 +252,11 @@ class EBC_B20H():
         self.is_charging = True
         self.waiting_for_status = EBC_B20H.STATUS_CHARGING
         logging.debug("Charge command sent")
+    
+    def charge_cont(self, cutoff_c):
+        c_msb, c_lsb = EBC_B20H.encode_current(cutoff_c)
+        data = [0x18, 0, 0, 0, 0xC8, c_msb, c_lsb]
+        self.send(bytes(data))
 
 
     def calibrate(self):

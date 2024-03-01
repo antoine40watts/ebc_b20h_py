@@ -145,6 +145,10 @@ Appuyer sur la touche 'o' pour ouvrir le naviguateur sur la page de l'interface.
 
 ## Réglage des problèmes
 
+Pour développer l'application en local, sans avoir besoin du matériel réel, il suffit de définir le paramètre `VITE_PROD` à `false` dans le fichier `.env`.
+
+L'interface web sera alors accessible à l'adresse http://localhost:5173
+
 Une fois connecté en SSH sur le raspberry pi, on peut contrôler l'état du serveur avec
 
     systemctl status battest
