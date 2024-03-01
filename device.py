@@ -112,6 +112,7 @@ class DeviceController():
                     self.mode = DeviceMode.BETWEEN_OPERATIONS
                 
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
+                    print("wait", self.batt_state)
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
                         # End of timed operation
                         current_op.status = OpStatus.FINISHED

@@ -111,7 +111,6 @@
     }
 
     function handleVLim() {
-        console.log("hanglevlim");
         chargeVLim = Math.min(Math.max(chargeVLim, $deviceParameters.discharge_v), $deviceParameters.charge_v);
         dischargeVLim = Math.min(Math.max(dischargeVLim, $deviceParameters.discharge_v), $deviceParameters.charge_v);
     }
@@ -123,7 +122,6 @@
     });
     
     function handleChartToggle() {
-        console.log($operationsChartDisplay);
         // operationsChartDisplay.set(checkedChart);
     }
 </script>
