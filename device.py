@@ -85,6 +85,8 @@ class DeviceController():
             else:
                 self.batt_state = BatteryState.IDLE
             
+            print("run", self.mode, self.batt_test, self.prev_state)
+            
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
                     # Start the next operation
@@ -167,7 +169,7 @@ class DeviceController():
         if self.discharger.is_discharging:
             self.discharger.stop()
         self.discharger.charge(cutoff_current, cont)
-        
+
         self.charger.charge(current, max_voltage)
 
         self.batt_state = BatteryState.CHARGING
