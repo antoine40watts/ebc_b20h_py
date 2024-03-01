@@ -83,6 +83,12 @@ class VirtEBC_B20H(EBC_B20H):
         self.mah = 0
         return super().discharge(current, cutoff_v)
 
+    def adjust(self, current, cutoff_v):
+        self.discharge_current = current
+        self.discharge_cutoff_v = cutoff_v
+        self.is_discharging = True
+        return super().adjust(current, cutoff_v)
+
     def stop(self):
         self.is_charging = False
         super().stop()

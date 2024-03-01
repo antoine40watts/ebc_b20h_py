@@ -7,7 +7,7 @@
     $: mah = $deviceData.mah;
 
     function getDecimalPart(n) {
-        return parseInt( Math.round(10 * (n - Math.floor(n))), 10 )
+        return parseInt( Math.round(10 * (n - Math.floor(n))) % 10, 10 )
     }
 
     function getIntegerPart(n) {

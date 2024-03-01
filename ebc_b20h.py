@@ -26,6 +26,10 @@ class EBC_B20H():
             0x11    Charge
             0x18    Charge (continue)
     """
+    STATUS_DISCHARGING = 0x0A
+    STATUS_CHARGING = 0x0B
+    STATUS_END_OF_DISCHARGE = 0x14
+    STATUS_END_OF_CHARGE = 0x15
 
     def __init__(self):
         self.buffer = []
@@ -215,7 +219,7 @@ class EBC_B20H():
         
         self.send(bytes(data))
         self.is_discharging = True
-        self.waiting_for_status = 0x0A
+        self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
         logging.debug(f"Discharging to {cutoff_v}V @ {current}Amps")
 
 
@@ -228,6 +232,7 @@ class EBC_B20H():
         data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
+        # self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
         logging.debug("Adjust command sent")
 
 
@@ -243,7 +248,7 @@ class EBC_B20H():
         data = [0x11, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
         self.is_charging = True
-        self.waiting_for_status = 0x0B
+        self.waiting_for_status = EBC_B20H.STATUS_CHARGING
         logging.debug("Charge command sent")
 
 
@@ -298,18 +303,16 @@ class EBC_B20H():
                 if status == 0x00 or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
-                if status == 0x0A:   # Discharging
+                if status == EBC_B20H.STATUS_DISCHARGING:
                     self.is_discharging = True
                     self.is_charging = False
-                elif status == 0x0B: # Charging
+                elif status == EBC_B20H.STATUS_CHARGING:
                     self.is_discharging = False
                     self.is_charging = True
-                elif status == 0x14:
-                    # end of discharge
+                elif status == EBC_B20H.STATUS_END_OF_DISCHARGE:
                     self.is_discharging = False
                     logging.info("End of discharge")
-                elif status == 0x15:
-                    # end of charge
+                elif status == EBC_B20H.STATUS_END_OF_CHARGE:
                     self.is_charging = False
                     logging.info("End of charge")
 
