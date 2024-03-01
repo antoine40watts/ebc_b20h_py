@@ -8,6 +8,7 @@ import os.path
 import logging
 from random import randrange
 from ebc_b20h import EBC_B20H
+import asyncio
 
 
 class FakeUSBDevice():
@@ -217,25 +218,10 @@ def test_log():
     dev.stop_monitoring()
 
 
-# def test_real_device_datalog():
-#     discharger = EBC_B20H()
-#     discharger.connect()
-#     discharger.start_monitoring("test_log_device.txt", raw=True)
-
-#     while len(discharger.monitoring_data) < 10:
-#         time.sleep(1)
-    
-#     current_voltage = discharger.voltage
-#     assert current_voltage > 0
-
-#     discharger.clear()
-#     assert len(discharger.monitoring_data) == 0
-
-#     discharger.discharge(10, current_voltage - 1)
-    
-#     time.sleep(100)
-#     print("Size of 'monitoring_data'", len(discharger.monitoring_data))
-
-#     discharger.stop_monitoring()
-#     discharger.disconnect()
-#     discharger.destroy()
+async def test_async_monitoring():
+    discharger = VirtEBC_B20H()
+    discharger.connect()
+    discharger.discharge(2, 26)
+    await asyncio.sleep(10)
+    discharger.stop()
+    await discharger.disconnect()

@@ -51,7 +51,7 @@ async def lifespan(app: FastAPI):
     new_chart_id()
     logging.info("Starting device...")
     print("starting device (print)")
-    device.start()
+    await device.start()
     logging.info("Device started")
     yield
 
@@ -154,8 +154,8 @@ async def charge_battery(charge_request: CDRequest):
     max_voltage = charge_request.cv
 
     # Reset chart to t0
-    device.discharger.clear()
-    new_chart_id()
+    # device.discharger.clear()
+    # new_chart_id()
 
     device.charge(current, max_voltage)
     logging.info("Charge battery request")
@@ -168,8 +168,8 @@ async def discharge_battery(discharge_request: CDRequest):
     min_voltage = discharge_request.dv
 
     # Reset chart to t0
-    device.discharger.clear()
-    new_chart_id()
+    # device.discharger.clear()
+    # new_chart_id()
 
     device.discharge(current, min_voltage)
     logging.info("Discharge battery request")

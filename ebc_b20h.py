@@ -191,8 +191,7 @@ class EBC_B20H():
         self.send(bytes([0x06, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
             await self.stop_monitoring()
-        if self.debug:
-            logging.info("Disconnect command sent")
+        logging.debug("Disconnect command sent")
     
 
     def stop(self):
@@ -271,10 +270,10 @@ class EBC_B20H():
         self.send(bytes(data))
 
 
-    def new_monitor(self, callback=None):
+    async def new_monitor(self, callback=None):
         """Send datapoints to logger via a callback function"""
         if self.is_monitoring:
-            self.stop_monitoring()
+            await self.stop_monitoring()
         self.is_monitoring = True
         self.monitoring_task = asyncio.create_task(self._new_monitor(callback))
     
@@ -325,90 +324,10 @@ class EBC_B20H():
         logging.info("EBC-B20H Monitoring process stopped")
 
 
-    # def _monitor(self, filename, raw=False):
-    #     if filename:
-    #         f = open(filename, 'w')
-    #         if not raw:
-    #             f.write("dtime, current, voltage, mah\n")
-        
-    #     logging.info("Monitoring thread started")
-
-    #     while self.is_monitoring:
-    #         data = self.recieve()
-    #         dt = time.time() - self.monitoring_t0
-    #         for line in data:
-    #             if not self.is_frame_valid(line):
-    #                 continue
-    #             frame_data = self.decode_frame(line)
-
-    #             status = frame_data['status']
-    #             if status == 0x00 or status == 0x01:
-    #                 self.is_discharging = False
-    #                 self.is_charging = False
-    #             if status == 0x0A:   # Discharging
-    #                 self.is_discharging = True
-    #                 self.is_charging = False
-    #             elif status == 0x0B: # Charging
-    #                 self.is_discharging = False
-    #                 self.is_charging = True
-    #             elif status == 0x14:
-    #                 # end of discharge
-    #                 self.is_discharging = False
-    #                 logging.info("End of discharge")
-    #             elif status == 0x15:
-    #                 # end of charge
-    #                 self.is_charging = False
-    #                 logging.info("End of charge")
-
-    #             self.voltage = frame_data['voltage']
-    #             self.current = frame_data['current']
-    #             self.mah = frame_data['mah']
-    #             datapoint = [dt, self.voltage, self.current, self.mah]
-
-    #             # Only record data when device is active
-    #             if self.is_charging or self.is_discharging:
-    #                 self.monitoring_data.append(datapoint)
-
-    #             if raw:
-    #                 formatted = ' '.join([f"{str(val):>3}" for val in line])
-    #             else:
-    #                 formatted = ', '.join(map(str, datapoint))
-    #             if filename:
-    #                 f.write(formatted + '\n')
-    #         time.sleep(2)
-        
-    #     logging.info("Monitoring thread stopped")
-        
-    #     if filename:
-    #         f.close()
-    #         print("Data file saved to", filename)
-
-
-    # def start_monitoring(self, filename=None, raw=False):
-    #     if self.is_monitoring:
-    #         self.stop_monitoring()
-        
-    #     self.clear()
-    #     self.monitoring_t0 = time.time()
-    #     self.is_monitoring = True
-    #     self.t = threading.Thread(target=self._monitor, args=(filename, raw,))
-    #     self.t.setDaemon(True)
-    #     self.t.start()
-    #     if self.debug:
-    #         logging.info("EBC-B20H monitoring started")
-
-
-
     async def stop_monitoring(self):
         self.is_monitoring = False
         await self.monitoring_task
-        if self.debug:
-            logging.info("EBC-B20H monitoring stopped")
-
-
-    # def clear(self):
-    #     self.monitoring_data.clear()
-    #     self.monitoring_t0 = time.time()
+        logging.info("EBC-B20H monitoring stopped")
 
 
     @staticmethod

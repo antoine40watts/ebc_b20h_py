@@ -54,6 +54,7 @@ class DeviceController():
         self.batt_current = 0
         self.batt_capacity = 0
         self._running = False
+        self.task = None
         # self._is_monitoring = False
 
         try:
@@ -144,9 +145,9 @@ class DeviceController():
             current_op.chart.append(datapoint)
 
 
-    def start(self):
+    async def start(self):
         # Start the device
-        self.discharger.new_monitor(self.add_datapoint)
+        await self.discharger.new_monitor(self.add_datapoint)
         if not self._running:
             self._running = True
             self.task = asyncio.create_task(self._run())
@@ -155,7 +156,8 @@ class DeviceController():
 
     async def stop(self):
         self._running = False
-        await self.task
+        if self.task:
+            await self.task
 
         self.charger.stop()
         await self.discharger.disconnect()
