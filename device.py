@@ -85,7 +85,7 @@ class DeviceController():
             else:
                 self.batt_state = BatteryState.IDLE
             
-            print("run", self.mode, self.batt_test, self.prev_state)
+            print("run", self.mode, self.batt_state, self.prev_state)
             
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
