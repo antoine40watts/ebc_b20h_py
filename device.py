@@ -105,6 +105,7 @@ class DeviceController():
                 if current_op.type != "wait" and \
                         self.batt_state == BatteryState.IDLE and \
                         self.batt_state != self.prev_state:
+                    logging.info("Operation completed")
                     current_op.status = OpStatus.FINISHED
                     current_op.result = (0, "completed")
                     current_op.t_end = time.time()
@@ -184,7 +185,6 @@ class DeviceController():
             self.discharger.discharge(current, min_voltage)
         elif adjust:
             self.discharger.adjust(current, min_voltage)
-            print("adjust")
         else:
             self.discharger.discharge(current, min_voltage)
         

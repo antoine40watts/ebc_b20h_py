@@ -198,8 +198,7 @@ class EBC_B20H():
     def stop(self):
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
         self.is_discharging = False
-        if self.debug:
-            logging.info("Stop command sent")
+        logging.debug("Stop command sent")
 
 
     def discharge(self, current=1.0, cutoff_v=2.0):
@@ -218,8 +217,7 @@ class EBC_B20H():
         self.send(bytes(data))
         self.is_discharging = True
         self.waiting_for_status = 0x0A
-        if self.debug:
-            logging.info(f"Discharging to {cutoff_v}V @ {current}Amps")
+        logging.debug(f"Discharging to {cutoff_v}V @ {current}Amps")
 
 
     def adjust(self, current, cutoff_v):
@@ -231,8 +229,7 @@ class EBC_B20H():
         data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
-        if self.debug:
-            logging.info("Adjust command sent")
+        logging.debug("Adjust command sent")
 
 
     def charge(self, cutoff_c):
@@ -248,8 +245,7 @@ class EBC_B20H():
         self.send(bytes(data))
         self.is_charging = True
         self.waiting_for_status = 0x0B
-        if self.debug:
-            logging.info("Charge command sent")
+        logging.debug("Charge command sent")
 
 
     def calibrate(self):
