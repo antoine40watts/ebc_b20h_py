@@ -72,10 +72,10 @@ class VirtEBC_B20H(EBC_B20H):
     def destroy(self):
         return
 
-    def charge(self, cutoff_c = 0.1):
+    def charge(self, cutoff_c = 0.1, cont=False):
         self.charge_cutoff_c = cutoff_c
         self.mah = 0
-        return super().charge(cutoff_c)
+        return super().charge(cutoff_c, cont)
 
     def discharge(self, current=1, cutoff_v=2, cont=False):
         self.discharge_current = current

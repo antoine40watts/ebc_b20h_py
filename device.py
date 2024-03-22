@@ -85,7 +85,7 @@ class DeviceController():
             else:
                 self.batt_state = BatteryState.IDLE
             
-            print("run", self.mode, self.batt_state, self.prev_state)
+            # print("run", self.mode, self.batt_state, self.prev_state)
             
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
@@ -185,14 +185,14 @@ class DeviceController():
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 
-    def measure_capacity(self, request):
-        self.mode = DeviceMode.CAPACITY_TEST
-        self.params = request
-        self.charger.charge(request.cc, request.cv)
-        self.discharger.charge(cutoff_c = 0.1)
-        self.discharger.clear()
-        self.batt_capacity = 0
-        logging.info(f"Measuring capacity")
+    # def measure_capacity(self, request):
+    #     self.mode = DeviceMode.CAPACITY_TEST
+    #     self.params = request
+    #     self.charger.charge(request.cc, request.cv)
+    #     self.discharger.charge(cutoff_c = 0.1)
+    #     self.discharger.clear()
+    #     self.batt_capacity = 0
+    #     logging.info(f"Measuring capacity")
     
 
     def stop_all(self):

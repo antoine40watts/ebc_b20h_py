@@ -238,7 +238,7 @@ class EBC_B20H():
         logging.debug("Adjust command sent")
 
 
-    def charge(self, cutoff_c):
+    def charge(self, cutoff_c, cont=False):
         """ Allow charge (from an external charger)
             until current falls below cutoff_c
 
@@ -247,16 +247,12 @@ class EBC_B20H():
                 som ch   ?   ?   ?   ?  c1  c2 crc eom
         """
         c_msb, c_lsb = EBC_B20H.encode_current(cutoff_c)
-        data = [0x11, 0, 0, 0, 0xC8, c_msb, c_lsb]
+        command = 0x18 if cont else 0x11
+        data = [command, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
         self.is_charging = True
         self.waiting_for_status = EBC_B20H.STATUS_CHARGING
         logging.debug("Charge command sent")
-    
-    def charge_cont(self, cutoff_c):
-        c_msb, c_lsb = EBC_B20H.encode_current(cutoff_c)
-        data = [0x18, 0, 0, 0, 0xC8, c_msb, c_lsb]
-        self.send(bytes(data))
 
 
     def calibrate(self):
