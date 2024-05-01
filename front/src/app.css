@@ -33,27 +33,6 @@ h1 {
   line-height: 1.1;
 }
 
-input {
-  background-color: transparent;
-  border: none;
-  border-bottom: 1px solid #0f471a;
-  font-size: 1em;
-  font-weight: 500;
-  text-align: center;
-  /* background-color: #A535AA; */
-}
-
-input:hover {
-  border-bottom: 1px solid #50C74B;
-}
-
-input:focus {
-  outline: none;
-  border: none;
-  border-bottom: 2px solid #50C74B;
-}
-
-
 button {
   border-radius: 8px;
   border: 2px solid #0003;
@@ -63,6 +42,16 @@ button:active {
   border: 2px solid #fff9;
 }
 
+input {
+  border: none;
+  font-size: 1em;
+  font-weight: 500;
+  text-align: center;
+}
+
+input:focus {
+  outline: none;
+}
 
 #app {
   /* max-width: 1280px; */

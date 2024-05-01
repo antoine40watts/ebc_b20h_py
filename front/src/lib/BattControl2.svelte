@@ -284,6 +284,25 @@
         font-weight: bold;
     }
 
+    input {
+        background-color: transparent;
+        border: none;
+        border-bottom: 1px solid #0f471a;
+        font-size: 1em;
+        font-weight: 500;
+        text-align: center;
+    }
+
+    input:hover {
+        border-bottom: 1px solid #50C74B;
+    }
+
+    input:focus {
+        outline: none;
+        border: none;
+        border-bottom: 2px solid #50C74B;
+    }
+
     label {
         margin-right: 8px;
     }

@@ -8,9 +8,18 @@
 
 <div class="accordion" style="flex:{flex_size}">
     <div class:open class="header" on:mousedown={() => open=!open}>
-        <span class="header-icon" style="margin-right: 10px"><slot name="header-icon"></slot></span>
-        <h3><span class="header-title"><slot name="header-title"></slot></span></h3>
+        <span class="header-icon" style="margin-right: 10px">
+            <slot name="header-icon"></slot>
+        </span>
+        <h3>
+            <span class="header-title">
+                <slot name="header-title"></slot>
+            </span>
+        </h3>
     </div>
+    <span class="header-search">
+        <slot name="header-search"></slot>
+    </span>
     
     {#if open}
     <div class="details" transition:slide={{ duration: 200 }}>
@@ -36,6 +45,7 @@
         height: 38px;
         align-items: center;
         color: #57976d;
+        /* color: #0006; */
     }
 
     .header-icon {
@@ -45,6 +55,14 @@
 
     .header-title {
         margin-left: 8px;
+    }
+
+    .header-search {
+        position: absolute;
+        margin: 4px;
+        top: 0;
+        right: 4px;
+        /* height: 1em; */
     }
     
     .header:hover {
@@ -65,8 +83,7 @@
     }
     
     .details {
-        padding: 8px;
-        padding-left: 26px;
+        padding: 12px;
     }
 
     @media print {

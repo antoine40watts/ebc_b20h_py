@@ -18,13 +18,15 @@ import uuid
 import logging
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from device import DeviceController
+
+from db import getClients, getClient, updateClient, newClient, deleteClient
 
 
 # HOSTNAME = "battest.local"
@@ -48,6 +50,8 @@ def new_chart_id():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    print(getClients())
+
     new_chart_id()
     logging.info("Starting device...")
     print("starting device (print)")
@@ -55,7 +59,7 @@ async def lifespan(app: FastAPI):
     logging.info("Device started")
     yield
 
-    await device.stop()    
+    await device.stop()
     print("Bye !")
 
 
@@ -245,3 +249,126 @@ async def get_datapoints_csv(filename: str = "data.csv"):
     response.headers["Content-Disposition"] = 'attachment; filename={}'.format(filename)
 
     return response
+
+
+
+
+## Database stuff
+
+@app.get("/get-clients")
+async def get_clients(keyword: str = ""):
+    client_list = getClients(keyword)
+    client_list = [
+            { "id": c.id, "label": f"{c.nom.upper()} {c.prenom}" }
+            for c in client_list ]
+    return client_list
+
+
+class Client(BaseModel):
+    client_id: int
+    nom: str
+    prenom: str
+    adresse: str
+    ville: str
+    phone: str
+    email: str
+
+
+@app.get("/get-client", response_model=Client)
+async def get_clients(id: int = 0):
+    if id > 0:
+        client = getClient(id)
+    return client
+
+
+@app.post("/new-client", response_model=Client)
+async def new_client(request: Client):
+    client = newClient(
+        nom=request.nom.upper(),
+        prenom=request.prenom.title(),
+        adresse=request.adresse.title(),
+        ville=request.ville.title(),
+        telephone=request.phone,
+        email=request.email.lower()
+    )
+    client.label = f"{client.nom} {client.prenom}"
+    print(client)
+    return client
+    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
+
+
+@app.post("/update-client", response_model=Client)
+async def update_client(request: Client):
+    client = updateClient(
+        request.client_id,
+        nom=request.nom.upper(),
+        prenom=request.prenom.title(),
+        adresse=request.adresse.title(),
+        ville=request.ville.title(),
+        telephone=request.phone,
+        email=request.email.lower()
+    )
+    client.label = f"{client.nom} {client.prenom}"
+    print(client)
+    return client
+    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
+
+@app.delete("/delete-client")
+async def delete_client(id: int):
+    print("deleting", id)
+    deleteClient(id)
+    # return JSONResponse(status_code=204)
+
+
+
+## Battery Item functions
+
+class Battery(BaseModel):
+    id: int
+    client_id: int
+
+
+@app.get("/get-battery", response_model=Battery)
+async def get_battery(id: int = 0):
+    if id > 0:
+        client = getBattery(id)
+    return client
+
+
+@app.post("/new-battery", response_model=Battery)
+async def new_battery(request: Battery):
+    client = newBattery(
+        nom=request.nom.upper(),
+        prenom=request.prenom.title(),
+        adresse=request.adresse.title(),
+        ville=request.ville.title(),
+        telephone=request.phone,
+        email=request.email.lower()
+    )
+    client.label = f"{client.nom} {client.prenom}"
+    print(client)
+    return client
+    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
+
+
+@app.post("/update-battery", response_model=Battery)
+async def update_battery(request: Battery):
+    client = updateBattery(
+        request.client_id,
+        nom=request.nom.upper(),
+        prenom=request.prenom.title(),
+        adresse=request.adresse.title(),
+        ville=request.ville.title(),
+        telephone=request.phone,
+        email=request.email.lower()
+    )
+    client.label = f"{client.nom} {client.prenom}"
+    print(client)
+    return client
+    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
+
+@app.delete("/delete-battery")
+async def delete_battery(id: int):
+    print("deleting", id)
+    deleteBattery(id)
+    # return JSONResponse(status_code=204)

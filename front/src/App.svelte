@@ -1,5 +1,5 @@
 <script>
-  import { deviceParameters } from "./stores.js";
+  import { deviceParameters, apiUrl } from "./stores.js";
   import { tick } from "svelte";
 
   import ClientPanel from "./lib/ClientPanel.svelte";
@@ -35,8 +35,6 @@
 
   let csvFileName = "battery_data.csv";
   let jsonFileName = "battery_data.json";
-
-  const apiUrl = import.meta.env.VITE_PROD === 'true' ? import.meta.env.VITE_API_PROD_URL : import.meta.env.VITE_API_DEV_URL;
 
   function downloadRaw() {
       let url = apiUrl + "/battery-state";
