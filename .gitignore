@@ -1,4 +1,4 @@
 __pycache__/
 .vscode
 server.log
-fastapi_venv/
+.env/

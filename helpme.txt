@@ -1,0 +1,4 @@
+## Connexion au rapsberry par SSH
+
+ssh -X piwatts@battest.local
+mdp: 921503
