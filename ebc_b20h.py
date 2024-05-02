@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*-
 
 from typing import Tuple, List
-import time
-import threading
 import asyncio
 import sys
 import logging

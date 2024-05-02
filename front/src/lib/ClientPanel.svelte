@@ -3,6 +3,7 @@
     import Accordion from './Accordion.svelte';
     import AutoComplete from "simple-svelte-autocomplete/src/SimpleAutocomplete.svelte";
     import { tooltip } from "../tooltip.js";
+    import { dbAction } from '../db.js';
 
     export let open = false;
 
@@ -31,6 +32,13 @@
         }
     }
 
+    async function getClientList(keyword) {
+        const url = `${apiUrl}/get-clients?keyword=${encodeURIComponent(keyword)}`;
+        const response = await fetch(url)
+        const json = await response.json()
+
+        return json
+    }
 
     async function loadclient() {
         console.log("load client");
@@ -49,87 +57,59 @@
         saveDisabled = true;
         deleteDisabled = false;
 
-        const url = `${apiUrl}/get-client?id=${selectedClient.id}`;
-        const response = await fetch(url);
-        const client = await response.json();
-        console.log(selectedClient);
-        console.log(client);
+        const client = await dbAction("client", "get", {"id": selectedClient.id});
 
         client_name = client.nom;
-        client_surname = client.prenom || "";
-        client_address = client.adresse || "";
-        client_city = client.ville || "";
-        client_phone = client.telephone || "";
-        client_email = client.email || "";
+        client_surname = client.prenom;
+        client_address = client.adresse;
+        client_city = client.ville;
+        client_phone = client.telephone;
+        client_email = client.email;
         inputValue = selectedClient.label;
-    }
-
-
-    async function getClientList(keyword) {
-        const url = `${apiUrl}/get-clients?keyword=${encodeURIComponent(keyword)}`;
-        const response = await fetch(url)
-        const json = await response.json()
-
-        return json
     }
 
     async function newClient() {
         console.log("New Client");
 
-        const url = `${apiUrl}/new-client`;
-
         const clientData = {
-            client_id: 0,
+            id: 0,
             nom: client_name,
             prenom: client_surname,
             adresse: client_address,
             ville: client_city,
-            phone: client_phone,
+            telephone: client_phone,
             email: client_email,
         }
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(clientData),
-        });
+        const client = await dbAction("client", "add", clientData);
 
-        const json = await response.json();
-        selectedClient = json;
-        console.log(json);
+        selectedClient = {id: client.id, label: client.label};
     }
 
     async function updateClient() {
         console.log("Update Client");
         console.log("selected", selectedClient)
-
-        let client_id = 0;
-        let url = `${apiUrl}/update-client`;
-        if (selectedClient) {
-            client_id = selectedClient.id;
-        } else {
-            url = `${apiUrl}/new-client`;
-        }
-
+        
         const clientData = {
-            client_id: client_id,
             nom: client_name,
             prenom: client_surname,
             adresse: client_address,
             ville: client_city,
-            phone: client_phone,
+            telephone: client_phone,
             email: client_email,
         }
 
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(clientData),
-        });
+        let action = "update";
+        if (selectedClient) {
+            clientData.id = selectedClient.id;
+        } else {
+            action = "add";
+        }
 
-        const json = await response.json()
-        selectedClient = json;
-        console.log("json", json);
+        const client = await dbAction("client", action, clientData)
+
+        selectedClient = {id: client.id, label: client.label};
+        console.log("json", client);
     }
 
     async function deleteClient() {
@@ -222,7 +202,7 @@
                 <i class="fa-solid fa-circle-plus"></i>
             </button>
             <button class="btn-update-client"
-                title="Modifier la fiche client" use:tooltip on:click={updateClient}
+                title="Enregistrer les modifications" use:tooltip on:click={updateClient}
                 disabled={updateDisabled} >
                 <i class="fa-solid fa-floppy-disk"></i>
             </button>
@@ -263,11 +243,9 @@
     }
 
     :global(.autocomplete-input) {
-        background-color: #fffd;
-        border: none;
+        background-color: #fffc;
         border-radius: 8px;
-        padding: 0;
-        height: 10px;
+        /* padding: 0; */
     }
 
     .align-center {

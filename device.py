@@ -36,7 +36,6 @@ class Operation():
     status: int = OpStatus.PENDING
     result: tuple = (0, "pending")
     chart: List[Tuple] = field(default_factory=list) # List of datapoints
-    #chart: List[Tuple] = field(default=[]) # List of datapoints
     t_start: float = 0.0
     t_end: float = 0.0
     show: bool = True

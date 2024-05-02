@@ -5,7 +5,11 @@ from typing import Optional, List
 
 import sqlite3
 from sqlite3 import Error
-from sqlalchemy import create_engine, select, ForeignKey, Integer, String, JSON, DateTime
+from sqlalchemy import (
+    create_engine, select,
+    ForeignKey,
+    Integer, Float, String, JSON, DateTime
+)
 from sqlalchemy.sql import func, or_
 from sqlalchemy.orm import Session, DeclarativeBase, Mapped, mapped_column, relationship, sessionmaker
 
@@ -33,7 +37,7 @@ class Client(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date_creation: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
-    date_modification: Mapped[DateTime] = mapped_column(DateTime, onupdate=func.now())
+    date_modification: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
     nom: Mapped[str] = mapped_column(String(32), nullable=False)
     prenom: Mapped[str] = mapped_column(String(32), nullable=False)
     adresse: Mapped[Optional[str]] = mapped_column(String(32))
@@ -54,10 +58,14 @@ class Battery(Base):
     client_id = mapped_column(ForeignKey("client.id"))
     client: Mapped[Client] = relationship(back_populates="batteries") # What's this ?
     date_creation: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
-    date_modification: Mapped[DateTime] = mapped_column(DateTime, onupdate=func.now())
-    voltage: Mapped[Optional[int]] = mapped_column(Integer)
+    date_modification: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    marque: Mapped[Optional[str]] = mapped_column(String(32))
+    ref_constructeur: Mapped[Optional[str]] = mapped_column(String(32))
+    voltage: Mapped[Optional[int]] = mapped_column(Float)
     capacite: Mapped[Optional[int]] = mapped_column(Integer)
-    data: Mapped[Optional[JSON]] = mapped_column(JSON)
+    capacite_initiale_mah: Mapped[Optional[int]] = mapped_column(Integer)
+    configuration_s: Mapped[Optional[int]] = mapped_column(Integer)
+    configuration_p: Mapped[Optional[int]] = mapped_column(Integer)
     
     def __repr__(self) -> str:
         return f"Battery(id={self.id!r}, client_id={self.client_id!r}, voltage={self.voltage!r})"
@@ -68,15 +76,16 @@ class BatteryTest(Base):
     
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     date_creation: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now())
-    date_modification: Mapped[DateTime] = mapped_column(DateTime, onupdate=func.now())
+    date_modification: Mapped[DateTime] = mapped_column(DateTime, server_default=func.now(), onupdate=func.now())
+    data: Mapped[Optional[JSON]] = mapped_column(JSON)
 
 
 def addRandomClient(n=1):
     # Example: Adding a new client to the database
     for _ in range(n):
-        client_prenom = random.choice(["Jean", "Michel", "Brigitte", "Lena", "Yann", "John", "David", "Marie", "Raymond", "Hervé", "Fañch"])
-        client_nom = random.choice(["Madec", "Dupont", "Quere", "Cueff", "Le Fur", "Doe", "Coat", "Lagadec", "McCullough", "MacLeod"])
-        new_client = Client(nom=client_nom, prenom=client_prenom, email='john.doe@example.com')
+        client_prenom = random.choice(["Jean", "Michel", "Louise", "Brigitte", "Lena", "Yann", "John", "David", "Marie", "Raymond", "Hervé", "Fañch"])
+        client_nom = random.choice(["Madec", "Dupont", "Quere", "Cueff", "Le Fur", "Doe", "Coat", "Lagadec", "McCullough", "MacLeod", "Le Bihan", "Paugam"])
+        new_client = Client(nom=client_nom, prenom=client_prenom, email=f"john.doe@example.com")
         session.add(new_client)
     
     session.commit()
@@ -88,7 +97,15 @@ def getClient(id: int) -> Client:
 
 
 def newClient(**kwargs):
-    new_client = Client(**kwargs)
+    new_client = Client(
+        nom=kwargs["nom"].upper(),
+        prenom=kwargs.get("prenom", "").title(),
+        adresse=kwargs.get("adresse", ""),
+        ville=kwargs.get("ville", ""),
+        cp=kwargs.get("cp", ""),
+        email=kwargs.get("email", ""),
+        telephone=kwargs.get("telephone", ""),
+    )
     session.add(new_client)
     session.commit()
     return new_client
@@ -96,8 +113,21 @@ def newClient(**kwargs):
 
 def updateClient(id: int, **kwargs) -> None:
     client = getClient(id)
-    for key, value in kwargs.items():
-        setattr(client, key, value)
+    if "nom" in kwargs:
+        client.nom = kwargs["nom"].upper()
+    if "prenom" in kwargs:
+        client.prenom = kwargs["prenom"].title()
+    if "adresse" in kwargs:
+        client.adresse = kwargs["adresse"]
+    if "ville" in kwargs:
+        client.ville = kwargs["ville"].title()
+    if "cp" in kwargs:
+        client.cp = kwargs["cp"]
+    if "email" in kwargs:
+        client.email = kwargs["email"]
+    if "telephone" in kwargs:
+        client.telephone = kwargs["telephone"]
+    
     session.commit()
     return client
 
@@ -114,7 +144,7 @@ def addBattery(client: Client, battery: Battery) -> None:
     
 
 
-def getClients(keyword="") -> List:
+def searchClients(keyword="") -> List:
     print(f"{keyword=}")
     if keyword:
         client_list = session.query(Client).filter(or_(Client.nom.contains(keyword), Client.prenom.contains(keyword)))

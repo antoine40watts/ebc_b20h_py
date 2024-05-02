@@ -26,13 +26,13 @@ from pydantic import BaseModel
 
 from device import DeviceController
 
-from db import getClients, getClient, updateClient, newClient, deleteClient
+from db import searchClients, getClient, updateClient, newClient, deleteClient, addRandomClient
 
 
 # HOSTNAME = "battest.local"
 # HOSTNAME = "127.0.0.1"
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s %(message)s')
 
 
 class CDRequest(BaseModel):
@@ -50,7 +50,8 @@ def new_chart_id():
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    print(getClients())
+    print(searchClients())
+    # addRandomClient(8)
 
     new_chart_id()
     logging.info("Starting device...")
@@ -67,12 +68,9 @@ device = DeviceController()
 
 app = FastAPI(lifespan=lifespan)
 
-# Allow request from svelte frontend
-origins = ["*"]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],    # Allow request from svelte frontend
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -214,12 +212,6 @@ async def get_device_state(start: int = 0, id: str = ""):
     response["battery_mah"] = device.discharger.mah
     response["battery_capacity"] = device.batt_capacity
 
-    # datapoints = []
-    # for datapoint in device.monitoring_data[start:]:
-    #     t, v, c, mah = datapoint
-    #     datapoints.append({"t": round(t, 1), "v": float(v), "c": float(c), "mah": int(mah)})
-    # response["chart_data"] = datapoints
-
     response["operations"] = [
                             {"type": op.type,
                                 "params": op.params,
@@ -228,7 +220,6 @@ async def get_device_state(start: int = 0, id: str = ""):
                                 }
                             for op in device.operations ]
 
-    # print(response)
     return response
 
 
@@ -255,9 +246,40 @@ async def get_datapoints_csv(filename: str = "data.csv"):
 
 ## Database stuff
 
+class DBAction(BaseModel):
+    table_name: str
+    action: str # Add, Update, Delete
+    params: dict
+
+
+@app.post("/db-action/")
+async def db_action(request: DBAction):
+    if request.action == "get":
+        # Request a client with given 'id' from database
+        if "id" in request.params and request.params["id"] > 0:
+            client = getClient(request.params["id"])
+            client.label = f"{client.nom} {client.prenom}"
+            return client
+        else:
+            print("missing 'id' param")
+    elif request.action == "add":
+        # Add a new client
+        client = newClient(**request.params)
+        print(client)
+        return client
+    elif request.action == "update":
+        if "id" in request.params and request.params["id"] > 0:
+            client = updateClient(**request.params)
+            client.label = f"{client.nom} {client.prenom}"
+            return client
+        else:
+            print("missing 'id' param")
+
+
+
 @app.get("/get-clients")
 async def get_clients(keyword: str = ""):
-    client_list = getClients(keyword)
+    client_list = searchClients(keyword)
     client_list = [
             { "id": c.id, "label": f"{c.nom.upper()} {c.prenom}" }
             for c in client_list ]
@@ -265,7 +287,7 @@ async def get_clients(keyword: str = ""):
 
 
 class Client(BaseModel):
-    client_id: int
+    id: int
     nom: str
     prenom: str
     adresse: str
@@ -273,45 +295,6 @@ class Client(BaseModel):
     phone: str
     email: str
 
-
-@app.get("/get-client", response_model=Client)
-async def get_clients(id: int = 0):
-    if id > 0:
-        client = getClient(id)
-    return client
-
-
-@app.post("/new-client", response_model=Client)
-async def new_client(request: Client):
-    client = newClient(
-        nom=request.nom.upper(),
-        prenom=request.prenom.title(),
-        adresse=request.adresse.title(),
-        ville=request.ville.title(),
-        telephone=request.phone,
-        email=request.email.lower()
-    )
-    client.label = f"{client.nom} {client.prenom}"
-    print(client)
-    return client
-    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
-
-
-@app.post("/update-client", response_model=Client)
-async def update_client(request: Client):
-    client = updateClient(
-        request.client_id,
-        nom=request.nom.upper(),
-        prenom=request.prenom.title(),
-        adresse=request.adresse.title(),
-        ville=request.ville.title(),
-        telephone=request.phone,
-        email=request.email.lower()
-    )
-    client.label = f"{client.nom} {client.prenom}"
-    print(client)
-    return client
-    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
 
 @app.delete("/delete-client")
 async def delete_client(id: int):
@@ -326,49 +309,3 @@ async def delete_client(id: int):
 class Battery(BaseModel):
     id: int
     client_id: int
-
-
-@app.get("/get-battery", response_model=Battery)
-async def get_battery(id: int = 0):
-    if id > 0:
-        client = getBattery(id)
-    return client
-
-
-@app.post("/new-battery", response_model=Battery)
-async def new_battery(request: Battery):
-    client = newBattery(
-        nom=request.nom.upper(),
-        prenom=request.prenom.title(),
-        adresse=request.adresse.title(),
-        ville=request.ville.title(),
-        telephone=request.phone,
-        email=request.email.lower()
-    )
-    client.label = f"{client.nom} {client.prenom}"
-    print(client)
-    return client
-    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
-
-
-@app.post("/update-battery", response_model=Battery)
-async def update_battery(request: Battery):
-    client = updateBattery(
-        request.client_id,
-        nom=request.nom.upper(),
-        prenom=request.prenom.title(),
-        adresse=request.adresse.title(),
-        ville=request.ville.title(),
-        telephone=request.phone,
-        email=request.email.lower()
-    )
-    client.label = f"{client.nom} {client.prenom}"
-    print(client)
-    return client
-    # return {"id": client.id, "label": f"{client.nom} {client.prenom}"}
-
-@app.delete("/delete-battery")
-async def delete_battery(id: int):
-    print("deleting", id)
-    deleteBattery(id)
-    # return JSONResponse(status_code=204)
