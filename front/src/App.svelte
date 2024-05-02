@@ -1,6 +1,7 @@
 <script>
   import { deviceParameters, apiUrl } from "./stores.js";
   import { tick } from "svelte";
+  import { tooltip } from "./tooltip.js";
 
   import ClientPanel from "./lib/ClientPanel.svelte";
   import BatteryPanel from "./lib/BatteryPanel.svelte";
@@ -73,6 +74,7 @@
 
 <main>
   <!-- <IDBar /> -->
+  <!-- <h1 style="text-align: center;">Ma première page web :)</h1> -->
 
   <div class="hide-on-screen print-header">
     <img src={logo} alt="Logo 40Watts" style="height: 100px">
@@ -100,12 +102,20 @@
 
   <div class="export-buttons hide-on-print" style="text-align: right;">
     <!-- <a href={apiUrl + "/battery-state"} download={jsonFileName} target="_blank">raw</a> -->
-    <button on:click={downloadRaw}><i class="fa-solid fa-file-export"></i></button>
+    <button on:click={downloadRaw}
+      title="Export JSON" use:tooltip>
+      <i class="fa-solid fa-file-export"></i></button>
     <!-- <a href={apiUrl + "/get-csv?filename=" + csvFileName} download={csvFileName}>csv</a> -->
-    <button on:click={downloadCSV}><i class="fa-solid fa-file-csv"></i></button>
-    <button on:click={dowloadServerLog}><i class="fa-solid fa-book"></i></button>
+    <button on:click={downloadCSV}
+      title="Export CSV" use:tooltip>
+      <i class="fa-solid fa-file-csv"></i></button>
+    <button on:click={dowloadServerLog}
+      title="Export journaux" use:tooltip>
+      <i class="fa-solid fa-book"></i></button>
     &nbsp;
-    <button on:click={printPage}><i class="fa-solid fa-print"></i></button>
+    <button on:click={printPage}
+      title="Impression" use:tooltip>
+      <i class="fa-solid fa-print"></i></button>
   </div>
   
   <div class="hide-on-print">

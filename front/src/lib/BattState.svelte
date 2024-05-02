@@ -1,6 +1,7 @@
 <script>
     import { deviceData } from "../stores.js";
     import idleIcon from "../assets/batt_idle.png";
+    import { tooltip } from "../tooltip.js";
 
     $: voltage = $deviceData.voltage;
     $: current = $deviceData.current;
@@ -29,7 +30,7 @@
 <div class="container">
     <p class="state" style="color: {statesColor[$deviceData.battery_state]};">
         {#if $deviceData.battery_state == 0}
-            <img class="idle-icon" src={idleIcon}>
+            <img title="Kawai !!" use:tooltip class="idle-icon" src={idleIcon}>
             {batteryStates[$deviceData.battery_state]}
         {:else}
             {batteryStates[$deviceData.battery_state]}
