@@ -32,7 +32,7 @@ from db import searchClients, getClient, updateClient, newClient, deleteClient, 
 # HOSTNAME = "battest.local"
 # HOSTNAME = "127.0.0.1"
 
-logging.basicConfig(filename='server.log', level=logging.INFO, format='%(asctime)s %(message)s')
+logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 
 class CDRequest(BaseModel):
