@@ -83,9 +83,7 @@ class DeviceController():
                 self.batt_state = BatteryState.DISCHARGING
             else:
                 self.batt_state = BatteryState.IDLE
-            
-            # print("run", self.mode, self.batt_state, self.prev_state)
-            
+                        
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if len(self.operations) > self.operation_idx + 1:
                     # Start the next operation
@@ -119,8 +117,9 @@ class DeviceController():
                         current_op.t_end = time.time()
                         self.mode = DeviceMode.BETWEEN_OPERATIONS
 
-            self.prev_state = self.batt_state
-            # self.prev_mode = self.mode
+            if self.batt_current != self.prev_state:
+                self.prev_state = self.batt_state
+            
             await asyncio.sleep(0.3)
     
 
