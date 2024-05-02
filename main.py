@@ -18,7 +18,7 @@ import uuid
 import logging
 
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse
+from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse, StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
@@ -240,6 +240,11 @@ async def get_datapoints_csv(filename: str = "data.csv"):
     response.headers["Content-Disposition"] = 'attachment; filename={}'.format(filename)
 
     return response
+
+
+@app.get("/get-log")
+async def get_log(filename: str = "server.log"):
+    return FileResponse(path="server.log", filename=filename, media_type="text/plain")
 
 
 

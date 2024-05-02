@@ -26,24 +26,29 @@
 
   function updateParams() {
     deviceParameters.update((params) => {
-        params.charge_v = Math.round(4.2 * cells_s * 100) / 100;
-        params.discharge_v = Math.round(2.7 * cells_s * 100) / 100;
-        params.original_capacity = Math.round(cell_cap * cells_p);
-        return params;
+      params.charge_v = Math.round(4.2 * cells_s * 100) / 100;
+      params.discharge_v = Math.round(2.7 * cells_s * 100) / 100;
+      params.original_capacity = Math.round(cell_cap * cells_p);
+      return params;
     });
   }
 
-  let csvFileName = "battery_data.csv";
-  let jsonFileName = "battery_data.json";
+  const csvFileName = "battery_data.csv";
+  const jsonFileName = "battery_data.json";
 
   function downloadRaw() {
-      let url = apiUrl + "/battery-state";
-      window.open(url, '_blank');
+    const url = apiUrl + "/battery-state";
+    window.open(url, '_blank');
   }
 
   function downloadCSV() {
-      let url = apiUrl + "/get-csv?filename=" + csvFileName;
-      window.open(url, '_blank');
+    const url = apiUrl + "/get-csv?filename=" + csvFileName;
+    window.open(url, '_blank');
+  }
+
+  function dowloadServerLog() {
+    const url = apiUrl + "/get-log";
+    window.open(url, '_blank');
   }
 
   function printPage() {
@@ -98,6 +103,7 @@
     <button on:click={downloadRaw}><i class="fa-solid fa-file-export"></i></button>
     <!-- <a href={apiUrl + "/get-csv?filename=" + csvFileName} download={csvFileName}>csv</a> -->
     <button on:click={downloadCSV}><i class="fa-solid fa-file-csv"></i></button>
+    <button on:click={dowloadServerLog}><i class="fa-solid fa-book"></i></button>
     &nbsp;
     <button on:click={printPage}><i class="fa-solid fa-print"></i></button>
   </div>

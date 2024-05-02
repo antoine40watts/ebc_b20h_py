@@ -288,7 +288,6 @@ class EBC_B20H():
         logging.info("EBC-B20H Monitoring process started")
         cycle = 2
         while self.is_monitoring:
-            await asyncio.sleep(cycle)
             data = self.recieve()
             for line in data:
                 if not self.is_frame_valid(line):
@@ -324,6 +323,7 @@ class EBC_B20H():
 
                 # Only record data when device is active
                 monitor_callback(datapoint)
+            await asyncio.sleep(cycle)
 
         logging.info("EBC-B20H Monitoring process stopped")
 

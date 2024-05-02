@@ -90,10 +90,12 @@ class DeviceController():
                 if len(self.operations) > self.operation_idx + 1:
                     # Start the next operation
                     self.start_next_operations()
+                    logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
                 else:
                     # End of all operations
                     self.mode = DeviceMode.IDLE
                     self.stop_all()
+                    logging.info(f"End of all operations")
             
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
@@ -101,12 +103,12 @@ class DeviceController():
                 if current_op.type != "wait" and \
                         self.batt_state == BatteryState.IDLE and \
                         self.batt_state != self.prev_state:
-                    logging.info("Operation completed")
                     current_op.status = OpStatus.FINISHED
                     current_op.result = (0, "completed")
                     current_op.t_end = time.time()
                     self.batt_capacity = self.discharger.mah
                     self.mode = DeviceMode.BETWEEN_OPERATIONS
+                    logging.info("Operation completed")
                 
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
                     print("wait", self.batt_state)
@@ -205,7 +207,6 @@ class DeviceController():
         for op in self.operations:
             op.status = OpStatus.PENDING
         self.operation_idx = -1
-        logging.info(f"Stop all !")
 
 
     def start_next_operations(self):
@@ -233,7 +234,6 @@ class DeviceController():
             current_op.t_start = time.time()
             current_op.status = OpStatus.ONGOING
             self.mode = DeviceMode.IN_OPERATION
-            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
     
 
     def add_operation(self, type: str, params: dict):
