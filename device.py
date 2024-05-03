@@ -88,8 +88,8 @@ class DeviceController():
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if self.operation_idx + 1 < len(self.operations):
                     # Start the next operation
-                    logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
                     self.start_next_operations()
+                    logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
                 else:
                     # End of all operations
                     self.mode = DeviceMode.IDLE
