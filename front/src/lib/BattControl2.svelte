@@ -215,7 +215,7 @@
                     <tr>
                         <td class="param-name-col"><label for="duration">Durée</label></td>
                         <td class="input-col"><input type="number" id="duration" name="duration"
-                            size="4" min="0" bind:value={waitDuration}/></td>
+                            size="4" min="1" bind:value={waitDuration}/></td>
                         <td>sec</td>
                     </tr>
                 </table>

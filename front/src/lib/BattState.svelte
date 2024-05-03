@@ -1,6 +1,7 @@
 <script>
     import { deviceData } from "../stores.js";
     import idleIcon from "../assets/batt_idle.png";
+    import chargeIcon from "../assets/batt_charging.png";
     import { tooltip } from "../tooltip.js";
 
     $: voltage = $deviceData.voltage;
@@ -31,11 +32,11 @@
     <p class="state" style="color: {statesColor[$deviceData.battery_state]};">
         {#if $deviceData.battery_state == 0}
             <img title="Kawai !!" use:tooltip class="idle-icon" src={idleIcon}>
-            {batteryStates[$deviceData.battery_state]}
-        {:else}
-            {batteryStates[$deviceData.battery_state]}
-            <!-- <button class="button-stop" on:click={stopDevices}>ARRÊT</button> -->
+        {:else if $deviceData.battery_state == 1}
+            <img title="Kawai !!" use:tooltip class="idle-icon" src={chargeIcon}>
+        <!-- <button class="button-stop" on:click={stopDevices}>ARRÊT</button> -->
         {/if}
+        {batteryStates[$deviceData.battery_state]}
     </p>
     <span style="font-size: 3.5rem">{getIntegerPart(voltage)}</span>
     <span style="font-size: 2.5rem">.{getDecimalPart(voltage)} V</span>

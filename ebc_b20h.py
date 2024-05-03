@@ -25,6 +25,7 @@ class EBC_B20H():
             0x11    Charge
             0x18    Charge (continue)
     """
+    STATUS_IDLE = 0x00
     STATUS_DISCHARGING = 0x0A
     STATUS_CHARGING = 0x0B
     STATUS_END_OF_DISCHARGE = 0x14
@@ -300,7 +301,7 @@ class EBC_B20H():
                 else:
                     self.waiting_for_status = 0
 
-                if status == 0x00 or status == 0x01:
+                if status == EBC_B20H.STATUS_IDLE or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
                 if status == EBC_B20H.STATUS_DISCHARGING:
@@ -323,6 +324,7 @@ class EBC_B20H():
 
                 # Only record data when device is active
                 monitor_callback(datapoint)
+            
             await asyncio.sleep(cycle)
 
         logging.info("EBC-B20H Monitoring process stopped")

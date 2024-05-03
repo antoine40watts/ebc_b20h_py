@@ -74,7 +74,6 @@
 
 <main>
   <!-- <IDBar /> -->
-  <!-- <h1 style="text-align: center;">Ma première page web :)</h1> -->
 
   <div class="hide-on-screen print-header">
     <img src={logo} alt="Logo 40Watts" style="height: 100px">

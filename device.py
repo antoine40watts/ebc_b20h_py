@@ -77,15 +77,16 @@ class DeviceController():
             # Update battery state
             self.batt_voltage = self.discharger.voltage
             self.batt_current = self.discharger.current
+
             if self.discharger.is_charging:
                 self.batt_state = BatteryState.CHARGING
             elif self.discharger.is_discharging:
                 self.batt_state = BatteryState.DISCHARGING
             else:
                 self.batt_state = BatteryState.IDLE
-                        
+            
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
-                if len(self.operations) > self.operation_idx + 1:
+                if self.operation_idx + 1 < len(self.operations):
                     # Start the next operation
                     self.start_next_operations()
                     logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
@@ -113,11 +114,11 @@ class DeviceController():
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
                         # End of timed operation
                         current_op.status = OpStatus.FINISHED
-                        current_op.result = (0, "timeout")
+                        current_op.result = (0, "completed")
                         current_op.t_end = time.time()
                         self.mode = DeviceMode.BETWEEN_OPERATIONS
 
-            if self.batt_current != self.prev_state:
+            if self.batt_state != self.prev_state:
                 self.prev_state = self.batt_state
             
             await asyncio.sleep(0.3)
