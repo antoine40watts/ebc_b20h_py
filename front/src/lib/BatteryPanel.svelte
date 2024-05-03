@@ -5,11 +5,11 @@
 
     export let open = false;
 
+    let battery_brand = "";
+    let battery_model = "";
     let cells_s = 10;
     let cells_p = 1;
-    let cell_cap = 2400;
     let original_capacity = 0;  // amps
-    let battery_brand = "";
     let battery_year = 1999;
     let battery_bike = "";
 
@@ -30,70 +30,42 @@
 <Accordion bind:open={open} flex_size={2}>
     <span slot="header-icon"><i class="fa-solid fa-car-battery"></i></span>
     <span slot="header-title">Batterie</span>
-    <div slot="details">
-      <table style="width: 700px">
-        <tr>
-          <td nowrap><label for="battery-id">Ref. Batterie</label></td>
-          <td><input type="text" id="battery-id" name="battery-id" size="16"/></td>
-        </tr>
+    <div class="align-center" slot="details">
+      <table style="width: 800px">
         <tr>
           <td><label for="battery-brand">Marque</label></td>
-          <td>
-            <input type="text" id="battery-brand" name="battery-brand" size="16"
+          <td><input type="text" id="battery-brand" name="battery-brand" size="16"
               placeholder="non renseigné"
-              bind:value={battery_brand} />
-            <label for="battery-year">Année</label>
-            <input type="number" id="battery-year" name="battery-year" size="5"
+              bind:value={battery_brand} /></td>
+          <td><label for="battery-model">Modèle</label></td>
+          <td><input type="text" id="battery-model" name="battery-model" size="16"
+            placeholder="non renseigné"
+            bind:value={battery_model} /></td>
+        </tr><tr>
+          <td><label for="battery-year">Année</label></td>
+          <td><input type="number" id="battery-year" name="battery-year" size="5"
               bind:value={battery_year} 
-              min="1999" step="1" style="width: 70px;" />
-            <label for="battery-bike">Vélo</label>
-            <input type="text" id="battery-bike" name="battery-bike" size="16"
+              min="1999" step="1" style="width: 70px;" /></td>
+          <td><label for="battery-bike">Vélo</label></td>
+          <td><input type="text" id="battery-bike" name="battery-bike" size="16"
               placeholder="non renseigné"
-              bind:value={battery_bike} />
-          </td>
-        </tr>
-        <tr>
+              bind:value={battery_bike} /></td>
+        </tr><tr>
             <td><label for="battery-capacity">Capacité</label></td>
             <!-- <td><input type="text" id="battery-capacity" name="battery-capacity" size="8"/></td> -->
             <td><input type="number" id="battery-capacity" name="battery-capacity" size="6"
               style="width: 70px;"
               min="1" step="1" bind:value={original_capacity} on:input={updateParams} />Ah
             &nbsp;&nbsp;&nbsp;(<span style="font-weight: bold">{Math.round(original_capacity * cells_s * 3.7)}</span> Wh)</td>
+        </tr><tr>
+            <td><label for="cells_s">Cellules Série</label></td>
+            <td><input type="number" id="cells_s" name="cells_s" size="3"
+                    style="width: 50px;"
+                    min="4" max="16" bind:value={cells_s} on:input={updateParams} /></td>
+            <td>Tension nominale<td>
+            <td style="font-weight: bold; font-size: 1.4em;">{v_table[cells_s]} V</td>
         </tr>
       </table>
-
-      <table>
-        <tr>
-            <td>
-                <span>
-                    <label for="cells_s">Cellules Série</label>
-                    <input type="number" id="cells_s" name="cells_s" size="3"
-                        style="width: 50px;"
-                        min="4" max="16" bind:value={cells_s} on:input={updateParams} />
-                  </span>
-            </td>
-            <!-- <td>
-              <span>
-                <label for="cells_p">Cellules Parallèle</label>
-                <input type="number" id="cells_p" name="cells_p" size="3"
-                style="width: 50px;"
-                    min="1" bind:value={cells_p} on:input={updateParams} />
-                </span>
-            </td> -->
-            <td>
-              Tension nominale : <span style="font-weight: bold; font-size: 1.4em;">{v_table[cells_s]} V</span>
-            </td>
-            <!-- <td>
-                <span>
-                    <label for="cell_cap">Capacité cellule</label>
-                    <input type="number" id="cell_cap" name="cell_p" size="5"
-                        style="width: 70px;"
-                        min="1" step="100" bind:value={cell_cap} on:input={updateParams} />
-                </span>
-            </td> -->
-        </tr>
-      </table>
-      
 
     </div>
 </Accordion>
@@ -102,6 +74,14 @@
 <style>
     table td {
       height: 1.6em;
+    }
+
+    .align-center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap;
+        /* flex-direction: column; */
     }
 
     input {

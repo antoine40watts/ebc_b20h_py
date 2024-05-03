@@ -31,9 +31,9 @@
 <div class="container">
     <p class="state" style="color: {statesColor[$deviceData.battery_state]};">
         {#if $deviceData.battery_state == 0}
-            <img title="Kawai !!" use:tooltip class="idle-icon" src={idleIcon}>
+            <img class="battery-icon" src={idleIcon}>
         {:else if $deviceData.battery_state == 1}
-            <img title="Kawai !!" use:tooltip class="idle-icon" src={chargeIcon}>
+            <img class="battery-icon" src={chargeIcon}>
         <!-- <button class="button-stop" on:click={stopDevices}>ARRÊT</button> -->
         {/if}
         {batteryStates[$deviceData.battery_state]}
@@ -65,13 +65,14 @@
         font-weight: 500;
     }
 
-    .idle-icon {
-        /* translate: -50% 0; */
-        scale: 0.5;
-        position: absolute;
-        top: -35px;
-        right: 0;
-        filter: opacity(0.9);
+    .battery-icon {
+        scale: 5;
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-10%, 0);
+        filter: opacity(0.1);
+        z-index: -9999;
     }
 
     @media print{

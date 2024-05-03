@@ -88,13 +88,13 @@ class DeviceController():
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if self.operation_idx + 1 < len(self.operations):
                     # Start the next operation
-                    self.start_next_operations()
                     logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
+                    self.start_next_operations()
                 else:
                     # End of all operations
                     self.mode = DeviceMode.IDLE
-                    self.stop_all()
                     logging.info(f"End of all operations")
+                    self.stop_all()
             
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
@@ -130,6 +130,7 @@ class DeviceController():
         """
         if not self._running or self.mode != DeviceMode.IN_OPERATION:
             return
+        
         current_op = self.operations[self.operation_idx]
         dt = time.time() - self.monitoring_t0
         datapoint = [dt] + datapoint

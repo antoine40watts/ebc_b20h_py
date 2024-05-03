@@ -41,7 +41,6 @@
     }
 
     async function loadclient() {
-        console.log("load client");
         if (selectedClient == null) {
             client_name = "";
             client_surname = "";
@@ -58,7 +57,6 @@
         deleteDisabled = false;
 
         const client = await dbAction("client", "get", {"id": selectedClient.id});
-
         client_name = client.nom;
         client_surname = client.prenom;
         client_address = client.adresse;
@@ -69,8 +67,6 @@
     }
 
     async function newClient() {
-        console.log("New Client");
-
         const clientData = {
             id: 0,
             nom: client_name,
@@ -82,14 +78,10 @@
         }
 
         const client = await dbAction("client", "add", clientData);
-
         selectedClient = {id: client.id, label: client.label};
     }
 
     async function updateClient() {
-        console.log("Update Client");
-        console.log("selected", selectedClient)
-        
         const clientData = {
             nom: client_name,
             prenom: client_surname,
@@ -107,9 +99,7 @@
         }
 
         const client = await dbAction("client", action, clientData)
-
         selectedClient = {id: client.id, label: client.label};
-        console.log("json", client);
     }
 
     async function deleteClient() {
@@ -140,7 +130,7 @@
 <Accordion bind:open={open} flex_size={1}>
     <span slot="header-icon"><i class="fa-regular fa-user"></i></span>
     <span slot="header-title">Client</span>
-        <span slot="header-search" id="search-container">
+        <span slot="header-search" class="search-container hide-on-print">
             <AutoComplete
                 searchFunction={getClientList}
                 delay=200
@@ -254,5 +244,11 @@
         align-items: center;
         flex-wrap: wrap;
         /* flex-direction: column; */
+    }
+
+    @media print {
+    .hide-on-print {
+        display: none;
+        }
     }
 </style>

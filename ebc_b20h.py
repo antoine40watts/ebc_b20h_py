@@ -304,7 +304,7 @@ class EBC_B20H():
                 if status == EBC_B20H.STATUS_IDLE or status == 0x01:
                     self.is_discharging = False
                     self.is_charging = False
-                if status == EBC_B20H.STATUS_DISCHARGING:
+                elif status == EBC_B20H.STATUS_DISCHARGING:
                     self.is_discharging = True
                     self.is_charging = False
                 elif status == EBC_B20H.STATUS_CHARGING:
@@ -312,9 +312,11 @@ class EBC_B20H():
                     self.is_charging = True
                 elif status == EBC_B20H.STATUS_END_OF_DISCHARGE:
                     self.is_discharging = False
+                    self.is_charging = False
                     logging.info("End of discharge")
                 elif status == EBC_B20H.STATUS_END_OF_CHARGE:
                     self.is_charging = False
+                    self.is_discharging = False
                     logging.info("End of charge")
 
                 self.voltage = frame_data['voltage']
