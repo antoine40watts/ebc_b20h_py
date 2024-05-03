@@ -248,7 +248,6 @@ async def get_log(filename: str = "server.log"):
 
 
 
-
 ## Database stuff
 
 class DBAction(BaseModel):

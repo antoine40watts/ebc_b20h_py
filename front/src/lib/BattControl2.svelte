@@ -39,6 +39,10 @@
             opParams["duration"] = duration;
         } else if (selectedOperation === "wait") {
             opParams["duration"] = waitDuration;
+        } else if (selectedOperation === "adjust") {
+            opParams["current"] = current;
+            opParams["vlim"] = dischargeVLim;
+            opParams["duration"] = duration;
         }
 
         const rpcData = {
@@ -100,13 +104,17 @@
             desc = "Décharge";
         } else if (operation.type === "wait") {
             desc = "Attendre";
+        } else if (operation.type === "adjust") {
+            desc = "Adjust";
         }
         return desc;
     }
 
     function getOpParams(operation) {
         let desc = "";
-        if (operation.type.startsWith("charge") || operation.type.startsWith("discharge")) {
+        if (operation.type.startsWith("charge")
+            || operation.type.startsWith("discharge")
+            || operation.type.startsWith("adjust")) {
             desc += operation.params.vlim + "V";
             desc += " @ " + operation.params.current + "A";
         } else if (operation.type === "wait") {
@@ -143,6 +151,7 @@
             <option value="charge">Charge</option>
             <option value="discharge">Décharge</option>
             <option value="wait">Attendre</option>
+            <option value="adjust">Adjust</option>
         </select>
         <button id="addOperationButton" on:click={handleSubmit} title="Ajouter l'opération" use:tooltip><i class="fa-solid fa-right-to-bracket"></i></button>
     </div>
@@ -219,6 +228,29 @@
                         <td>sec</td>
                     </tr>
                 </table>
+            {:else if selectedOperation === "adjust" }
+                <table class="params-table">
+                    <tr>
+                        <td class="param-name-col"><label for="current">Courant</label></td>
+                        <td class="input-col"><input type="number" id="current" name="current"
+                            bind:value={current}
+                            size="4" min="1" max="20"/></td>
+                        <td>Amp</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name-col"><label for="vlim">V lim</label></td>
+                        <td class="input-col"><input type="number" size="4" name="vlim" id="vlim"
+                            min={$deviceParameters.discharge_v} max={$deviceParameters.charge_v} step="0.1"
+                            bind:value={dischargeVLim} on:change={handleVLim}/></td>
+                        <td>V</td>
+                    </tr>
+                    <tr>
+                        <td class="param-name-col"><label for="duration">Durée</label></td>
+                        <td class="input-col"><input type="number" id="duration" name="duration"
+                            size="4" min="0" bind:value={duration}/></td>
+                        <td>sec</td>
+                    </tr>
+                </table>
             {/if}
         </div>
     <!-- </fieldset> -->
@@ -226,7 +258,6 @@
 </div>
 
 <div id="right-container">
-
     <div id="operations-list">
         <table >
             {#each operations as op, index}

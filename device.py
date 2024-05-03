@@ -170,8 +170,8 @@ class DeviceController():
 
         if self.discharger.is_discharging:
             self.discharger.stop()
-        self.discharger.charge(cutoff_current, cont)
 
+        self.discharger.charge(cutoff_current, cont)
         self.charger.charge(current, max_voltage)
 
         self.batt_state = BatteryState.CHARGING
@@ -181,8 +181,8 @@ class DeviceController():
     def discharge(self, current, min_voltage, cont=False):
         if self.charger.is_charging:
             self.charger.stop()
+
         self.discharger.discharge(current, min_voltage, cont)
-        
         self.batt_state = BatteryState.DISCHARGING
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
@@ -232,6 +232,11 @@ class DeviceController():
             elif current_op.type == "wait":
                 self.charger.stop()
                 self.discharger.stop()
+            elif current_op.type == "adjust":
+                current = current_op.params["current"]
+                v_min = current_op.params["vlim"]
+                logging.info(f"Adjusting at {current}Amps down to {v_min}V")
+                self.discharger.adjust(current, v_min)
             current_op.t_start = time.time()
             current_op.status = OpStatus.ONGOING
             self.mode = DeviceMode.IN_OPERATION
@@ -245,11 +250,13 @@ class DeviceController():
                 type = "discharge_cont"
         self.operations.append( Operation(type, params) )
 
+
     def delete_operation(self, idx):
         if len(self.operations) <= idx or idx <= self.operation_idx:
             return
         if self.operations[idx].status == OpStatus.PENDING:
             del self.operations[idx]
+
 
     def clear_operations(self):
         self.operations.clear()

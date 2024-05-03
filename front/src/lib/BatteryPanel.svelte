@@ -60,9 +60,9 @@
         </tr><tr>
             <td><label for="cells_s">Cellules Série</label></td>
             <td><input type="number" id="cells_s" name="cells_s" size="3"
-                    style="width: 50px;"
+                    style="width: 50px"
                     min="4" max="16" bind:value={cells_s} on:input={updateParams} /></td>
-            <td>Tension nominale<td>
+            <td>Tension nominale</td>
             <td style="font-weight: bold; font-size: 1.4em;">{v_table[cells_s]} V</td>
         </tr>
       </table>
