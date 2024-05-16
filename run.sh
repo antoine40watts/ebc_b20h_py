@@ -3,7 +3,7 @@
 
 # Define the number of retries and the delay between retries
 website_url="github.com"
-branch="operations"
+branch="main"
 max_retries=5
 retry_delay=5
 retries=0
