@@ -3,6 +3,7 @@
 
 # Define the number of retries and the delay between retries
 website_url="github.com"
+branch="operations"
 max_retries=5
 retry_delay=5
 retries=0
@@ -24,7 +25,7 @@ done
 if ping -c 1 "$website_url"; then
     sudo -u piwatts echo '' > github_error.log
     sudo -u piwatts git fetch origin 2>> github_error.log
-    sudo -u piwatts git reset --hard origin/main 2>> github_error.log
+    sudo -u piwatts git reset --hard origin/$branch 2>> github_error.log
 else
     echo "Github.com is not accessible" >> github_error.log
 fi
