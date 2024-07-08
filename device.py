@@ -134,7 +134,7 @@ class DeviceController():
         current_op = self.operations[self.operation_idx]
         dt = time.time() - self.monitoring_t0
         datapoint = [dt] + datapoint
-        logging.debug(f"Datapoint: {datapoint}")
+        #logging.debug(f"Datapoint: {datapoint}")
         if len(current_op.chart) > 0:
             last_datapoint = current_op.chart[-1]
             # Add new datapoint only if values are different from last datapoint

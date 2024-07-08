@@ -129,7 +129,7 @@ class EBC_B20H():
             data = self.dev.read(0x82, 128, 200).tolist()
         except usb.core.USBTimeoutError:
             return []
-            
+        
         for b in data:
             if b == 250:    # Start of new message
                 if line:
