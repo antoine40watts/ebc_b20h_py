@@ -79,6 +79,19 @@ class EBC_B20H():
 
 
     def send(self, message: bytes):
+        """
+            Anatomy of a request:
+            
+            Command:
+                1   Start
+                2   Stop
+                4   Calibrate
+                5   Connect
+                6   Disconnect
+                7   Adjust
+                8   Discharge continue
+                24  Charge continue
+        """
         START_OF_MESSAGE = 0xFA
         END_OF_MESSAGE = 0xF8
 

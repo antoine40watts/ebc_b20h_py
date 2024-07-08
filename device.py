@@ -89,7 +89,6 @@ class DeviceController():
                 if self.operation_idx + 1 < len(self.operations):
                     # Start the next operation
                     self.start_next_operations()
-                    logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
                 else:
                     # End of all operations
                     self.mode = DeviceMode.IDLE
@@ -217,8 +216,8 @@ class DeviceController():
         self.operation_idx += 1
         if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
-            print("Start op: " + current_op.type)
-            print(current_op.params)
+            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
+            logging.info(current_op.params)
             if current_op.type.startswith("charge"):
                 cont = "_cont" in current_op.type
                 current = current_op.params["current"]
