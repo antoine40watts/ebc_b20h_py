@@ -343,14 +343,14 @@ class EBC_B20H():
                     continue
 
                 print(status, self.waiting_for_status)
-                if self.waiting_for_status and status not in self.waiting_for_status:
-                    print("not ready")
-                    continue
-                else:
-                    self.waiting_for_status = []
-                    self.is_ready = True
+                if self.waiting_for_status:
+                    if status in self.waiting_for_status:
+                        self.waiting_for_status = []
+                        self.is_ready = True
+                    else:
+                        self.is_ready = False
 
-                if status == EBC_B20H.STATUS_IDLE or status == 0x01:
+                if status == EBC_B20H.STATUS_IDLE or status == EBC_B20H.STATUS_IDLE2:
                     self.is_discharging = False
                     self.is_charging = False
                 elif status == EBC_B20H.STATUS_DISCHARGING:
