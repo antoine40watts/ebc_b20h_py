@@ -115,6 +115,7 @@ class DeviceController():
                         current_op.result = (0, "completed")
                         current_op.t_end = time.time()
                         self.mode = DeviceMode.BETWEEN_OPERATIONS
+                        logging.info("Operation completed (timed out)")
 
             if self.batt_state != self.prev_state:
                 self.prev_state = self.batt_state
@@ -211,6 +212,10 @@ class DeviceController():
 
 
     def start_next_operations(self):
+        # Wait for discharger to complete the previous request
+        if not self.discharger.is_ready:
+            return
+
         if self.operation_idx == -1:
             self.monitoring_t0 = time.time()
 

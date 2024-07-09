@@ -42,6 +42,7 @@ class EBC_B20H():
         self.is_monitoring = False
         self.is_charging = False
         self.is_discharging = False
+        self.is_ready = True    # Ready to recieve new order
         self.waiting_for_status = []
         # self.monitoring_data = []
         self.voltage = 0.0
@@ -218,16 +219,22 @@ class EBC_B20H():
         logging.debug("Disconnect command sent")
     
 
+    def wait_for_status(self, status: List):
+        self.waiting_for_status = status
+        self.is_ready = False
+
+
     def stop(self):
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
             if self.is_charging:
-                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_CHARGE, EBC_B20H.STATUS_IDLE, EBC_B20H.STATUS_IDLE2]
+                self.wait_for_status([EBC_B20H.STATUS_END_OF_CHARGE, EBC_B20H.STATUS_IDLE, EBC_B20H.STATUS_IDLE2])
             elif self.is_discharging:
-                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_DISCHARGE, EBC_B20H.STATUS_IDLE, EBC_B20H.STATUS_IDLE2]
+                self.wait_for_status([EBC_B20H.STATUS_END_OF_DISCHARGE, EBC_B20H.STATUS_IDLE, EBC_B20H.STATUS_IDLE2])
             else:
                 self.is_discharging = False
                 self.is_charging = False
+                self.is_ready = True
         else:
             self.is_discharging = False
             self.is_charging = False
@@ -250,7 +257,7 @@ class EBC_B20H():
         
         self.send(bytes(data))
         if self.is_monitoring:
-            self.waiting_for_status = [EBC_B20H.STATUS_DISCHARGING]
+            self.wait_for_status([EBC_B20H.STATUS_DISCHARGING])
         else:
             self.is_discharging = True
         logging.debug(f"Discharging to {cutoff_v}V @ {current}Amps")
@@ -269,7 +276,7 @@ class EBC_B20H():
         data = [command, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
         if self.is_monitoring:
-            self.waiting_for_status = [EBC_B20H.STATUS_CHARGING]
+            self.wait_for_status([EBC_B20H.STATUS_CHARGING])
         else:
             self.is_charging = True
         logging.debug("Charge command sent")
@@ -325,17 +332,23 @@ class EBC_B20H():
         while self.is_monitoring:
             data = self.recieve()
             for line in data:
+                print(line)
                 if not self.is_frame_valid(line):
                     continue
                 frame_data = self.decode_frame(line)
                 
                 status = frame_data['status']
                 if status not in EBC_B20H.KNOWN_STATUS:
+                    logging.debug("Unknown message status: " + str(frame_data))
                     continue
+
+                print(status, self.waiting_for_status)
                 if self.waiting_for_status and status not in self.waiting_for_status:
+                    print("not ready")
                     continue
                 else:
                     self.waiting_for_status = []
+                    self.is_ready = True
 
                 if status == EBC_B20H.STATUS_IDLE or status == 0x01:
                     self.is_discharging = False
