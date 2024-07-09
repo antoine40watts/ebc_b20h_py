@@ -92,7 +92,7 @@ class DeviceController():
                     # End of all operations
                     self.mode = DeviceMode.IDLE
                     logging.info(f"End of all operations")
-                    self.stop_all()
+                    await self.stop_all()
             
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
