@@ -172,7 +172,7 @@ class DeviceController():
         self.discharger.charge(cutoff_current, cont)
         self.charger.charge(current, max_voltage)
 
-        self.batt_state = BatteryState.CHARGING
+        # self.batt_state = BatteryState.CHARGING
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
 
@@ -181,7 +181,7 @@ class DeviceController():
             self.charger.stop()
 
         self.discharger.discharge(current, min_voltage, cont)
-        self.batt_state = BatteryState.DISCHARGING
+        # self.batt_state = BatteryState.DISCHARGING
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 

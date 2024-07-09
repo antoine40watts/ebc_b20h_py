@@ -93,6 +93,7 @@ class VirtEBC_B20H(EBC_B20H):
 
     def stop(self):
         self.is_charging = False
+        self.is_discharging = False
         super().stop()
 
     def recieve(self):

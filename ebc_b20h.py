@@ -39,7 +39,7 @@ class EBC_B20H():
         self.is_monitoring = False
         self.is_charging = False
         self.is_discharging = False
-        self.waiting_for_status = 0
+        self.waiting_for_status = []
         # self.monitoring_data = []
         self.voltage = 0.0
         self.current = 0.0
@@ -215,9 +215,9 @@ class EBC_B20H():
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
             if self.is_charging:
-                self.waiting_for_status = EBC_B20H.STATUS_END_OF_CHARGE
+                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_CHARGE, EBC_B20H.STATUS_IDLE]
             elif self.is_discharging:
-                self.waiting_for_status = EBC_B20H.STATUS_END_OF_DISCHARGE
+                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_DISCHARGE, EBC_B20H.STATUS_IDLE]
             else:
                 self.is_discharging = False
                 self.is_charging = False
@@ -243,7 +243,7 @@ class EBC_B20H():
         
         self.send(bytes(data))
         if self.is_monitoring:
-            self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
+            self.waiting_for_status = [EBC_B20H.STATUS_DISCHARGING]
         else:
             self.is_discharging = True
         logging.debug(f"Discharging to {cutoff_v}V @ {current}Amps")
@@ -275,7 +275,7 @@ class EBC_B20H():
         data = [command, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
         if self.is_monitoring:
-            self.waiting_for_status = EBC_B20H.STATUS_CHARGING
+            self.waiting_for_status = [EBC_B20H.STATUS_CHARGING]
         else:
             self.is_charging = True
         logging.debug("Charge command sent")
@@ -323,10 +323,10 @@ class EBC_B20H():
                 frame_data = self.decode_frame(line)
                 
                 status = frame_data['status']
-                if self.waiting_for_status and status != self.waiting_for_status:
+                if self.waiting_for_status and status not in self.waiting_for_status:
                     continue
                 else:
-                    self.waiting_for_status = EBC_B20H.STATUS_IDLE
+                    self.waiting_for_status = []
 
                 if status == EBC_B20H.STATUS_IDLE or status == 0x01:
                     self.is_discharging = False
