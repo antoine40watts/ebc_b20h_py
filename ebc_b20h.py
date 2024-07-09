@@ -213,7 +213,17 @@ class EBC_B20H():
 
     def stop(self):
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
-        self.is_discharging = False
+        if self.is_monitoring:
+            if self.is_charging:
+                self.waiting_for_status = EBC_B20H.STATUS_END_OF_CHARGE
+            elif self.is_discharging:
+                self.waiting_for_status = EBC_B20H.STATUS_END_OF_DISCHARGE
+            else:
+                self.is_discharging = False
+                self.is_charging = False
+        else:
+            self.is_discharging = False
+            self.is_charging = False
         logging.debug("Stop command sent")
 
 
@@ -232,8 +242,10 @@ class EBC_B20H():
         data = [command, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
         
         self.send(bytes(data))
-        self.is_discharging = True
-        self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
+        if self.is_monitoring:
+            self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
+        else:
+            self.is_discharging = True
         logging.debug(f"Discharging to {cutoff_v}V @ {current}Amps")
 
 
@@ -262,8 +274,10 @@ class EBC_B20H():
         command = 0x18 if cont else 0x11
         data = [command, 0, 0, 0, 0xC8, c_msb, c_lsb]
         self.send(bytes(data))
-        self.is_charging = True
-        self.waiting_for_status = EBC_B20H.STATUS_CHARGING
+        if self.is_monitoring:
+            self.waiting_for_status = EBC_B20H.STATUS_CHARGING
+        else:
+            self.is_charging = True
         logging.debug("Charge command sent")
 
 
@@ -300,7 +314,7 @@ class EBC_B20H():
     
     async def _new_monitor(self, monitor_callback):
         logging.info("EBC-B20H Monitoring process started")
-        cycle = 2
+        cycle_sec = 2
         while self.is_monitoring:
             data = self.recieve()
             for line in data:
@@ -312,7 +326,7 @@ class EBC_B20H():
                 if self.waiting_for_status and status != self.waiting_for_status:
                     continue
                 else:
-                    self.waiting_for_status = 0
+                    self.waiting_for_status = EBC_B20H.STATUS_IDLE
 
                 if status == EBC_B20H.STATUS_IDLE or status == 0x01:
                     self.is_discharging = False
@@ -340,7 +354,7 @@ class EBC_B20H():
                 # Only record data when device is active
                 monitor_callback(datapoint)
             
-            await asyncio.sleep(cycle)
+            await asyncio.sleep(cycle_sec)
 
         logging.info("EBC-B20H Monitoring process stopped")
 

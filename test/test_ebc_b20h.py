@@ -75,12 +75,14 @@ class VirtEBC_B20H(EBC_B20H):
     def charge(self, cutoff_c = 0.1, cont=False):
         self.charge_cutoff_c = cutoff_c
         self.mah = 0
+        self.is_charging = True
         return super().charge(cutoff_c, cont)
 
     def discharge(self, current=1, cutoff_v=2, cont=False):
         self.discharge_current = current
         self.discharge_cutoff_v = cutoff_v
         self.mah = 0
+        self.is_discharging = True
         return super().discharge(current, cutoff_v, cont)
 
     def adjust(self, current, cutoff_v):
@@ -118,13 +120,13 @@ class VirtEBC_B20H(EBC_B20H):
         state = 0
         c1, c2 = 0, 0
         if self.is_discharging:
-            state = 20 if self.voltage <= self.discharge_cutoff_v else 10
+            state = EBC_B20H.STATUS_END_OF_DISCHARGE if self.voltage <= self.discharge_cutoff_v else EBC_B20H.STATUS_DISCHARGING
             self.voltage -= self.mah * 0.00001
             self.current = self.discharge_current
             self.mah += self.current * 10000 * 2 / 3600
             c1, c2 = EBC_B20H.encode_current(self.discharge_current)
         elif self.is_charging:
-            state = 21 if self.voltage > self.charge_cutoff_v else 11
+            state = EBC_B20H.STATUS_END_OF_CHARGE if self.voltage > self.charge_cutoff_v else EBC_B20H.STATUS_CHARGING
             self.voltage += self.mah * 0.00001
             self.current = 20
             self.mah += 20 * 10000 * 2 / 3600 # 20 bogo-Amps

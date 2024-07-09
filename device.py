@@ -109,7 +109,6 @@ class DeviceController():
                     logging.info("Operation completed")
                 
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
-                    print("wait", self.batt_state)
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
                         # End of timed operation
                         current_op.status = OpStatus.FINISHED
@@ -216,8 +215,7 @@ class DeviceController():
         self.operation_idx += 1
         if self.operation_idx < len(self.operations):
             current_op = self.operations[self.operation_idx]
-            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}")
-            logging.info(current_op.params)
+            logging.info(f"Starting operation {self.operation_idx}: {current_op.type}", current_op.params)
             if current_op.type.startswith("charge"):
                 cont = "_cont" in current_op.type
                 current = current_op.params["current"]

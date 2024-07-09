@@ -12,7 +12,7 @@ class FakeCanBus():
         self.msg = []
 
     def send_periodic(self, msg, period):
-        print("sending periodic message:")
+        print("[FakeQ2] sending periodic message:")
         print(msg)
     
     def __iter__(self):
