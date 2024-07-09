@@ -26,10 +26,13 @@ class EBC_B20H():
             0x18    Charge (continue)
     """
     STATUS_IDLE = 0x00
+    STATUS_IDLE2 = 0x01
     STATUS_DISCHARGING = 0x0A
     STATUS_CHARGING = 0x0B
     STATUS_END_OF_DISCHARGE = 0x14
     STATUS_END_OF_CHARGE = 0x15
+
+    KNOWN_STATUS = [STATUS_IDLE, STATUS_IDLE2, STATUS_DISCHARGING, STATUS_CHARGING, STATUS_END_OF_DISCHARGE, STATUS_END_OF_CHARGE]
 
     def __init__(self):
         self.buffer = []
@@ -121,11 +124,14 @@ class EBC_B20H():
                 som sta  c1  c2  v1  v2  e1  e2         dc1 dc2 dv1 dv2
             
                 sta: status byte
+                    00 (0x00): idle
+                    01 (0x01): idle
                     10 (0x0A): discharging
                     11 (0x0B): charging
                     20 (0x14): end of discharge
                     21 (0x15): end of charge
                     100: ?
+                    101: ?
                     110: ?
                     120: ?
 
@@ -215,9 +221,9 @@ class EBC_B20H():
         self.send(bytes([0x02, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
             if self.is_charging:
-                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_CHARGE, EBC_B20H.STATUS_IDLE]
+                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_CHARGE, EBC_B20H.STATUS_IDLE, EBC_B20H.STATUS_IDLE2]
             elif self.is_discharging:
-                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_DISCHARGE, EBC_B20H.STATUS_IDLE]
+                self.waiting_for_status = [EBC_B20H.STATUS_END_OF_DISCHARGE, EBC_B20H.STATUS_IDLE, EBC_B20H.STATUS_IDLE2]
             else:
                 self.is_discharging = False
                 self.is_charging = False
@@ -323,6 +329,8 @@ class EBC_B20H():
                 frame_data = self.decode_frame(line)
                 
                 status = frame_data['status']
+                if status not in EBC_B20H.KNOWN_STATUS:
+                    continue
                 if self.waiting_for_status and status not in self.waiting_for_status:
                     continue
                 else:
