@@ -342,13 +342,14 @@ class EBC_B20H():
                     logging.debug("Unknown message status: " + str(frame_data))
                     continue
 
-                print(status, self.waiting_for_status)
                 if self.waiting_for_status:
                     if status in self.waiting_for_status:
                         self.waiting_for_status = []
                         self.is_ready = True
                     else:
                         self.is_ready = False
+                else:
+                    self.is_ready = True
 
                 if status == EBC_B20H.STATUS_IDLE or status == EBC_B20H.STATUS_IDLE2:
                     self.is_discharging = False
