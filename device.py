@@ -179,6 +179,8 @@ class DeviceController():
     def discharge(self, current, min_voltage, cont=False):
         if self.charger.is_charging:
             self.charger.stop()
+        if self.discharger.is_charging:
+            self.discharger.stop()
 
         self.discharger.discharge(current, min_voltage, cont)
         # self.batt_state = BatteryState.DISCHARGING

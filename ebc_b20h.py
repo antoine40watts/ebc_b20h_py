@@ -86,7 +86,7 @@ class EBC_B20H():
             Anatomy of a request:
             
             Command:
-                1   Start
+                1   Start discharge
                 2   Stop
                 4   Calibrate
                 5   Connect
@@ -133,6 +133,7 @@ class EBC_B20H():
                     100: ?
                     101: ?
                     110: ?
+                    111: ?
                     120: ?
 
                 c1, c2: battery discharge current
@@ -255,19 +256,6 @@ class EBC_B20H():
         logging.debug(f"Discharging to {cutoff_v}V @ {current}Amps")
 
 
-    def adjust(self, current, cutoff_v):
-        current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
-        cutoff_v = min(max(cutoff_v, 2.0), 72.0)
-        c_msb, c_lsb = EBC_B20H.encode_current(current)
-        v_msb, v_lsb = EBC_B20H.encode_voltage(cutoff_v)
-
-        data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
-        
-        self.send(bytes(data))
-        # self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
-        logging.debug("Adjust command sent")
-
-
     def charge(self, cutoff_c, cont=False):
         """ Allow charge (from an external charger)
             until current falls below cutoff_c
@@ -285,6 +273,19 @@ class EBC_B20H():
         else:
             self.is_charging = True
         logging.debug("Charge command sent")
+
+
+    def adjust(self, current, cutoff_v):
+        current = min(max(current, 0.1), 20.0)  # The EBC-B20H is limited to 20Amps discharge current
+        cutoff_v = min(max(cutoff_v, 2.0), 72.0)
+        c_msb, c_lsb = EBC_B20H.encode_current(current)
+        v_msb, v_lsb = EBC_B20H.encode_voltage(cutoff_v)
+
+        data = [0x07, c_msb, c_lsb, v_msb, v_lsb, 0, 0]
+        
+        self.send(bytes(data))
+        # self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
+        logging.debug("Adjust command sent")
 
 
     def calibrate(self):
