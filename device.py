@@ -98,10 +98,10 @@ class DeviceController():
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
                 # Check if operation is completed
-                logging.info(self.batt_state, self.prev_state)
+                #logging.info(self.batt_state, self.prev_state)
                 if current_op.type != "wait" and \
-                        self.batt_state == BatteryState.IDLE and \
-                        self.batt_state != self.prev_state:
+                        self.batt_state == BatteryState.IDLE: # and \
+                        # self.batt_state != self.prev_state:
                     current_op.status = OpStatus.FINISHED
                     current_op.result = (0, "completed")
                     current_op.t_end = time.time()
@@ -118,8 +118,8 @@ class DeviceController():
                         self.mode = DeviceMode.BETWEEN_OPERATIONS
                         logging.info("Operation completed (timed out)")
 
-            if self.batt_state != self.prev_state:
-                self.prev_state = self.batt_state
+            # if self.batt_state != self.prev_state:
+            #     self.prev_state = self.batt_state
             
             await asyncio.sleep(0.3)
     
