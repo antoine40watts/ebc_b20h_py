@@ -174,6 +174,8 @@ class DeviceController():
 
         self.discharger.charge(cutoff_current, cont)
         self.charger.charge(current, max_voltage)
+        while not self.discharger.is_ready:
+            await asyncio.sleep(0.1)
 
         # self.batt_state = BatteryState.CHARGING
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
@@ -188,6 +190,8 @@ class DeviceController():
                 await asyncio.sleep(0.1)
 
         self.discharger.discharge(current, min_voltage, cont)
+        while not self.discharger.is_ready:
+            await asyncio.sleep(0.1)
         # self.batt_state = BatteryState.DISCHARGING
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
