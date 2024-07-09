@@ -88,7 +88,7 @@ class DeviceController():
             if self.mode == DeviceMode.BETWEEN_OPERATIONS:
                 if self.operation_idx + 1 < len(self.operations):
                     # Start the next operation
-                    self.start_next_operations()
+                    await self.start_next_operations()
                 else:
                     # End of all operations
                     self.mode = DeviceMode.IDLE
@@ -164,11 +164,13 @@ class DeviceController():
         logging.info("Device stopped")
     
 
-    def charge(self, current, max_voltage, cont=False):
+    async def charge(self, current, max_voltage, cont=False):
         cutoff_current = 0.5
 
         if self.discharger.is_discharging:
             self.discharger.stop()
+            while not self.discharger.is_ready:
+                await asyncio.sleep(0.1)
 
         self.discharger.charge(cutoff_current, cont)
         self.charger.charge(current, max_voltage)
@@ -177,11 +179,13 @@ class DeviceController():
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
 
 
-    def discharge(self, current, min_voltage, cont=False):
+    async def discharge(self, current, min_voltage, cont=False):
         if self.charger.is_charging:
             self.charger.stop()
         if self.discharger.is_charging:
             self.discharger.stop()
+            while not self.discharger.is_ready:
+                await asyncio.sleep(0.1)
 
         self.discharger.discharge(current, min_voltage, cont)
         # self.batt_state = BatteryState.DISCHARGING
@@ -211,7 +215,7 @@ class DeviceController():
         self.operation_idx = -1
 
 
-    def start_next_operations(self):
+    async def start_next_operations(self):
         # Wait for discharger to complete the previous request
         if not self.discharger.is_ready:
             return
@@ -227,12 +231,12 @@ class DeviceController():
                 cont = "_cont" in current_op.type
                 current = current_op.params["current"]
                 v_max = current_op.params["vlim"]
-                self.charge(current, v_max, cont)
+                await self.charge(current, v_max, cont)
             elif current_op.type.startswith("discharge"):
                 cont = "_cont" in current_op.type
                 current = current_op.params["current"]
                 v_min = current_op.params["vlim"]
-                self.discharge(current, v_min, cont)
+                await self.discharge(current, v_min, cont)
             elif current_op.type == "wait":
                 self.charger.stop()
                 self.discharger.stop()

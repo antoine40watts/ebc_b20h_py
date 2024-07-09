@@ -118,7 +118,7 @@ async def start_op():
     # Clear old chart datapoints
     for op in device.operations:
         op.chart = []
-    device.start_next_operations()
+    await device.start_next_operations()
     return {"message": "Operations started"}
 
 
@@ -159,7 +159,7 @@ async def charge_battery(charge_request: CDRequest):
     # device.discharger.clear()
     # new_chart_id()
 
-    device.charge(current, max_voltage)
+    await device.charge(current, max_voltage)
     logging.info("Charge battery request")
     return {"message": "Charge request received"}
 
@@ -173,7 +173,7 @@ async def discharge_battery(discharge_request: CDRequest):
     # device.discharger.clear()
     # new_chart_id()
 
-    device.discharge(current, min_voltage)
+    await device.discharge(current, min_voltage)
     logging.info("Discharge battery request")
     return {"message": "Discharge request received"}
 
