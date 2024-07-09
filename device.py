@@ -206,12 +206,15 @@ class DeviceController():
     #     logging.info(f"Measuring capacity")
     
 
-    def stop_all(self):
+    async def stop_all(self):
         # self._is_monitoring = False
         if self.charger.is_charging:
             self.charger.stop()
         if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
+        while not self.discharger.is_ready:
+            await asyncio.sleep(0.1)
+        
         self.batt_state = BatteryState.IDLE
         self.mode = DeviceMode.IDLE
         for op in self.operations:

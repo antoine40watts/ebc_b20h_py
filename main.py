@@ -125,7 +125,7 @@ async def start_op():
 @app.post("/stop-ops")
 async def stop_op():
     logging.info("POST request recieved : stop all operations")
-    device.stop_all()
+    await device.stop_all()
     return {"message": "Operations stopped"}
 
 
