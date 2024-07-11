@@ -8,10 +8,9 @@
 # https://tutorials-raspberrypi.com/control-all-gpios-with-the-raspberry-pi-rest-api-via-python/
 
 
-# from typing import Union
+from typing import Union
 # from enum import Enum
 from contextlib import asynccontextmanager
-# import asyncio
 import io
 import csv
 import uuid
@@ -25,6 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 from device import DeviceController
+from programs import ProgramStore
 
 from db import searchClients, getClient, updateClient, newClient, deleteClient, addRandomClient
 
@@ -33,14 +33,6 @@ from db import searchClients, getClient, updateClient, newClient, deleteClient, 
 # HOSTNAME = "127.0.0.1"
 
 logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
-
-
-class CDRequest(BaseModel):
-    cv: float
-    cc: float
-    dv: float
-    dc: float
-    nc: int = 1
 
 
 def new_chart_id():
@@ -65,9 +57,9 @@ async def lifespan(app: FastAPI):
 
 
 device = DeviceController()
+program_store = ProgramStore("programs.json")
 
 app = FastAPI(lifespan=lifespan)
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],    # Allow request from svelte frontend
@@ -81,7 +73,6 @@ app.add_middleware(
 # app.mount("/front", StaticFiles(directory="front/public", html=True), name="front")
 
 # templates = Jinja2Templates(directory="templates")
-
 
 
 # @app.get("/")
@@ -98,17 +89,62 @@ app.add_middleware(
 #     return templates.TemplateResponse("index.html", {"request": request, "hostname": HOSTNAME})
 
 
-class OpRequest(BaseModel):
-    operation: str
-    params: dict
+
+class RpcRequest(BaseModel):
+    jsonrpc: str
+    method: str
+    params: Union[list, dict]
+    id: int
 
 
-@app.post("/add-op")
-async def add_op(request: OpRequest):
-    logging.info("POST request recieved : add operation")
+@app.post("/rpc")
+async def rpc(request: RpcRequest):
+    logging.info("RPC request")
     print(request)
-    device.add_operation(request.operation, request.params)
-    return {"message": "Operation added: " + str(device.operations[-1])}
+
+    result = "RPC went well"
+
+    if request.method == "save_program":
+        prog_name = request.params["name"]
+        operations = [ {"type": op.type, "params": op.params} for op in device.operations ]
+        program_store.add(prog_name, operations)
+        result = f"Program '{prog_name}' saved"
+    elif request.method == "get_program_names":
+        result = program_store.get_names()
+    elif request.method == "get_program":
+        result = program_store.get(request.params["name"])
+    elif request.method == "delete_program":
+        prog_name = request.params["name"]
+        program_store.delete(prog_name)
+        result = f"Program '{prog_name}' deleted"
+    elif request.method == "add_operation":
+        operation = request.params["type"]
+        del request.params["type"]
+        device.add_operation(operation, request.params)
+        result = f"Operation added: {operation}"
+    elif request.method == "add_operations":
+        print(request)
+
+        for operation in request.params:
+            device.add_operation(operation["type"], operation["params"])
+        result = f"Operation added: {operation}"
+    else:
+        # In case of error
+        return {
+            "jsonrpc": "2.0",
+            "error": {
+                "code": -32601, # non-existent method
+                "message": f"Method {request.method} doesn't exist"
+            },
+            "id": request.id,
+        }
+
+    print(result)
+    return {
+            "jsonrpc": "2.0",
+            "result": result,
+            "id": request.id,
+        }
 
 
 @app.post("/start-ops")
@@ -139,6 +175,15 @@ async def clear_op():
     logging.info("POST request recieved : clear all operations")
     device.clear_operations()
     return {"message": "Operations cleared"}
+
+
+
+class CDRequest(BaseModel):
+    cv: float
+    cc: float
+    dv: float
+    dc: float
+    nc: int = 1
 
 
 @app.post("/measure")

@@ -145,13 +145,11 @@ def addBattery(client: Client, battery: Battery) -> None:
 
 
 def searchClients(keyword="") -> List:
-    print(f"{keyword=}")
     if keyword:
         client_list = session.query(Client).filter(or_(Client.nom.contains(keyword), Client.prenom.contains(keyword)))
     else:
         client_list = session.execute(select(Client)).all()
     
-    print(f"{client_list=}")
     return client_list
 
 

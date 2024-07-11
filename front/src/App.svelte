@@ -1,5 +1,5 @@
 <script>
-  import { deviceParameters, apiUrl } from "./stores.js";
+  import { apiUrl, deviceParameters } from "./stores.js";
   import { tick } from "svelte";
   import { tooltip } from "./tooltip.js";
 

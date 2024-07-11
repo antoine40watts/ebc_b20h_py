@@ -1,4 +1,4 @@
-import { apiUrl } from './stores.js';
+import { apiUrl } from "./stores";
 
 export async function dbAction(tablename, action, params) {
     console.log("DB ACTION", tablename, action, params);

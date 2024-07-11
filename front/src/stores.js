@@ -1,3 +1,4 @@
+import { makeRPCRequest } from './main';
 import { readable, writable, derived } from 'svelte/store';
 
 
@@ -14,26 +15,17 @@ let batteryCurrent = 0.0;
 let batteryMah = 0;
 let batteryCapacity = 0;
 let deviceError = false;
-let chartId = "";
 let operations = [];
 
 
 export async function updateData() {
+  const url = `${apiUrl}/get-state`;
+
   try {
-    // const url = `${apiUrl}/get-state?start=${arrayVoltage.length}&id=${chartId}`;
-    const url = `${apiUrl}/get-state`;
     const response = await fetch(url);
     if (response.ok) {
       deviceError = false;
       const responseData = await response.json();
-      // if ("chart_id" in responseData) {
-      //   // Reset chart data
-      //   chartId = responseData.chart_id;
-      //   arrayVoltage = [];
-      //   arrayCurrent = [];
-      //   arrayMah = [];
-      //   arrayTime = [];
-      // }
 
       deviceMode = responseData.device_mode
       batteryState = responseData.battery_state;
@@ -120,13 +112,13 @@ const initialDeviceParams = {
 export const deviceParameters = writable(initialDeviceParams);
 
 
-export const operationsChartDisplay = writable([])
+export const operationsChartDisplay = writable([]);
 
 
 export const chartDatapoint = derived([deviceData, operationsChartDisplay], ([$deviceData, $operationsChartDisplay]) => {
   const voltage = [];
   const current = [];
-  const mah = []
+  const mah = [];
   const time = [];
 
   $deviceData.operations.forEach((operation, index) => {
