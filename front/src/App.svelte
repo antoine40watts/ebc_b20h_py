@@ -69,13 +69,11 @@
 
 
 <main>
-  <!-- <IDBar /> -->
-
-  <div class="hide-on-screen print-header">
+  <div class="hide-on-screen print-header" style="margin: 8px">
     <img src={logo} alt="Logo 40Watts" style="height: 100px">
     <div>
-      <h1 style="font-size: 2.5em; margin: 0;">Diagnostic batterie Lithium-ion</h1>
-      <p style="font-size: 1.6em">{getDate()}</p>
+      <h1 style="font-size: 2.4em; margin: 0;">Diagnostic batterie Lithium-ion</h1>
+      <p style="font-size: 1.4em">{getDate()}</p>
     </div>
   </div>
 
