@@ -165,7 +165,7 @@ class DeviceController():
     
 
     async def charge(self, current, max_voltage, cont=False):
-        cutoff_current = 0.5
+        cutoff_current = 0.1
 
         if self.discharger.is_discharging:
             self.discharger.stop()

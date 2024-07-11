@@ -163,7 +163,9 @@
             return;
         }
         const response = await makeRPCRequest("save_program", {name: programNameValue});
-        getPrograms();
+        await getPrograms();
+        selectedOperation = programNameValue;
+
     }
     
     let selectedProgram = null;
