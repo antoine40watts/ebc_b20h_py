@@ -97,7 +97,6 @@ class DeviceController():
             elif self.mode == DeviceMode.IN_OPERATION:
                 current_op = self.operations[self.operation_idx]
                 # Check if operation is completed
-                logging.info(f"{self.batt_state=} {self.prev_state=}")
                 if current_op.type != "wait" and \
                         self.batt_state == BatteryState.IDLE and \
                         self.batt_state != self.prev_state:
