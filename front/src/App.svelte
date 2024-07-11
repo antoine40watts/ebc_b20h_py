@@ -3,15 +3,11 @@
   import { tick } from "svelte";
   import { tooltip } from "./tooltip.js";
 
-  import ClientPanel from "./lib/ClientPanel.svelte";
+  import ClientPanel from "./lib/ClientPanel2.svelte";
   import BatteryPanel from "./lib/BatteryPanel.svelte";
   import DiagPanel from "./lib/DiagPanel.svelte";
-
-  // import IDBar from "./lib/IDBar.svelte";
   import BattState from "./lib/BattState.svelte";
   import BattChart from "./lib/BattChart.svelte";
-  // import BattCapacity from "./lib/BattCapacity.svelte";
-  // import BattControl from "./lib/BattControl.svelte";
   import BattControl2 from "./lib/BattControl2.svelte";
   import ErrorModal from './lib/ErrorModal.svelte';
 

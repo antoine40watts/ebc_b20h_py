@@ -195,16 +195,6 @@ class DeviceController():
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
 
-    # def measure_capacity(self, request):
-    #     self.mode = DeviceMode.CAPACITY_TEST
-    #     self.params = request
-    #     self.charger.charge(request.cc, request.cv)
-    #     self.discharger.charge(cutoff_c = 0.1)
-    #     self.discharger.clear()
-    #     self.batt_capacity = 0
-    #     logging.info(f"Measuring capacity")
-    
-
     async def stop_all(self):
         # self._is_monitoring = False
         if self.charger.is_charging:

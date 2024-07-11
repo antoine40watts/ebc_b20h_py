@@ -90,5 +90,6 @@
         background-color: white;
         border-radius: 16px;
         border: 0;
+        padding: 2px;
     }
 </style>

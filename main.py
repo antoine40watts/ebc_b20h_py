@@ -27,6 +27,7 @@ from device import DeviceController
 from programs import ProgramStore
 
 from db import searchClients, getClient, updateClient, newClient, deleteClient, addRandomClient
+import notion
 
 
 # HOSTNAME = "battest.local"
@@ -170,57 +171,12 @@ async def delete_op(idx: int = -1):
     logging.info("POST request recieved : delete operation")
     device.delete_operation(idx)
 
+
 @app.post("/clear-ops")
 async def clear_op():
     logging.info("POST request recieved : clear all operations")
     device.clear_operations()
     return {"message": "Operations cleared"}
-
-
-
-class CDRequest(BaseModel):
-    cv: float
-    cc: float
-    dv: float
-    dc: float
-    nc: int = 1
-
-
-@app.post("/measure")
-async def measure_capacity(request: CDRequest):
-    new_chart_id()
-    device.measure_capacity(request)
-    logging.info("Measure battery capacity request")
-
-    return {"message": "measuring capacity"}
-
-
-@app.post("/charge")
-async def charge_battery(charge_request: CDRequest):
-    current = charge_request.cc
-    max_voltage = charge_request.cv
-
-    # Reset chart to t0
-    # device.discharger.clear()
-    # new_chart_id()
-
-    await device.charge(current, max_voltage)
-    logging.info("Charge battery request")
-    return {"message": "Charge request received"}
-
-
-@app.post("/discharge")
-async def discharge_battery(discharge_request: CDRequest):
-    current = discharge_request.dc
-    min_voltage = discharge_request.dv
-
-    # Reset chart to t0
-    # device.discharger.clear()
-    # new_chart_id()
-
-    await device.discharge(current, min_voltage)
-    logging.info("Discharge battery request")
-    return {"message": "Discharge request received"}
 
 
 @app.post("/stop")
@@ -306,32 +262,32 @@ async def db_action(request: DBAction):
     if request.action == "get":
         # Request a client with given 'id' from database
         if "id" in request.params and request.params["id"] > 0:
-            client = getClient(request.params["id"])
-            client.label = f"{client.nom} {client.prenom}"
+            client = notion.getClient(request.params["id"])
+            print(client)
+            # client.label = f"{client.nom} {client.prenom}"
             return client
         else:
             print("missing 'id' param")
-    elif request.action == "add":
-        # Add a new client
-        client = newClient(**request.params)
-        print(client)
-        return client
-    elif request.action == "update":
-        if "id" in request.params and request.params["id"] > 0:
-            client = updateClient(**request.params)
-            client.label = f"{client.nom} {client.prenom}"
-            return client
-        else:
-            print("missing 'id' param")
+
+    # elif request.action == "add":
+    #     # Add a new client
+    #     client = newClient(**request.params)
+    #     print(client)
+    #     return client
+    # elif request.action == "update":
+    #     if "id" in request.params and request.params["id"] > 0:
+    #         client = updateClient(**request.params)
+    #         client.label = f"{client.nom} {client.prenom}"
+    #         return client
+    #     else:
+    #         print("missing 'id' param")
 
 
 
 @app.get("/get-clients")
 async def get_clients(keyword: str = ""):
-    client_list = searchClients(keyword)
-    client_list = [
-            { "id": c.id, "label": f"{c.nom.upper()} {c.prenom}" }
-            for c in client_list ]
+    print(keyword)
+    client_list = notion.searchClients(keyword)
     return client_list
 
 
