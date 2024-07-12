@@ -217,7 +217,7 @@
                     </ol>
                     </div>
                 {/if}
-                <button class="prog-button" style="position: relative; bottom: 0; left: 250px;" on:click={handleDeleteProgram} title="Supprimer le programme" use:tooltip>
+                <button class="prog-button" style="position: relative; bottom: 8px; left: 250px;" on:click={handleDeleteProgram} title="Supprimer le programme" use:tooltip>
                     <i class="fa-regular fa-trash-can"></i>
                 </button>
             {:else}

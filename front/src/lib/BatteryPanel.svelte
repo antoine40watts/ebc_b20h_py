@@ -52,7 +52,7 @@
                     style="width: 50px"
                     min="4" max="16" bind:value={cells_s} on:input={updateParams} /></td>
             <td>Tension nominale</td>
-            <td style="font-weight: bold; font-size: 1.4em;">{v_table[cells_s]} V</td>
+            <td style="font-weight: bold"><p style="margin: 0">{v_table[cells_s]} V</p></td>
         </tr>
       </table>
 
@@ -61,25 +61,25 @@
 
 
 <style>
-    /* table td {
+    table td {
       height: 1.6em;
-    } */
+    }
 
     .align-center {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        /* flex-direction: column; */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-wrap: wrap;
+      /* flex-direction: column; */
     }
 
     input {
-        margin-left: 4px;
-        margin-right: 16px;
-        background-color: white;
-        border-radius: 16px;
-        border: 0;
-        padding: 2px;
+      text-align: left;
+      padding: 2px 8px 2px 8px;
+      margin-right: 16px;
+      background-color: white;
+      border-radius: 16px;
+      border: 0;
     }
 
     @media print {

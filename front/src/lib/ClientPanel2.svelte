@@ -137,7 +137,7 @@
             />
         </span>
     <div class="align-center" slot="details">
-        <table style="width:max-content">
+        <table style="width: 800px">
             <tr>
                 <td><label for="client-name">Nom</label></td>
                 <td colspan="3"><input type="text" id="client-name" name="client-name"
@@ -157,12 +157,12 @@
                 <td><input type="text" id="client-phone" name="client-phone"
                     bind:value={client_phone} placeholder="0000000000"
                     on:input={valueChanged}
-                    minlength="1" maxlength="16" size="20"/></td>
+                    minlength="1" maxlength="16" size="15"/></td>
                 <td><label for="client-email">E-mail</label></td>
                 <td><input type="text" id="client-email" name="client-email"
                     bind:value={client_email} placeholder="{defaultPlaceholder}"
                     on:input={valueChanged}
-                    minlength="1" maxlength="32" size="30"/></td>
+                    minlength="1" maxlength="32" size="28"/></td>
             </tr>
         </table>
 
@@ -197,7 +197,6 @@
     input {
         text-align: left;
         padding: 2px 8px 2px 8px;
-        margin-left: 4px;
         margin-right: 16px;
         background-color: white;
         border-radius: 16px;
@@ -232,8 +231,14 @@
     }
 
     @media print {
-    .hide-on-print {
-        display: none;
+        .align-center {
+            display: block;
+            position: relative;
+            left: 40px;
         }
-    }
+
+        .hide-on-print {
+            display: none;
+            }
+        }
 </style>
