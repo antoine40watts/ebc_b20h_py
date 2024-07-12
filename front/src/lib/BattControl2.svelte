@@ -16,7 +16,7 @@
     $: operations = $deviceData.operations;
 
     $: startDisabled = operations.length === 0 || $deviceData.device_mode != 0;
-    $: stopDisabled = $deviceData.device_mode === 0;
+    $: stopDisabled = $deviceData.battery_state === 0;
     $: clearDisabled = $deviceData.operations.length === 0;
     $: saveDisabled = $deviceData.operations.length === 0;
 

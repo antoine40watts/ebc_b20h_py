@@ -106,6 +106,8 @@ class DeviceController():
                     self.batt_capacity = self.discharger.mah
                     self.mode = DeviceMode.BETWEEN_OPERATIONS
                     logging.info("Operation completed")
+                    # Stopping operation
+                    await self.stop_all()
                 
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
@@ -115,11 +117,13 @@ class DeviceController():
                         current_op.t_end = time.time()
                         self.mode = DeviceMode.BETWEEN_OPERATIONS
                         logging.info("Operation completed (timed out)")
+                        # Stopping operation
+                        await self.stop_all()
 
             if self.batt_state != self.prev_state:
                 self.prev_state = self.batt_state
             
-            await asyncio.sleep(0.3)
+            await asyncio.sleep(0.5)
     
 
     def add_datapoint(self, datapoint):
@@ -169,12 +173,12 @@ class DeviceController():
         if self.discharger.is_discharging:
             self.discharger.stop()
             while not self.discharger.is_ready:
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.2)
 
         self.discharger.charge(cutoff_current, cont)
         self.charger.charge(current, max_voltage)
         while not self.discharger.is_ready:
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
 
         # self.batt_state = BatteryState.CHARGING
         logging.info(f"Charging at {current}Amps and {max_voltage}V max voltage")
@@ -186,11 +190,11 @@ class DeviceController():
         if self.discharger.is_charging:
             self.discharger.stop()
             while not self.discharger.is_ready:
-                await asyncio.sleep(0.1)
+                await asyncio.sleep(0.2)
 
         self.discharger.discharge(current, min_voltage, cont)
         while not self.discharger.is_ready:
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
         # self.batt_state = BatteryState.DISCHARGING
         logging.info(f"Discharging at {current}Amps down to {min_voltage}V")
     
@@ -202,7 +206,7 @@ class DeviceController():
         if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
         while not self.discharger.is_ready:
-            await asyncio.sleep(0.1)
+            await asyncio.sleep(0.2)
         
         self.batt_state = BatteryState.IDLE
         self.mode = DeviceMode.IDLE
