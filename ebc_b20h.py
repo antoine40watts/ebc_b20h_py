@@ -79,7 +79,7 @@ class EBC_B20H():
         if self.reattach:
             self.dev.attach_kernel_driver(0)
         if self.debug:
-            logging.info("[EBC_B20H] Destroying")
+            logging.info("[EBC-B20H] Destroying")
 
 
     def send(self, message: bytes):
@@ -216,13 +216,13 @@ class EBC_B20H():
         self.send(bytes([0x06, 0, 0, 0, 0, 0, 0]))
         if self.is_monitoring:
             await self.stop_monitoring()
-        logging.debug("[EBC_B20H] Disconnect command sent")
+        logging.debug("[EBC-B20H] Disconnect command sent")
     
 
     def wait_for_status(self, status: List):
         self.waiting_for_status = status
         self.is_ready = False
-        logging.debug("[EBC_B20H] Waiting for status", status)
+        logging.debug("[EBC-B20H] Waiting for status", status)
 
 
     def stop(self):
@@ -239,7 +239,7 @@ class EBC_B20H():
         else:
             self.is_discharging = False
             self.is_charging = False
-        logging.debug("[EBC_B20H] Stop command sent")
+        logging.debug("[EBC-B20H] Stop command sent")
 
 
     def discharge(self, current=1.0, cutoff_v=2.0, cont=False):
@@ -261,7 +261,7 @@ class EBC_B20H():
             self.wait_for_status([EBC_B20H.STATUS_DISCHARGING])
         else:
             self.is_discharging = True
-        logging.debug(f"[EBC_B20H] Discharging to {cutoff_v}V @ {current}Amps")
+        logging.debug(f"[EBC-B20H] Discharging to {cutoff_v}V @ {current}Amps")
 
 
     def charge(self, cutoff_c, cont=False):
@@ -280,7 +280,7 @@ class EBC_B20H():
             self.wait_for_status([EBC_B20H.STATUS_CHARGING])
         else:
             self.is_charging = True
-        logging.debug("[EBC_B20H] Charge command sent")
+        logging.debug("[EBC-B20H] Charge command sent")
 
 
     def adjust(self, current, cutoff_v):
@@ -293,7 +293,7 @@ class EBC_B20H():
         
         self.send(bytes(data))
         # self.waiting_for_status = EBC_B20H.STATUS_DISCHARGING
-        logging.debug("[EBC_B20H] Adjust command sent")
+        logging.debug("[EBC-B20H] Adjust command sent")
 
 
     def calibrate(self):
@@ -328,7 +328,7 @@ class EBC_B20H():
     
     
     async def _new_monitor(self, monitor_callback):
-        logging.info("EBC-B20H Monitoring process started")
+        logging.info("[EBC-B20H] Monitoring process started")
         cycle_sec = 2
         while self.is_monitoring:
             data = self.recieve()
@@ -340,17 +340,17 @@ class EBC_B20H():
                 
                 status = frame_data['status']
                 if status not in EBC_B20H.KNOWN_STATUS:
-                    logging.debug("[EBC_B20H] Unknown message status: " + str(frame_data))
+                    logging.debug("[EBC-B20H] Unknown message status: " + str(frame_data))
                     continue
 
                 if self.waiting_for_status:
                     if status in self.waiting_for_status:
                         self.waiting_for_status = []
                         self.is_ready = True
-                        logging.debug("[EBC_B20H] ready")
+                        logging.debug("[EBC-B20H] ready")
                     else:
                         self.is_ready = False
-                        logging.debug("[EBC_B20H] not ready")
+                        logging.debug("[EBC-B20H] not ready")
                 else:
                     self.is_ready = True
 
@@ -366,11 +366,11 @@ class EBC_B20H():
                 elif status == EBC_B20H.STATUS_END_OF_DISCHARGE:
                     self.is_discharging = False
                     self.is_charging = False
-                    logging.info("[EBC_B20H] End of discharge")
+                    logging.info("[EBC-B20H] End of discharge")
                 elif status == EBC_B20H.STATUS_END_OF_CHARGE:
                     self.is_charging = False
                     self.is_discharging = False
-                    logging.info("[EBC_B20H] End of charge")
+                    logging.info("[EBC-B20H] End of charge")
 
                 self.voltage = frame_data['voltage']
                 self.current = frame_data['current']
