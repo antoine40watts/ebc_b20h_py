@@ -212,8 +212,8 @@ class DeviceController():
             self.charger.stop()
         if self.discharger.is_charging or self.discharger.is_discharging:
             self.discharger.stop()
-        while not self.discharger.is_ready:
-            await asyncio.sleep(0.2)
+            while not self.discharger.is_ready:
+                await asyncio.sleep(0.2)
         
         # self.batt_state = BatteryState.IDLE
         self.mode = DeviceMode.IDLE
