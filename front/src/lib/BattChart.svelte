@@ -139,11 +139,9 @@
     
 
     @media print {
-        .container {
-            /* transform: rotate(90deg); */
-            /* display: flow; */
+        .chart-container {
             position: absolute;
-            top: 120px;
+            bottom: -100px;
             left: 0;
         }
     }

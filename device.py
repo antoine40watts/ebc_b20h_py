@@ -108,8 +108,8 @@ class DeviceController():
                     # Stopping operation
                     if self.discharger.is_charging or self.discharger.is_discharging:
                         self.discharger.stop()
-                    while not self.discharger.is_ready:
-                        await asyncio.sleep(0.2)
+                        while not self.discharger.is_ready:
+                            await asyncio.sleep(0.2)
                 
                 if "duration" in current_op.params and current_op.params["duration"] > 0:
                     if time.time() - current_op.t_start >= current_op.params["duration"]:
@@ -122,8 +122,8 @@ class DeviceController():
                         # Stopping operation
                         if self.discharger.is_charging or self.discharger.is_discharging:
                             self.discharger.stop()
-                        while not self.discharger.is_ready:
-                            await asyncio.sleep(0.2)
+                            while not self.discharger.is_ready:
+                                await asyncio.sleep(0.2)
 
             if self.batt_state != self.prev_state:
                 self.prev_state = self.batt_state
