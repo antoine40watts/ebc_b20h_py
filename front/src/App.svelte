@@ -107,7 +107,7 @@
       <i class="fa-solid fa-book"></i></button>
     &nbsp;
     <button on:click={printPage}
-      title="Impression" use:tooltip>
+      title="Impression">
       <i class="fa-solid fa-print"></i></button>
   </div>
   
@@ -125,7 +125,7 @@
     </div>
   </div>
 
-  <p id="version-label">v {import.meta.env.VITE_VERSION}</p>
+  <p class="hide-on-print" id="version-label">v {import.meta.env.VITE_VERSION}</p>
 
   <ErrorModal />
 </main>
@@ -151,7 +151,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    height: 380px;
+    height: 400px;
     margin: 25px 16px 0 16px;
   }
 
