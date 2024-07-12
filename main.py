@@ -33,7 +33,7 @@ import notion
 # HOSTNAME = "battest.local"
 # HOSTNAME = "127.0.0.1"
 
-logging.basicConfig(filename='server.log', level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.basicConfig(filename='server.log', filemode='w', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 
 def new_chart_id():

@@ -208,7 +208,7 @@ class DeviceController():
         while not self.discharger.is_ready:
             await asyncio.sleep(0.2)
         
-        self.batt_state = BatteryState.IDLE
+        # self.batt_state = BatteryState.IDLE
         self.mode = DeviceMode.IDLE
         for op in self.operations:
             op.status = OpStatus.PENDING
