@@ -103,7 +103,6 @@ class DeviceController():
                     current_op.status = OpStatus.FINISHED
                     current_op.result = (0, "completed")
                     current_op.t_end = time.time()
-                    self.batt_capacity = self.discharger.mah
                     self.mode = DeviceMode.BETWEEN_OPERATIONS
                     logging.info("Operation completed")
                     # Stopping operation
@@ -128,6 +127,8 @@ class DeviceController():
 
             if self.batt_state != self.prev_state:
                 self.prev_state = self.batt_state
+            
+            self.batt_capacity = self.discharger.mah
             
             await asyncio.sleep(0.5)
     

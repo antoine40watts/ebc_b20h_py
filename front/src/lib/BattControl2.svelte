@@ -387,15 +387,15 @@
         display: flex;
         background-color: rgb(191, 238, 207);
         padding: 14px;
-        border-radius: 24px;
+        border-radius: 24px 24px 0 0;
     }
 
     #operation-form {
-        width: 260px;
+        width: 280px;
         height: 180px;
         padding: 16px;
-        float: left;
-        position: relative;
+        /* float: left;
+        position: relative; */
     }
 
     dialog {
