@@ -81,4 +81,12 @@
         border: 0;
         padding: 2px;
     }
+
+    @media print {
+      .align-center {
+          display: block;
+          position: relative;
+          left: 40px;
+      }
+    }
 </style>

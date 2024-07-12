@@ -87,17 +87,16 @@
     }
 
     @media print {
-        .hide-on-print {
-            display: none;
-        }
-
         .accordion {
             border-radius: 50px;
-            /* flex: 1; */
         }
 
         .open {
             background-color: rgb(176, 236, 197);
+        }
+
+        .details {
+            padding-top: 2px;
         }
     }
 </style>

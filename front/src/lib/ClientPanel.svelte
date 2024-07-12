@@ -247,8 +247,14 @@
     }
 
     @media print {
-    .hide-on-print {
-        display: none;
+        .hide-on-print {
+            display: none;
+        }
+
+        .align-center {
+            display: block;
+            position: relative;
+            left: 40px;
         }
     }
 </style>
