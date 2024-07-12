@@ -155,6 +155,7 @@ async def start_op():
     # Clear old chart datapoints
     for op in device.operations:
         op.chart = []
+    device.discharger.is_ready = True
     await device.start_next_operations()
     return {"message": "Operations started"}
 

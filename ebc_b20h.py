@@ -347,10 +347,10 @@ class EBC_B20H():
                     if status in self.waiting_for_status:
                         self.waiting_for_status = []
                         self.is_ready = True
-                        logging.debug("[EBC-B20H] ready")
+                        logging.debug("[EBC-B20H] Ready")
                     else:
                         self.is_ready = False
-                        logging.debug("[EBC-B20H] not ready")
+                        logging.debug("[EBC-B20H] Not ready")
                 else:
                     self.is_ready = True
 
