@@ -10,8 +10,6 @@
     let cells_s = 10;
     let cells_p = 1;
     let original_capacity = 0;  // amps
-    let battery_year = 1999;
-    let battery_bike = "";
 
     let v_table = [0, 3.7, 7.4, 11.1, 12, 18.5, 22.2, 24, 29.6, 33.3, 36, 40.7, 44.4, 48, 51.8, 55.5, 60]
 
@@ -41,15 +39,6 @@
           <td><input type="text" id="battery-model" name="battery-model" size="16"
             placeholder="non renseigné"
             bind:value={battery_model} /></td>
-        </tr><tr>
-          <td><label for="battery-year">Année</label></td>
-          <td><input type="number" id="battery-year" name="battery-year" size="5"
-              bind:value={battery_year} 
-              min="1999" step="1" style="width: 70px;" /></td>
-          <td><label for="battery-bike">Vélo</label></td>
-          <td><input type="text" id="battery-bike" name="battery-bike" size="16"
-              placeholder="non renseigné"
-              bind:value={battery_bike} /></td>
         </tr><tr>
             <td><label for="battery-capacity">Capacité</label></td>
             <!-- <td><input type="text" id="battery-capacity" name="battery-capacity" size="8"/></td> -->
