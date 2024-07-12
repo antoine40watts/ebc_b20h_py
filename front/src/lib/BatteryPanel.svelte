@@ -61,9 +61,9 @@
 
 
 <style>
-    table td {
+    /* table td {
       height: 1.6em;
-    }
+    } */
 
     .align-center {
         display: flex;

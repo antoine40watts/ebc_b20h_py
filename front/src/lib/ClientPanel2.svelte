@@ -218,7 +218,7 @@
     }
 
     :global(.autocomplete-input) {
-        background-color: #fffc;
+        background-color: white;
         border-radius: 8px;
         /* padding: 0; */
     }
