@@ -36,12 +36,18 @@ Pour ajouter une connexion Wifi, éditer le fichier `wpa-supplicant` :
 
     sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
 
-Ajouter les lignes :
+Ajouter manuellement les lignes :
 
     network={
         ssid="testing"
         psk="testingPassword"
     }
+
+ou bien exécuter la commande :
+
+    wpa_passphrase votre-ssid votre-mot-de-passe >> /etc/wpa_supplicant/wpa_supplicant.conf
+
+Ne pas oublier de supprimer la ligne du mot de passe en clair, mise en commentaire dans le fichier `wpa_supplicant.conf`.
 
 Exécuter la ligne `wpa_cli -i wlan0 reconfigure` pour mettre à jour la configuration.
 
