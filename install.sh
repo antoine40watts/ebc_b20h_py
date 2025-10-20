@@ -110,7 +110,7 @@ EOL
 
     # Make the service file readable only by root
     chmod 644 "$SERVICE_FILE"
-    echo "Service
+    echo "Service file created"
 else
     echo "$SERVICE_FILE already exists"
 fi
