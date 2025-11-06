@@ -69,6 +69,7 @@ sudo apt-get install nodejs npm -y
 echo "Installing npm modules"
 cd front
 npm install
+npm i -D simple-svelte-autocomplete
 cd ..
 
 # Installing required Python modules
