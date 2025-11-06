@@ -48,13 +48,13 @@ async def lifespan(app: FastAPI):
 
     new_chart_id()
     logging.info("Starting device...")
-    print("starting device (print)")
     await device.start()
     logging.info("Device started")
     yield
 
+    logging.info("Device stopping...")
     await device.stop()
-    print("Bye !")
+    logging.info("Device stopped")
 
 
 device = DeviceController()
