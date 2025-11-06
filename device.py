@@ -47,7 +47,6 @@ class DeviceController():
 
     def __init__(self):
         self.mode = DeviceMode.IDLE
-        # self.prev_mode = self.mode
         self.batt_state = BatteryState.IDLE
         self.prev_state = self.batt_state
         self.batt_voltage = 0
@@ -55,14 +54,29 @@ class DeviceController():
         self.batt_capacity = 0
         self._running = False
         self.task = None
-        # self._is_monitoring = False
 
+        self.device_error = False # This flag is true if ANY device fails
+
+        # Initialize Discharger
+        try:
+            self.discharger = EBC_B20H()
+            logging.info("Successfully connected to physical EBC-B20H discharger.")
+        except ValueError as e: # This is the specific error raised by the driver
+            logging.warning(f"EBC-B20H not found ({e}). Falling back to virtual discharger.")
+            self.discharger = VirtEBC_B20H()
+            self.device_error = True
+
+        # Initialize Charger
         try:
             self.charger = Q2Charger()
-            self.discharger = EBC_B20H()
-        except:
+            logging.info("Successfully connected to physical Q2 charger on CAN bus.")
+        except (OSError, ImportError) as e: # Catches missing library or 'can0' interface down
+            logging.warning(f"Q2 Charger not found ({e}). Falling back to virtual charger.")
             self.charger = FakeQ2Charger()
-            self.discharger = VirtEBC_B20H()
+            self.device_error = True
+        except Exception as e: # Catch-all for other potential CAN errors, but still logs them
+            logging.error(f"An unexpected error occurred while initializing the Q2 Charger: {e}")
+            self.charger = FakeQ2Charger()
             self.device_error = True
         
         self.discharger.connect()
@@ -207,7 +221,6 @@ class DeviceController():
     
 
     async def stop_all(self):
-        # self._is_monitoring = False
         if self.charger.is_charging:
             self.charger.stop()
         if self.discharger.is_charging or self.discharger.is_discharging:
